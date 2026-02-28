@@ -3,10 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pool Finder — Logic Validator v5</title>
+  <title>Pool Finder</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap');
-
     :root {
       --bg: #0d0f12;
       --surface: #151820;
@@ -21,15 +19,30 @@
       --bad: #ff5f6d;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    /* Force dark theme even inside MyGeotab iframe */
+    #pf-root * { box-sizing: border-box; }
+    #pf-root, #pf-root section, #pf-root header, #pf-root div {
+      background-color: inherit;
+    }
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'DM Mono', monospace;
+    html, body {
+      background: #0d0f12 !important;
+      background-color: #0d0f12 !important;
+      color: #e8eaf0 !important;
+      font-family: 'Consolas', 'Courier New', monospace !important;
+      font-size: 13px !important;
+      line-height: 1.6 !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+    #pf-root {
+      background: #0d0f12;
+      color: #e8eaf0;
+      font-family: 'Consolas', 'Courier New', monospace;
       font-size: 13px;
       line-height: 1.6;
       padding: 40px 32px;
+      min-height: 100vh;
     }
 
     header {
@@ -37,7 +50,7 @@
       border-left: 3px solid var(--accent);
       padding-left: 20px;
     }
-    header h1 { font-family:'Syne',sans-serif; font-size:28px; font-weight:800; letter-spacing:-0.5px; }
+    header h1 { font-family:'Segoe UI',system-ui,-apple-system,sans-serif; font-size:28px; font-weight:800; letter-spacing:-0.5px; }
     header p { color:var(--muted); margin-top:6px; font-size:12px; }
 
     .badge {
@@ -59,7 +72,7 @@
 
     section { margin-bottom: 56px; }
     section h2 {
-      font-family:'Syne',sans-serif; font-size:13px; font-weight:700;
+      font-family:'Segoe UI',system-ui,-apple-system,sans-serif; font-size:13px; font-weight:700;
       text-transform:uppercase; letter-spacing:0.12em; color:var(--muted);
       margin-bottom:20px; display:flex; align-items:center; gap:10px;
     }
@@ -69,7 +82,7 @@
       background:var(--surface); border:1px solid var(--border); border-radius:8px;
       padding:24px 32px; display:flex; gap:40px; flex-wrap:wrap; align-items:center;
     }
-    .summary-stat .num { font-family:'Syne',sans-serif; font-size:34px; font-weight:800; color:var(--accent); }
+    .summary-stat .num { font-family:'Segoe UI',system-ui,-apple-system,sans-serif; font-size:34px; font-weight:800; color:var(--accent); }
     .summary-stat .num.gold { color:var(--gold); }
     .summary-stat .lbl { color:var(--muted); font-size:11px; margin-top:2px; }
 
@@ -87,7 +100,7 @@
     }
     .vehicle-card:hover { border-color:var(--accent); }
     .vehicle-card-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; }
-    .vehicle-name { font-family:'Syne',sans-serif; font-weight:700; font-size:13px; }
+    .vehicle-name { font-family:'Segoe UI',system-ui,-apple-system,sans-serif; font-weight:700; font-size:13px; }
     .vehicle-meta { color:var(--muted); font-size:11px; margin-top:3px; }
 
     .heatmap-wrap { overflow-x:auto; }
@@ -116,11 +129,11 @@
     .rec-card.tier-blue::before  { background:var(--neutral); }
 
     .rec-header { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; }
-    .rec-title { font-family:'Syne',sans-serif; font-weight:700; font-size:15px; margin-top:6px; }
+    .rec-title { font-family:'Segoe UI',system-ui,-apple-system,sans-serif; font-weight:700; font-size:15px; margin-top:6px; }
     .rec-subtitle { color:var(--muted); font-size:11px; margin-top:4px; }
 
     .rec-savings { text-align:right; flex-shrink:0; }
-    .rec-savings .annual { font-family:'Syne',sans-serif; font-size:24px; font-weight:800; color:var(--gold); }
+    .rec-savings .annual { font-family:'Segoe UI',system-ui,-apple-system,sans-serif; font-size:24px; font-weight:800; color:var(--gold); }
     .rec-savings .detail { color:var(--muted); font-size:10px; margin-top:2px; }
     .rec-savings .total3yr { color:var(--gold); margin-top:4px; font-size:10px; }
 
@@ -136,7 +149,7 @@
     .how-bar strong { color:var(--text); }
 
     .rec-stats { margin-top:16px; display:flex; gap:36px; flex-wrap:wrap; }
-    .rec-stat .val { font-family:'Syne',sans-serif; font-size:18px; font-weight:700; }
+    .rec-stat .val { font-family:'Segoe UI',system-ui,-apple-system,sans-serif; font-size:18px; font-weight:700; }
     .rec-stat .lbl { color:var(--muted); font-size:10px; }
 
     .pairs-table { width:100%; border-collapse:collapse; }
@@ -171,9 +184,10 @@
 </head>
 <body>
 
+<div id="pf-root">
 <header>
-  <h1>Pool Finder — Logic Validator v5</h1>
-  <p>10 vehicles · 1-hour resolution · Graph cliques + merge step · Sum-based elimination · $8–12k/yr op + $7k capital per vehicle removed</p>
+  <h1>Pool Finder</h1>
+  <p>Fleet Vehicle Pool Optimizer · Identify underutilized vehicles for consolidation · Estimated savings based on operational cost model</p>
 </header>
 
 <section>
@@ -863,5 +877,6 @@ function main() {
 
 main();
 </script>
+</div>
 </body>
 </html>
