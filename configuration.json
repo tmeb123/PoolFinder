@@ -1,0 +1,14 @@
+{
+    "name": "Pool Finder",
+    "supportEmail": "mebaneted@gmail.com",
+    "version": "1.0",
+    "items": [
+        {
+            "url": "https://mebaneted.github.io/pool-finder/index.html",
+            "path": "ActivityLink",
+            "menuName": {
+                "en": "Pool Finder"
+            }
+        }
+    ]
+}
