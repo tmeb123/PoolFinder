@@ -4,508 +4,371 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pool Finder</title>
-  <style>
-    /* ─────────────────────────────────────────────────────────────────
-       ALL STYLES SCOPED UNDER .pf-root
-       MyGeotab injects inline add-ins directly into its own DOM, so
-       `body` styles are ignored and Geotab's CSS wins.
-       Scoping every rule under .pf-root + using !important on layout-
-       critical properties gives us full isolation.
-    ───────────────────────────────────────────────────────────────── */
-
-    /* Box-sizing reset — scoped, not global */
-    .pf-root *, .pf-root *::before, .pf-root *::after {
-      box-sizing: border-box !important;
-      margin: 0 !important;
-      padding: 0 !important;
-    }
-
-    /* ── Tokens ── */
-    .pf-root {
-      --pf-blue:      #0075C9;
-      --pf-blue-dark: #005a9e;
-      --pf-blue-lt:   #e8f4fd;
-      --pf-green:     #1a7f4b;
-      --pf-green-lt:  #e6f4ec;
-      --pf-red:       #c0392b;
-      --pf-red-lt:    #fdf0ee;
-      --pf-gold:      #b45309;
-      --pf-gold-lt:   #fef3c7;
-      --pf-gray-50:   #f8f9fa;
-      --pf-gray-100:  #f1f3f5;
-      --pf-gray-200:  #e9ecef;
-      --pf-gray-300:  #dee2e6;
-      --pf-gray-500:  #868e96;
-      --pf-gray-700:  #495057;
-      --pf-gray-900:  #212529;
-      --pf-white:     #ffffff;
-      --pf-radius:    6px;
-      --pf-shadow:    0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
-      --pf-shadow-md: 0 4px 12px rgba(0,0,0,0.10);
-
-      /* Base styles for the root container */
-      display: block !important;
-      background: var(--pf-gray-50) !important;
-      color: var(--pf-gray-900) !important;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
-      font-size: 14px !important;
-      line-height: 1.5 !important;
-      max-width: 1200px !important;
-      margin: 0 auto !important;
-      padding: 24px 20px 60px !important;
-    }
-
-    /* ── Header ── */
-    .pf-root .app-header {
-      display: flex !important;
-      align-items: center !important;
-      gap: 14px !important;
-      padding: 20px 24px !important;
-      background: var(--pf-white) !important;
-      border-bottom: 3px solid var(--pf-blue) !important;
-      border-radius: var(--pf-radius) var(--pf-radius) 0 0 !important;
-      box-shadow: var(--pf-shadow) !important;
-      margin-bottom: 24px !important;
-    }
-    .pf-root .app-header .logo {
-      width: 40px !important;
-      height: 40px !important;
-      background: var(--pf-blue) !important;
-      border-radius: 8px !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      flex-shrink: 0 !important;
-    }
-    .pf-root .app-header .logo svg {
-      fill: white !important;
-      width: 22px !important;
-      height: 22px !important;
-    }
-    .pf-root .app-header h1 {
-      font-size: 20px !important;
-      font-weight: 700 !important;
-      color: var(--pf-gray-900) !important;
-      letter-spacing: -0.3px !important;
-      display: block !important;
-      margin: 0 !important;
-      padding: 0 !important;
-    }
-    .pf-root .app-header p {
-      font-size: 12px !important;
-      color: var(--pf-gray-500) !important;
-      margin-top: 2px !important;
-      display: block !important;
-    }
-
-    /* ── Section ── */
-    .pf-root .section {
-      margin-bottom: 28px !important;
-      display: block !important;
-    }
-    .pf-root .section-title {
-      font-size: 11px !important;
-      font-weight: 700 !important;
-      text-transform: uppercase !important;
-      letter-spacing: 0.08em !important;
-      color: var(--pf-gray-500) !important;
-      margin-bottom: 12px !important;
-      display: flex !important;
-      align-items: center !important;
-      gap: 8px !important;
-    }
-    .pf-root .section-title::after {
-      content: '' !important;
-      flex: 1 !important;
-      height: 1px !important;
-      background: var(--pf-gray-200) !important;
-    }
-
-    /* ── Summary bar ── */
-    .pf-root .summary-bar {
-      display: grid !important;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)) !important;
-      gap: 12px !important;
-      margin-bottom: 28px !important;
-    }
-    .pf-root .stat-card {
-      background: var(--pf-white) !important;
-      border: 1px solid var(--pf-gray-200) !important;
-      border-radius: var(--pf-radius) !important;
-      padding: 16px 20px !important;
-      box-shadow: var(--pf-shadow) !important;
-      display: block !important;
-    }
-    .pf-root .stat-card .num {
-      font-size: 28px !important;
-      font-weight: 800 !important;
-      color: var(--pf-blue) !important;
-      line-height: 1 !important;
-      display: block !important;
-    }
-    .pf-root .stat-card .num.green { color: var(--pf-green) !important; }
-    .pf-root .stat-card .num.gold  { color: var(--pf-gold) !important; }
-    .pf-root .stat-card .lbl {
-      font-size: 11px !important;
-      color: var(--pf-gray-500) !important;
-      margin-top: 4px !important;
-      font-weight: 500 !important;
-      display: block !important;
-    }
-
-    /* ── Rec cards ── */
-    .pf-root .rec-list {
-      display: flex !important;
-      flex-direction: column !important;
-      gap: 16px !important;
-    }
-    .pf-root .rec-card {
-      background: var(--pf-white) !important;
-      border: 1px solid var(--pf-gray-200) !important;
-      border-left: 4px solid var(--pf-blue) !important;
-      border-radius: var(--pf-radius) !important;
-      padding: 20px 24px !important;
-      box-shadow: var(--pf-shadow) !important;
-      display: block !important;
-    }
-    .pf-root .rec-card.high-value { border-left-color: var(--pf-gold) !important; }
-    .pf-root .rec-card.strong     { border-left-color: var(--pf-green) !important; }
-
-    .pf-root .rec-top {
-      display: flex !important;
-      justify-content: space-between !important;
-      align-items: flex-start !important;
-      flex-wrap: wrap !important;
-      gap: 16px !important;
-    }
-    .pf-root .rec-badges {
-      display: flex !important;
-      flex-wrap: wrap !important;
-      gap: 6px !important;
-      margin-bottom: 8px !important;
-    }
-
-    /* ── Badges ── */
-    .pf-root .badge {
-      display: inline-block !important;
-      padding: 2px 8px !important;
-      border-radius: 3px !important;
-      font-size: 11px !important;
-      font-weight: 600 !important;
-      letter-spacing: 0.04em !important;
-    }
-    .pf-root .badge-blue    { background: var(--pf-blue-lt) !important;  color: var(--pf-blue-dark) !important; }
-    .pf-root .badge-green   { background: var(--pf-green-lt) !important; color: var(--pf-green) !important; }
-    .pf-root .badge-red     { background: var(--pf-red-lt) !important;   color: var(--pf-red) !important; }
-    .pf-root .badge-gold    { background: var(--pf-gold-lt) !important;  color: var(--pf-gold) !important; }
-    .pf-root .badge-gray    { background: var(--pf-gray-100) !important; color: var(--pf-gray-700) !important; }
-    .pf-root .badge-pass    { background: var(--pf-green-lt) !important; color: var(--pf-green) !important; }
-    .pf-root .badge-fail    { background: var(--pf-red-lt) !important;   color: var(--pf-red) !important; }
-    .pf-root .badge-good    { background: var(--pf-green-lt) !important; color: var(--pf-green) !important; }
-    .pf-root .badge-bad     { background: var(--pf-red-lt) !important;   color: var(--pf-red) !important; }
-    .pf-root .badge-neutral { background: var(--pf-gray-100) !important; color: var(--pf-gray-700) !important; }
-
-    .pf-root .rec-title {
-      font-size: 16px !important;
-      font-weight: 700 !important;
-      color: var(--pf-gray-900) !important;
-      display: block !important;
-    }
-    .pf-root .rec-meta {
-      font-size: 12px !important;
-      color: var(--pf-gray-500) !important;
-      margin-top: 4px !important;
-      display: block !important;
-    }
-    .pf-root .rec-savings {
-      text-align: right !important;
-      flex-shrink: 0 !important;
-    }
-    .pf-root .rec-savings .big {
-      font-size: 26px !important;
-      font-weight: 800 !important;
-      color: var(--pf-green) !important;
-      line-height: 1 !important;
-      display: block !important;
-    }
-    .pf-root .rec-savings .sub {
-      font-size: 11px !important;
-      color: var(--pf-gray-500) !important;
-      margin-top: 4px !important;
-      display: block !important;
-    }
-    .pf-root .rec-savings .total {
-      font-size: 12px !important;
-      font-weight: 600 !important;
-      color: var(--pf-gold) !important;
-      margin-top: 3px !important;
-      display: block !important;
-    }
-
-    /* ── Vehicle chips ── */
-    .pf-root .chip-row {
-      display: flex !important;
-      flex-wrap: wrap !important;
-      gap: 6px !important;
-      margin-top: 14px !important;
-    }
-    .pf-root .chip {
-      padding: 4px 10px !important;
-      border-radius: 4px !important;
-      font-size: 12px !important;
-      font-weight: 500 !important;
-      border: 1px solid !important;
-      display: inline-block !important;
-    }
-    .pf-root .chip-keep {
-      background: var(--pf-green-lt) !important;
-      color: var(--pf-green) !important;
-      border-color: #a7d7bc !important;
-    }
-    .pf-root .chip-elim {
-      background: var(--pf-red-lt) !important;
-      color: var(--pf-red) !important;
-      border-color: #f0b8b2 !important;
-      text-decoration: line-through !important;
-      opacity: 0.85 !important;
-    }
-
-    /* ── Why box ── */
-    .pf-root .why-box {
-      margin-top: 14px !important;
-      background: var(--pf-gray-50) !important;
-      border: 1px solid var(--pf-gray-200) !important;
-      border-radius: 4px !important;
-      padding: 10px 14px !important;
-      font-size: 12px !important;
-      color: var(--pf-gray-700) !important;
-      line-height: 1.7 !important;
-      display: block !important;
-    }
-
-    /* ── Savings breakdown ── */
-    .pf-root .savings-row {
-      display: flex !important;
-      flex-wrap: wrap !important;
-      gap: 24px !important;
-      margin-top: 14px !important;
-      padding-top: 14px !important;
-      border-top: 1px solid var(--pf-gray-200) !important;
-    }
-    .pf-root .savings-item .val {
-      font-size: 18px !important;
-      font-weight: 700 !important;
-      color: var(--pf-gray-900) !important;
-      display: block !important;
-    }
-    .pf-root .savings-item .lbl {
-      font-size: 11px !important;
-      color: var(--pf-gray-500) !important;
-      display: block !important;
-    }
-
-    /* ── Vehicle grid ── */
-    .pf-root .vehicle-grid {
-      display: grid !important;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
-      gap: 12px !important;
-    }
-    .pf-root .vehicle-card {
-      background: var(--pf-white) !important;
-      border: 1px solid var(--pf-gray-200) !important;
-      border-radius: var(--pf-radius) !important;
-      padding: 14px 16px !important;
-      box-shadow: var(--pf-shadow) !important;
-      display: block !important;
-    }
-    .pf-root .vehicle-card-top {
-      display: flex !important;
-      justify-content: space-between !important;
-      align-items: flex-start !important;
-      margin-bottom: 10px !important;
-    }
-    .pf-root .vehicle-name {
-      font-size: 13px !important;
-      font-weight: 700 !important;
-      color: var(--pf-gray-900) !important;
-      display: block !important;
-    }
-    .pf-root .vehicle-meta {
-      font-size: 11px !important;
-      color: var(--pf-gray-500) !important;
-      margin-top: 2px !important;
-      display: block !important;
-    }
-
-    /* ── Heatmap ── */
-    .pf-root .heatmap {
-      border-collapse: collapse !important;
-      width: 100% !important;
-    }
-    .pf-root .heatmap th {
-      font-size: 9px !important;
-      font-weight: 600 !important;
-      color: var(--pf-gray-500) !important;
-      text-align: center !important;
-      padding: 2px 1px !important;
-      letter-spacing: 0.02em !important;
-    }
-    .pf-root .heatmap .row-label {
-      font-size: 10px !important;
-      color: var(--pf-gray-500) !important;
-      padding-right: 6px !important;
-      white-space: nowrap !important;
-      font-weight: 500 !important;
-    }
-    .pf-root .heatmap td.cell {
-      height: 20px !important;
-      border: 1px solid var(--pf-gray-100) !important;
-      border-radius: 2px !important;
-      cursor: default !important;
-      position: relative !important;
-    }
-    .pf-root .heatmap td.cell:hover::after {
-      content: attr(data-tip) !important;
-      position: absolute !important;
-      bottom: 110% !important;
-      left: 50% !important;
-      transform: translateX(-50%) !important;
-      background: var(--pf-gray-900) !important;
-      color: white !important;
-      padding: 3px 7px !important;
-      border-radius: 3px !important;
-      font-size: 10px !important;
-      white-space: nowrap !important;
-      z-index: 9999 !important;
-      pointer-events: none !important;
-    }
-
-    /* ── Pairs table ── */
-    .pf-root .data-table {
-      width: 100% !important;
-      border-collapse: collapse !important;
-      background: var(--pf-white) !important;
-      border-radius: var(--pf-radius) !important;
-      overflow: hidden !important;
-      box-shadow: var(--pf-shadow) !important;
-    }
-    .pf-root .data-table th {
-      background: var(--pf-gray-50) !important;
-      border-bottom: 2px solid var(--pf-gray-200) !important;
-      text-align: left !important;
-      padding: 10px 14px !important;
-      font-size: 11px !important;
-      font-weight: 700 !important;
-      text-transform: uppercase !important;
-      letter-spacing: 0.06em !important;
-      color: var(--pf-gray-500) !important;
-    }
-    .pf-root .data-table td {
-      padding: 9px 14px !important;
-      border-bottom: 1px solid var(--pf-gray-100) !important;
-      font-size: 13px !important;
-      vertical-align: middle !important;
-    }
-    .pf-root .data-table tr:last-child td { border-bottom: none !important; }
-    .pf-root .data-table tr:hover td { background: var(--pf-gray-50) !important; }
-    .pf-root .data-table tr.pool-row td:first-child     { border-left: 3px solid var(--pf-green) !important; }
-    .pf-root .data-table tr.conflict-row td:first-child { border-left: 3px solid var(--pf-red) !important; }
-
-    .pf-root .bar-wrap {
-      display: flex !important;
-      align-items: center !important;
-      gap: 8px !important;
-    }
-    .pf-root .bar {
-      height: 6px !important;
-      border-radius: 3px !important;
-      background: var(--pf-gray-200) !important;
-      width: 80px !important;
-      overflow: hidden !important;
-      display: block !important;
-    }
-    .pf-root .bar-fill {
-      height: 100% !important;
-      border-radius: 3px !important;
-      transition: width 0.3s !important;
-      display: block !important;
-    }
-
-    /* ── Validation ── */
-    .pf-root .val-list {
-      display: flex !important;
-      flex-direction: column !important;
-      gap: 8px !important;
-    }
-    .pf-root .val-item {
-      display: flex !important;
-      align-items: center !important;
-      gap: 12px !important;
-      background: var(--pf-white) !important;
-      border: 1px solid var(--pf-gray-200) !important;
-      border-radius: var(--pf-radius) !important;
-      padding: 10px 14px !important;
-      font-size: 13px !important;
-    }
-    .pf-root .val-item .check {
-      font-size: 16px !important;
-      flex-shrink: 0 !important;
-    }
-    .pf-root .val-item .label {
-      flex: 1 !important;
-      color: var(--pf-gray-700) !important;
-    }
-
-    /* ── Log ── */
-    .pf-root .log {
-      background: var(--pf-gray-900) !important;
-      border-radius: var(--pf-radius) !important;
-      padding: 16px !important;
-      font-family: "Consolas", "Courier New", monospace !important;
-      font-size: 11px !important;
-      color: #adb5bd !important;
-      max-height: 220px !important;
-      overflow-y: auto !important;
-      line-height: 1.8 !important;
-      display: block !important;
-    }
-    .pf-root .log .ok   { color: #69db7c !important; display: block !important; }
-    .pf-root .log .err  { color: #ff6b6b !important; display: block !important; }
-    .pf-root .log .info { color: #74c0fc !important; display: block !important; }
-    .pf-root .log .warn { color: #ffd43b !important; display: block !important; }
-
-    /* ── Loading overlay ── */
-    .pf-root .loading {
-      text-align: center !important;
-      padding: 60px 20px !important;
-      color: var(--pf-gray-500) !important;
-      display: block !important;
-    }
-    .pf-root .spinner {
-      width: 32px !important;
-      height: 32px !important;
-      border: 3px solid var(--pf-gray-200) !important;
-      border-top-color: var(--pf-blue) !important;
-      border-radius: 50% !important;
-      animation: pf-spin 0.8s linear infinite !important;
-      margin: 0 auto 16px !important;
-      display: block !important;
-    }
-    @keyframes pf-spin { to { transform: rotate(360deg); } }
-
-    /* ── Responsive ── */
-    @media (max-width: 600px) {
-      .pf-root { padding: 12px 12px 40px !important; }
-      .pf-root .rec-top { flex-direction: column !important; }
-      .pf-root .rec-savings { text-align: left !important; }
-      .pf-root .summary-bar { grid-template-columns: repeat(2, 1fr) !important; }
-    }
-  </style>
 </head>
 <body>
-<!-- .pf-root is the isolation wrapper — everything scoped inside it -->
-<div class="pf-root">
 
+<!--
+  SHADOW DOM ISOLATION
+  ====================
+  MyGeotab custom page add-ins inject HTML directly into their own DOM,
+  meaning Geotab's stylesheet overrides everything we write. The only
+  bulletproof solution is Shadow DOM: a hard browser-enforced boundary
+  where our CSS is completely invisible to the host page and vice versa.
+
+  How it works:
+    1. We place a single empty <div id="pf-host"> in the body.
+    2. JS attaches a shadow root to it (mode:'open').
+    3. All our HTML + CSS lives inside that shadow root.
+    4. Geotab's CSS cannot cross the shadow boundary. Ever.
+-->
+<div id="pf-host"></div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// SHADOW ROOT SETUP — inject all HTML + CSS into an isolated shadow DOM
+// ─────────────────────────────────────────────────────────────────────────────
+const host = document.getElementById('pf-host');
+const shadow = host.attachShadow({ mode: 'open' });
+
+// All CSS lives here — completely isolated from MyGeotab's styles
+const style = document.createElement('style');
+style.textContent = `
+  /* ── Reset (safe — only affects shadow DOM) ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── Tokens ── */
+  :host {
+    display: block;
+    --blue:      #0075C9;
+    --blue-dark: #005a9e;
+    --blue-lt:   #e8f4fd;
+    --green:     #1a7f4b;
+    --green-lt:  #e6f4ec;
+    --red:       #c0392b;
+    --red-lt:    #fdf0ee;
+    --gold:      #b45309;
+    --gold-lt:   #fef3c7;
+    --gray-50:   #f8f9fa;
+    --gray-100:  #f1f3f5;
+    --gray-200:  #e9ecef;
+    --gray-300:  #dee2e6;
+    --gray-500:  #868e96;
+    --gray-700:  #495057;
+    --gray-900:  #212529;
+    --white:     #ffffff;
+    --radius:    6px;
+    --shadow:    0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.10);
+  }
+
+  .app {
+    background: var(--gray-50);
+    color: var(--gray-900);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px 20px 60px;
+  }
+
+  /* ── Header ── */
+  .app-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 20px 24px;
+    background: var(--white);
+    border-bottom: 3px solid var(--blue);
+    border-radius: var(--radius) var(--radius) 0 0;
+    box-shadow: var(--shadow);
+    margin-bottom: 24px;
+  }
+  .logo {
+    width: 40px; height: 40px;
+    background: var(--blue);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .logo svg { fill: white; width: 22px; height: 22px; }
+  .app-header h1 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--gray-900);
+    letter-spacing: -0.3px;
+  }
+  .app-header p { font-size: 12px; color: var(--gray-500); margin-top: 2px; }
+
+  /* ── Section ── */
+  .section { margin-bottom: 28px; }
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--gray-500);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--gray-200);
+  }
+
+  /* ── Summary bar ── */
+  .summary-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .stat-card {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    box-shadow: var(--shadow);
+  }
+  .stat-card .num {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--blue);
+    line-height: 1;
+  }
+  .stat-card .num.green { color: var(--green); }
+  .stat-card .num.gold  { color: var(--gold); }
+  .stat-card .lbl {
+    font-size: 11px;
+    color: var(--gray-500);
+    margin-top: 4px;
+    font-weight: 500;
+  }
+
+  /* ── Rec cards ── */
+  .rec-list { display: flex; flex-direction: column; gap: 16px; }
+  .rec-card {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-left: 4px solid var(--blue);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    box-shadow: var(--shadow);
+  }
+  .rec-card.high-value { border-left-color: var(--gold); }
+  .rec-card.strong     { border-left-color: var(--green); }
+
+  .rec-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .rec-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+
+  /* ── Badges ── */
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+  .badge-blue    { background: var(--blue-lt);  color: var(--blue-dark); }
+  .badge-green   { background: var(--green-lt); color: var(--green); }
+  .badge-red     { background: var(--red-lt);   color: var(--red); }
+  .badge-gold    { background: var(--gold-lt);  color: var(--gold); }
+  .badge-gray    { background: var(--gray-100); color: var(--gray-700); }
+  .badge-pass    { background: var(--green-lt); color: var(--green); }
+  .badge-fail    { background: var(--red-lt);   color: var(--red); }
+  .badge-good    { background: var(--green-lt); color: var(--green); }
+  .badge-bad     { background: var(--red-lt);   color: var(--red); }
+  .badge-neutral { background: var(--gray-100); color: var(--gray-700); }
+
+  .rec-title { font-size: 16px; font-weight: 700; color: var(--gray-900); }
+  .rec-meta  { font-size: 12px; color: var(--gray-500); margin-top: 4px; }
+
+  .rec-savings { text-align: right; flex-shrink: 0; }
+  .rec-savings .big {
+    font-size: 26px; font-weight: 800; color: var(--green); line-height: 1;
+  }
+  .rec-savings .sub   { font-size: 11px; color: var(--gray-500); margin-top: 4px; }
+  .rec-savings .total { font-size: 12px; font-weight: 600; color: var(--gold); margin-top: 3px; }
+
+  /* ── Chips ── */
+  .chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+  .chip {
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid;
+    display: inline-block;
+  }
+  .chip-keep { background: var(--green-lt); color: var(--green); border-color: #a7d7bc; }
+  .chip-elim { background: var(--red-lt); color: var(--red); border-color: #f0b8b2; text-decoration: line-through; opacity: 0.85; }
+
+  /* ── Why box ── */
+  .why-box {
+    margin-top: 14px;
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: 4px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--gray-700);
+    line-height: 1.7;
+  }
+
+  /* ── Savings row ── */
+  .savings-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--gray-200);
+  }
+  .savings-item .val { font-size: 18px; font-weight: 700; color: var(--gray-900); }
+  .savings-item .lbl { font-size: 11px; color: var(--gray-500); }
+
+  /* ── Vehicle grid ── */
+  .vehicle-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+  }
+  .vehicle-card {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    box-shadow: var(--shadow);
+  }
+  .vehicle-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+  }
+  .vehicle-name { font-size: 13px; font-weight: 700; color: var(--gray-900); }
+  .vehicle-meta { font-size: 11px; color: var(--gray-500); margin-top: 2px; }
+
+  /* ── Heatmap ── */
+  .heatmap { border-collapse: collapse; width: 100%; }
+  .heatmap th {
+    font-size: 9px; font-weight: 600; color: var(--gray-500);
+    text-align: center; padding: 2px 1px; letter-spacing: 0.02em;
+  }
+  .heatmap .row-label {
+    font-size: 10px; color: var(--gray-500);
+    padding-right: 6px; white-space: nowrap; font-weight: 500;
+  }
+  .heatmap td.cell {
+    height: 20px;
+    border: 1px solid var(--gray-100);
+    border-radius: 2px;
+    cursor: default;
+    position: relative;
+  }
+  .heatmap td.cell:hover::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: 110%; left: 50%; transform: translateX(-50%);
+    background: var(--gray-900); color: white;
+    padding: 3px 7px; border-radius: 3px;
+    font-size: 10px; white-space: nowrap;
+    z-index: 100; pointer-events: none;
+  }
+
+  /* ── Pairs table ── */
+  .data-table {
+    width: 100%; border-collapse: collapse;
+    background: var(--white);
+    border-radius: var(--radius); overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .data-table th {
+    background: var(--gray-50);
+    border-bottom: 2px solid var(--gray-200);
+    text-align: left; padding: 10px 14px;
+    font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--gray-500);
+  }
+  .data-table td {
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--gray-100);
+    font-size: 13px; vertical-align: middle;
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:hover td { background: var(--gray-50); }
+  .data-table tr.pool-row td:first-child     { border-left: 3px solid var(--green); }
+  .data-table tr.conflict-row td:first-child { border-left: 3px solid var(--red); }
+
+  .bar-wrap { display: flex; align-items: center; gap: 8px; }
+  .bar { height: 6px; border-radius: 3px; background: var(--gray-200); width: 80px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
+
+  /* ── Validation ── */
+  .val-list { display: flex; flex-direction: column; gap: 8px; }
+  .val-item {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    padding: 10px 14px; font-size: 13px;
+  }
+  .val-item .check { font-size: 16px; flex-shrink: 0; }
+  .val-item .label { flex: 1; color: var(--gray-700); }
+
+  /* ── Log ── */
+  .log {
+    background: var(--gray-900);
+    border-radius: var(--radius);
+    padding: 16px;
+    font-family: "Consolas", "Courier New", monospace;
+    font-size: 11px; color: #adb5bd;
+    max-height: 220px; overflow-y: auto; line-height: 1.8;
+  }
+  .log .ok   { color: #69db7c; display: block; }
+  .log .err  { color: #ff6b6b; display: block; }
+  .log .info { color: #74c0fc; display: block; }
+  .log .warn { color: #ffd43b; display: block; }
+
+  /* ── Loading ── */
+  .loading { text-align: center; padding: 60px 20px; color: var(--gray-500); }
+  .spinner {
+    width: 32px; height: 32px;
+    border: 3px solid var(--gray-200);
+    border-top-color: var(--blue);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+    display: block;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Responsive ── */
+  @media (max-width: 600px) {
+    .app { padding: 12px 12px 40px; }
+    .rec-top { flex-direction: column; }
+    .rec-savings { text-align: left; }
+    .summary-bar { grid-template-columns: repeat(2, 1fr); }
+  }
+`;
+shadow.appendChild(style);
+
+// ── Build the HTML inside the shadow root ──
+const app = document.createElement('div');
+app.className = 'app';
+app.innerHTML = `
   <!-- Header -->
   <div class="app-header">
     <div class="logo">
@@ -514,7 +377,7 @@
       </svg>
     </div>
     <div>
-      <h1>Pool Finder v2</h1>
+      <h1>Pool Finder</h1>
       <p>Fleet vehicle pool optimizer · Identify underutilized vehicles for consolidation · Savings model: $8–12k/yr operating + $7k capital per vehicle removed</p>
     </div>
   </div>
@@ -573,10 +436,15 @@
     <div class="section-title">Debug Log</div>
     <div class="log" id="log"></div>
   </div>
+`;
+shadow.appendChild(app);
 
-</div><!-- /.pf-root -->
+// ─────────────────────────────────────────────────────────────────────────────
+// IMPORTANT: All getElementById calls must query inside the shadow root,
+// not document — because our elements live in the shadow DOM, not the main DOM.
+// ─────────────────────────────────────────────────────────────────────────────
+function $(id) { return shadow.getElementById(id); }
 
-<script>
 // ═══════════════════════════════════════════════════════════════════
 // CONFIG
 // ═══════════════════════════════════════════════════════════════════
@@ -598,7 +466,7 @@ const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 // ═══════════════════════════════════════════════════════════════════
 // LOGGING
 // ═══════════════════════════════════════════════════════════════════
-const logEl = document.getElementById('log');
+const logEl = $('log');
 function log(msg, t='info') {
   const d = document.createElement('div');
   d.className = t;
@@ -608,7 +476,7 @@ function log(msg, t='info') {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// TRIP GENERATION  — Geotab shape: { start, stop } ISO strings
+// TRIP GENERATION
 // ═══════════════════════════════════════════════════════════════════
 function mkTrip(date, sh, eh) {
   const s = new Date(date); s.setHours(sh, 0, 0, 0);
@@ -628,7 +496,6 @@ function genTrips(fn, days = CFG.windowDays) {
   return out;
 }
 
-// ── Patterns ──
 const P = {
   vanDaytime:       (d, dow) => (dow >= 1 && dow <= 5) ? [mkTrip(d, 8, 17)]  : [],
   vanDaytime2:      (d, dow) => (dow >= 1 && dow <= 5) ? [mkTrip(d, 8, 17)]  : [],
@@ -643,7 +510,7 @@ const P = {
 };
 
 // ═══════════════════════════════════════════════════════════════════
-// 10 VEHICLES
+// VEHICLES
 // ═══════════════════════════════════════════════════════════════════
 const VEHICLES = [
   { id:'V01', name:'Van 01 — Facilities', type:'Van',    dept:'Facilities', location:'Depot North', pattern:P.vanDaytime,       note:'Mon–Fri 08:00–17:00' },
@@ -659,7 +526,7 @@ const VEHICLES = [
 ];
 
 // ═══════════════════════════════════════════════════════════════════
-// CORE: 1-HOUR UTILIZATION VECTOR (168 slots)
+// CORE ALGORITHMS
 // ═══════════════════════════════════════════════════════════════════
 function buildVector(trips, windowDays = CFG.windowDays) {
   const wdc = new Array(7).fill(0), now = new Date();
@@ -686,9 +553,6 @@ function buildVector(trips, windowDays = CFG.windowDays) {
   });
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// CORE: COSINE OVERLAP
-// ═══════════════════════════════════════════════════════════════════
 function cosineOverlap(vA, vB) {
   let dot = 0, mA = 0, mB = 0;
   for (let i = 0; i < vA.length; i++) {
@@ -698,26 +562,17 @@ function cosineOverlap(vA, vB) {
   return d === 0 ? 0 : dot / d;
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// CORE: SUM VECTORS
-// ═══════════════════════════════════════════════════════════════════
 function sumVectors(vecs) {
   return vecs[0].map((_, i) => vecs.reduce((s, v) => s + v[i], 0));
 }
 function peakOf(sumVec) { return Math.max(...sumVec); }
 
-// ═══════════════════════════════════════════════════════════════════
-// CORE: ELIGIBILITY
-// ═══════════════════════════════════════════════════════════════════
 function pairEligible(vA, vB) {
   if (CFG.requireSameType     && vA.type     !== vB.type)     return false;
   if (CFG.requireSameLocation && vA.location !== vB.location) return false;
   return true;
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// CORE: SAVINGS
-// ═══════════════════════════════════════════════════════════════════
 function calcSavings(n) {
   return {
     n,
@@ -728,9 +583,6 @@ function calcSavings(n) {
 }
 function fmt(n) { return '$' + Math.round(n).toLocaleString(); }
 
-// ═══════════════════════════════════════════════════════════════════
-// ALGORITHM STEP 1: Complementary pairs
-// ═══════════════════════════════════════════════════════════════════
 function findComplementaryPairs(vehicles, vm) {
   const pairs = [];
   const n = vehicles.length;
@@ -752,18 +604,13 @@ function findComplementaryPairs(vehicles, vm) {
   return pairs;
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// ALGORITHM STEP 2: Grow pairs into maximal cliques (Bron-Kerbosch)
-// ═══════════════════════════════════════════════════════════════════
 function findCliques(vehicles, pairs) {
   const vById = Object.fromEntries(vehicles.map(v => [v.id, v]));
   const adj = {};
   vehicles.forEach(v => { adj[v.id] = new Set(); });
   pairs.forEach(p => { adj[p.idA].add(p.idB); adj[p.idB].add(p.idA); });
-
   const candidates = vehicles.filter(v => adj[v.id].size > 0).map(v => v.id);
   const cliques = [];
-
   function bronKerbosch(R, P, X) {
     if (P.length === 0 && X.length === 0) {
       if (R.length >= 2) cliques.push([...R].sort());
@@ -782,14 +629,10 @@ function findCliques(vehicles, pairs) {
       X = [...X, v];
     }
   }
-
   bronKerbosch([], candidates, []);
   return cliques.map(ids => ({ ids, members: ids.map(id => vById[id]) }));
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// ALGORITHM STEP 3: Merge overlapping cliques
-// ═══════════════════════════════════════════════════════════════════
 function mergeCliques(cliques, vById) {
   let groups = cliques.map(c => new Set(c.ids));
   let merged = true;
@@ -803,9 +646,7 @@ function mergeCliques(cliques, vById) {
         const union        = new Set([...groups[i], ...next[j]]);
         const shareRatio = intersection.size / union.size;
         if (shareRatio >= CFG.mergeShareThreshold) {
-          next[j] = union;
-          absorbed = true;
-          merged = true;
+          next[j] = union; absorbed = true; merged = true;
           log(`Merged cliques — intersection ${intersection.size}/${union.size} (${(shareRatio*100).toFixed(0)}% shared) → group [${[...union].sort().join(',')}]`, 'warn');
           break;
         }
@@ -820,15 +661,12 @@ function mergeCliques(cliques, vById) {
   });
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// ALGORITHM STEP 4: Score merged groups
-// ═══════════════════════════════════════════════════════════════════
 function scoreGroups(groups, vm) {
   const results = [];
   for (const group of groups) {
-    const vecs   = group.members.map(v => vm[v.id]);
+    const vecs = group.members.map(v => vm[v.id]);
     const sumVec = sumVectors(vecs);
-    const peak   = peakOf(sumVec);
+    const peak = peakOf(sumVec);
     const needed = Math.ceil(peak);
     const eliminable = group.members.length - needed;
     if (eliminable < 1) {
@@ -836,11 +674,8 @@ function scoreGroups(groups, vm) {
       continue;
     }
     let olSum = 0, olCount = 0;
-    for (let i = 0; i < vecs.length; i++) {
-      for (let j = i + 1; j < vecs.length; j++) {
-        olSum += cosineOverlap(vecs[i], vecs[j]); olCount++;
-      }
-    }
+    for (let i = 0; i < vecs.length; i++)
+      for (let j = i + 1; j < vecs.length; j++) { olSum += cosineOverlap(vecs[i], vecs[j]); olCount++; }
     const avgOverlap = olCount > 0 ? olSum / olCount : 0;
     const sv = calcSavings(eliminable);
     results.push({ group, sumVec, peak, needed, eliminable, avgOverlap, savings: sv });
@@ -851,17 +686,16 @@ function scoreGroups(groups, vm) {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// RENDER: HEATMAP
+// RENDER FUNCTIONS
 // ═══════════════════════════════════════════════════════════════════
 function aggregateTo4h(vec1h) {
   const out = [];
-  for (let day = 0; day < 7; day++) {
+  for (let day = 0; day < 7; day++)
     for (let block = 0; block < 6; block++) {
       let sum = 0;
       for (let h = 0; h < 4; h++) sum += vec1h[day * 24 + block * 4 + h];
       out.push(sum / 4);
     }
-  }
   return out;
 }
 
@@ -878,13 +712,9 @@ function renderHeatmap(vec1h) {
     for (let b = 0; b < 6; b++) {
       const val = v4[di * 6 + b];
       const td  = document.createElement('td'); td.className = 'cell';
-      if (val < 0.05) {
-        td.style.background = '#f8f9fa';
-      } else if (val < 0.4) {
-        td.style.background = `rgba(0,117,201,${(0.15+val*0.5).toFixed(2)})`;
-      } else {
-        td.style.background = `rgba(0,117,201,${(0.4+val*0.55).toFixed(2)})`;
-      }
+      if (val < 0.05) td.style.background = '#f8f9fa';
+      else if (val < 0.4) td.style.background = `rgba(0,117,201,${(0.15+val*0.5).toFixed(2)})`;
+      else td.style.background = `rgba(0,117,201,${(0.4+val*0.55).toFixed(2)})`;
       td.setAttribute('data-tip', `${day} ${DISPLAY_BLOCKS[b]}: ${(val*100).toFixed(0)}%`);
       tr.appendChild(td);
     }
@@ -910,25 +740,19 @@ function renderVehicleCard(v, trips, vec) {
   return card;
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// RENDER: RECOMMENDATION CARD
-// ═══════════════════════════════════════════════════════════════════
 function renderRecCard(result, rank) {
   const { group, eliminable, needed, peak, avgOverlap, savings } = result;
   const size = group.members.length;
-
   const tier = eliminable >= 3 ? 'high-value' : eliminable >= 2 ? 'strong' : '';
   const topBadge = eliminable >= 3
     ? `<span class="badge badge-gold">★ High Value</span>`
     : eliminable >= 2
     ? `<span class="badge badge-green">Strong Opportunity</span>`
     : `<span class="badge badge-blue">Recommended</span>`;
-
   const chips = group.members.map((v, i) => {
     const keep = i < needed;
     return `<span class="chip ${keep ? 'chip-keep' : 'chip-elim'}">${keep ? '✓ Keep:' : '✗ Remove:'} ${v.name} (${v.dept})</span>`;
   }).join('');
-
   const card = document.createElement('div');
   card.className = `rec-card ${tier}`;
   card.innerHTML = `
@@ -952,18 +776,14 @@ function renderRecCard(result, rank) {
         <div class="total">3-yr total value: ${fmt(savings.total3yr)}</div>
       </div>
     </div>
-
     <div class="chip-row">${chips}</div>
-
     <div class="why-box">
       <strong>Why this works:</strong>
       Summing all ${size} vehicles' hourly demand, the peak never exceeds <strong>${peak.toFixed(2)}</strong>
       simultaneous vehicles. At most <strong>${needed}</strong> vehicle${needed > 1 ? 's are' : ' is'} ever
       needed at the same time — the other <strong>${eliminable}</strong> are safe to remove from the fleet.
-      ${eliminable >= 2 ? `<br><strong>Note:</strong> This group was formed by merging cliques that shared vehicles,
-      giving a more complete picture than reporting them as separate recommendations.` : ''}
+      ${eliminable >= 2 ? `<br><strong>Note:</strong> This group was formed by merging cliques that shared vehicles, giving a more complete picture than reporting them as separate recommendations.` : ''}
     </div>
-
     <div class="savings-row">
       <div class="savings-item">
         <div class="val">${fmt(savings.annualOp)}</div>
@@ -986,9 +806,6 @@ function renderRecCard(result, rank) {
   return card;
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// RENDER: PAIRS TABLE ROW
-// ═══════════════════════════════════════════════════════════════════
 function renderPairRow(vA, vB, elig, ol, isComplementary) {
   const tr = document.createElement('tr');
   const tm = vA.type === vB.type, lm = vA.location === vB.location;
@@ -1015,60 +832,27 @@ function renderPairRow(vA, vB, elig, ol, isComplementary) {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// VALIDATION SUITE — 11 tests
+// VALIDATION SUITE
 // ═══════════════════════════════════════════════════════════════════
 const TESTS = [
-  { desc: 'At least 1 actionable pool recommendation found',
-    fn: r => r.length >= 1 },
-
-  { desc: 'Every recommendation has eliminable >= 1',
-    fn: r => r.length > 0 && r.every(x => x.eliminable >= 1) },
-
+  { desc: 'At least 1 actionable pool recommendation found', fn: r => r.length >= 1 },
+  { desc: 'Every recommendation has eliminable >= 1', fn: r => r.length > 0 && r.every(x => x.eliminable >= 1) },
   { desc: 'No duplicate vehicle appears across separate recommendations (deduplication)',
-    fn: r => {
-      const seen = new Set();
-      for (const rec of r) {
-        for (const id of rec.group.ids) {
-          if (seen.has(id)) return false;
-          seen.add(id);
-        }
-      }
-      return true;
-    }
-  },
-
+    fn: r => { const seen = new Set(); for (const rec of r) for (const id of rec.group.ids) { if (seen.has(id)) return false; seen.add(id); } return true; } },
   { desc: 'V01 & V02 are in the SAME group (merged — both daytime vans)',
     fn: r => r.some(x => x.group.ids.includes('V01') && x.group.ids.includes('V02')) },
-
   { desc: 'V01 & V02 group also contains V03, V04, V07 (full shift coverage merged)',
-    fn: r => r.some(x =>
-      ['V01','V02','V03','V04','V07'].every(id => x.group.ids.includes(id))
-    )
-  },
-
+    fn: r => r.some(x => ['V01','V02','V03','V04','V07'].every(id => x.group.ids.includes(id))) },
   { desc: 'That merged 5-van group keeps 2 and removes 3 (two daytime vans = peak of 2)',
-    fn: r => r.some(x =>
-      x.group.ids.includes('V01') && x.group.ids.includes('V02') &&
-      x.needed === 2 && x.eliminable === 3
-    )
-  },
-
+    fn: r => r.some(x => x.group.ids.includes('V01') && x.group.ids.includes('V02') && x.needed === 2 && x.eliminable === 3) },
   { desc: 'V05 & V06 appear together in a Depot South group',
     fn: r => r.some(x => x.group.ids.includes('V05') && x.group.ids.includes('V06')) },
-
   { desc: 'P01 & P02 appear in a pickup pool group',
     fn: r => r.some(x => x.group.ids.includes('P01') && x.group.ids.includes('P02')) },
-
   { desc: 'S01 (Sedan) never appears in any recommendation',
     fn: r => !r.some(x => x.group.ids.includes('S01')) },
-
   { desc: 'No group mixes Depot North and Depot South',
-    fn: r => !r.some(x => {
-      const locs = x.group.members.map(v => v.location);
-      return locs.includes('Depot North') && locs.includes('Depot South');
-    })
-  },
-
+    fn: r => !r.some(x => { const locs = x.group.members.map(v => v.location); return locs.includes('Depot North') && locs.includes('Depot South'); }) },
   { desc: 'Results sorted by 3-year savings descending',
     fn: r => r.length < 2 || r[0].savings.total3yr >= r[1].savings.total3yr },
 ];
@@ -1077,7 +861,7 @@ const TESTS = [
 // MAIN
 // ═══════════════════════════════════════════════════════════════════
 function main() {
-  log('Pool Finder v5 — starting', 'info');
+  log('Pool Finder — starting', 'info');
 
   const tripMap = {}, vm = {};
   let totalTrips = 0;
@@ -1091,18 +875,15 @@ function main() {
     log(`${v.id}: ${trips.length} trips built`, 'ok');
   });
 
-  // Heatmaps
-  const grid = document.getElementById('heatmap-grid');
+  const grid = $('heatmap-grid');
   VEHICLES.forEach(v => grid.appendChild(renderVehicleCard(v, tripMap[v.id], vm[v.id])));
 
-  // Step 1: Complementary pairs
   log('--- Step 1: Complementary pairs ---', 'info');
   const pairs = findComplementaryPairs(VEHICLES, vm);
   const pairSet = new Set(pairs.map(p => `${p.idA}+${p.idB}`));
   log(`${pairs.length} complementary pair(s) found`, pairs.length > 0 ? 'ok' : 'err');
 
-  // Pairs matrix
-  const tbody = document.getElementById('pairs-body');
+  const tbody = $('pairs-body');
   for (let i = 0; i < VEHICLES.length; i++) {
     for (let j = i + 1; j < VEHICLES.length; j++) {
       const vA = VEHICLES[i], vB = VEHICLES[j];
@@ -1112,33 +893,28 @@ function main() {
     }
   }
 
-  // Step 2: Clique finding
   log('--- Step 2: Clique finding ---', 'info');
   const cliques = findCliques(VEHICLES, pairs);
   log(`${cliques.length} raw clique(s) found`, cliques.length > 0 ? 'ok' : 'warn');
   cliques.forEach(c => log(`  Clique: [${c.ids.join(', ')}]`, 'info'));
 
-  // Step 3: Merge overlapping cliques
   log('--- Step 3: Merging overlapping cliques ---', 'info');
   const mergedGroups = mergeCliques(cliques, vById);
   log(`${mergedGroups.length} group(s) after merging`, 'ok');
   mergedGroups.forEach(g => log(`  Merged group: [${g.ids.join(', ')}]`, 'info'));
 
-  // Step 4: Score
   log('--- Step 4: Scoring groups ---', 'info');
   const results = scoreGroups(mergedGroups, vm);
 
-  // Render recommendations
-  const recList = document.getElementById('rec-list');
+  const recList = $('rec-list');
   if (!results.length) {
     recList.innerHTML = '<div style="color:#868e96;padding:40px;text-align:center">No actionable pool groups found.</div>';
   } else {
     results.forEach((r, i) => recList.appendChild(renderRecCard(r, i)));
   }
 
-  // Validation
   log('--- Validation ---', 'info');
-  const valList = document.getElementById('val-list');
+  const valList = $('val-list');
   let passed = 0;
   TESTS.forEach(t => {
     const ok = (() => { try { return t.fn(results); } catch(e) { return false; } })();
@@ -1153,7 +929,6 @@ function main() {
     log(`${ok ? 'PASS' : 'FAIL'}: ${t.desc}`, ok ? 'ok' : 'err');
   });
 
-  // Summary
   const counted = new Set();
   let totalElim = 0, totalAnnual = 0, totalCapital = 0;
   results.forEach(r => {
@@ -1165,13 +940,13 @@ function main() {
     }
   });
 
-  document.getElementById('s-vehicles').textContent = VEHICLES.length;
-  document.getElementById('s-trips').textContent    = totalTrips.toLocaleString();
-  document.getElementById('s-pairs').textContent    = pairs.length;
-  document.getElementById('s-groups').textContent   = results.length;
-  document.getElementById('s-elim').textContent     = totalElim;
-  document.getElementById('s-annual').textContent   = fmt(totalAnnual);
-  document.getElementById('s-capital').textContent  = fmt(totalCapital);
+  $('s-vehicles').textContent = VEHICLES.length;
+  $('s-trips').textContent    = totalTrips.toLocaleString();
+  $('s-pairs').textContent    = pairs.length;
+  $('s-groups').textContent   = results.length;
+  $('s-elim').textContent     = totalElim;
+  $('s-annual').textContent   = fmt(totalAnnual);
+  $('s-capital').textContent  = fmt(totalCapital);
 
   log(`Done — ${passed}/${TESTS.length} tests passed · ${totalElim} eliminable · ${fmt(totalAnnual)}/yr`, passed === TESTS.length ? 'ok' : 'warn');
 }
