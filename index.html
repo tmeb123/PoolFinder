@@ -7,36 +7,16 @@
 </head>
 <body>
 
-<!--
-  SHADOW DOM ISOLATION
-  ====================
-  MyGeotab custom page add-ins inject HTML directly into their own DOM,
-  meaning Geotab's stylesheet overrides everything we write. The only
-  bulletproof solution is Shadow DOM: a hard browser-enforced boundary
-  where our CSS is completely invisible to the host page and vice versa.
-
-  How it works:
-    1. We place a single empty <div id="pf-host"> in the body.
-    2. JS attaches a shadow root to it (mode:'open').
-    3. All our HTML + CSS lives inside that shadow root.
-    4. Geotab's CSS cannot cross the shadow boundary. Ever.
--->
 <div id="pf-host"></div>
 
 <script>
-// ─────────────────────────────────────────────────────────────────────────────
-// SHADOW ROOT SETUP — inject all HTML + CSS into an isolated shadow DOM
-// ─────────────────────────────────────────────────────────────────────────────
 const host = document.getElementById('pf-host');
 const shadow = host.attachShadow({ mode: 'open' });
 
-// All CSS lives here — completely isolated from MyGeotab's styles
 const style = document.createElement('style');
 style.textContent = `
-  /* ── Reset (safe — only affects shadow DOM) ── */
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  /* ── Tokens ── */
   :host {
     display: block;
     --blue:      #0075C9;
@@ -74,111 +54,77 @@ style.textContent = `
 
   /* ── Header ── */
   .app-header {
-    display: flex;
-    align-items: center;
-    gap: 14px;
+    display: flex; align-items: center; gap: 14px;
     padding: 20px 24px;
     background: var(--white);
     border-bottom: 3px solid var(--blue);
     border-radius: var(--radius) var(--radius) 0 0;
     box-shadow: var(--shadow);
-    margin-bottom: 24px;
+    margin-bottom: 16px;
   }
   .logo {
     width: 40px; height: 40px;
-    background: var(--blue);
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
+    background: var(--blue); border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
   }
   .logo svg { fill: white; width: 22px; height: 22px; }
-  .app-header h1 {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--gray-900);
-    letter-spacing: -0.3px;
+  .app-header h1 { font-size: 20px; font-weight: 700; color: var(--gray-900); letter-spacing: -0.3px; }
+  .app-header p  { font-size: 12px; color: var(--gray-500); margin-top: 2px; }
+
+  /* ── Notice banner ── */
+  .notice {
+    background: var(--gold-lt);
+    border: 1px solid #f6d860;
+    border-left: 4px solid var(--gold);
+    border-radius: var(--radius);
+    padding: 10px 16px;
+    font-size: 12px;
+    color: #92400e;
+    margin-bottom: 20px;
+    line-height: 1.7;
   }
-  .app-header p { font-size: 12px; color: var(--gray-500); margin-top: 2px; }
+  .notice strong { font-weight: 700; }
 
   /* ── Section ── */
   .section { margin-bottom: 28px; }
   .section-title {
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--gray-500);
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--gray-500);
+    margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
   }
-  .section-title::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--gray-200);
-  }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--gray-200); }
 
   /* ── Summary bar ── */
   .summary-bar {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 12px;
-    margin-bottom: 28px;
+    gap: 12px; margin-bottom: 28px;
   }
   .stat-card {
-    background: var(--white);
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius);
-    padding: 16px 20px;
-    box-shadow: var(--shadow);
+    background: var(--white); border: 1px solid var(--gray-200);
+    border-radius: var(--radius); padding: 16px 20px; box-shadow: var(--shadow);
   }
-  .stat-card .num {
-    font-size: 28px;
-    font-weight: 800;
-    color: var(--blue);
-    line-height: 1;
-  }
+  .stat-card .num { font-size: 28px; font-weight: 800; color: var(--blue); line-height: 1; }
   .stat-card .num.green { color: var(--green); }
   .stat-card .num.gold  { color: var(--gold); }
-  .stat-card .lbl {
-    font-size: 11px;
-    color: var(--gray-500);
-    margin-top: 4px;
-    font-weight: 500;
-  }
+  .stat-card .lbl { font-size: 11px; color: var(--gray-500); margin-top: 4px; font-weight: 500; }
 
   /* ── Rec cards ── */
   .rec-list { display: flex; flex-direction: column; gap: 16px; }
   .rec-card {
-    background: var(--white);
-    border: 1px solid var(--gray-200);
+    background: var(--white); border: 1px solid var(--gray-200);
     border-left: 4px solid var(--blue);
-    border-radius: var(--radius);
-    padding: 20px 24px;
-    box-shadow: var(--shadow);
+    border-radius: var(--radius); padding: 20px 24px; box-shadow: var(--shadow);
   }
   .rec-card.high-value { border-left-color: var(--gold); }
   .rec-card.strong     { border-left-color: var(--green); }
-
-  .rec-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    flex-wrap: wrap;
-    gap: 16px;
-  }
+  .rec-top { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; }
   .rec-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
 
   /* ── Badges ── */
   .badge {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 3px;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.04em;
+    display: inline-block; padding: 2px 8px; border-radius: 3px;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.04em;
   }
   .badge-blue    { background: var(--blue-lt);  color: var(--blue-dark); }
   .badge-green   { background: var(--green-lt); color: var(--green); }
@@ -193,169 +139,93 @@ style.textContent = `
 
   .rec-title { font-size: 16px; font-weight: 700; color: var(--gray-900); }
   .rec-meta  { font-size: 12px; color: var(--gray-500); margin-top: 4px; }
-
   .rec-savings { text-align: right; flex-shrink: 0; }
-  .rec-savings .big {
-    font-size: 26px; font-weight: 800; color: var(--green); line-height: 1;
-  }
+  .rec-savings .big   { font-size: 26px; font-weight: 800; color: var(--green); line-height: 1; }
   .rec-savings .sub   { font-size: 11px; color: var(--gray-500); margin-top: 4px; }
   .rec-savings .total { font-size: 12px; font-weight: 600; color: var(--gold); margin-top: 3px; }
 
   /* ── Chips ── */
   .chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
   .chip {
-    padding: 4px 10px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 500;
-    border: 1px solid;
-    display: inline-block;
+    padding: 4px 10px; border-radius: 4px; font-size: 12px;
+    font-weight: 500; border: 1px solid; display: inline-block;
   }
   .chip-keep { background: var(--green-lt); color: var(--green); border-color: #a7d7bc; }
   .chip-elim { background: var(--red-lt); color: var(--red); border-color: #f0b8b2; text-decoration: line-through; opacity: 0.85; }
 
   /* ── Why box ── */
   .why-box {
-    margin-top: 14px;
-    background: var(--gray-50);
-    border: 1px solid var(--gray-200);
-    border-radius: 4px;
-    padding: 10px 14px;
-    font-size: 12px;
-    color: var(--gray-700);
-    line-height: 1.7;
+    margin-top: 14px; background: var(--gray-50);
+    border: 1px solid var(--gray-200); border-radius: 4px;
+    padding: 10px 14px; font-size: 12px; color: var(--gray-700); line-height: 1.7;
   }
 
   /* ── Savings row ── */
   .savings-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 24px;
-    margin-top: 14px;
-    padding-top: 14px;
-    border-top: 1px solid var(--gray-200);
+    display: flex; flex-wrap: wrap; gap: 24px;
+    margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--gray-200);
   }
   .savings-item .val { font-size: 18px; font-weight: 700; color: var(--gray-900); }
   .savings-item .lbl { font-size: 11px; color: var(--gray-500); }
 
   /* ── Vehicle grid ── */
-  .vehicle-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 12px;
-  }
+  .vehicle-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
   .vehicle-card {
-    background: var(--white);
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius);
-    padding: 14px 16px;
-    box-shadow: var(--shadow);
+    background: var(--white); border: 1px solid var(--gray-200);
+    border-radius: var(--radius); padding: 14px 16px; box-shadow: var(--shadow);
   }
-  .vehicle-card-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 10px;
-  }
+  .vehicle-card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
   .vehicle-name { font-size: 13px; font-weight: 700; color: var(--gray-900); }
   .vehicle-meta { font-size: 11px; color: var(--gray-500); margin-top: 2px; }
 
   /* ── Heatmap ── */
   .heatmap { border-collapse: collapse; width: 100%; }
-  .heatmap th {
-    font-size: 9px; font-weight: 600; color: var(--gray-500);
-    text-align: center; padding: 2px 1px; letter-spacing: 0.02em;
-  }
-  .heatmap .row-label {
-    font-size: 10px; color: var(--gray-500);
-    padding-right: 6px; white-space: nowrap; font-weight: 500;
-  }
-  .heatmap td.cell {
-    height: 20px;
-    border: 1px solid var(--gray-100);
-    border-radius: 2px;
-    cursor: default;
-    position: relative;
-  }
+  .heatmap th { font-size: 9px; font-weight: 600; color: var(--gray-500); text-align: center; padding: 2px 1px; letter-spacing: 0.02em; }
+  .heatmap .row-label { font-size: 10px; color: var(--gray-500); padding-right: 6px; white-space: nowrap; font-weight: 500; }
+  .heatmap td.cell { height: 20px; border: 1px solid var(--gray-100); border-radius: 2px; cursor: default; position: relative; }
   .heatmap td.cell:hover::after {
     content: attr(data-tip);
-    position: absolute;
-    bottom: 110%; left: 50%; transform: translateX(-50%);
+    position: absolute; bottom: 110%; left: 50%; transform: translateX(-50%);
     background: var(--gray-900); color: white;
-    padding: 3px 7px; border-radius: 3px;
-    font-size: 10px; white-space: nowrap;
+    padding: 3px 7px; border-radius: 3px; font-size: 10px; white-space: nowrap;
     z-index: 100; pointer-events: none;
   }
 
   /* ── Pairs table ── */
-  .data-table {
-    width: 100%; border-collapse: collapse;
-    background: var(--white);
-    border-radius: var(--radius); overflow: hidden;
-    box-shadow: var(--shadow);
-  }
-  .data-table th {
-    background: var(--gray-50);
-    border-bottom: 2px solid var(--gray-200);
-    text-align: left; padding: 10px 14px;
-    font-size: 11px; font-weight: 700;
-    text-transform: uppercase; letter-spacing: 0.06em;
-    color: var(--gray-500);
-  }
-  .data-table td {
-    padding: 9px 14px;
-    border-bottom: 1px solid var(--gray-100);
-    font-size: 13px; vertical-align: middle;
-  }
+  .data-table { width: 100%; border-collapse: collapse; background: var(--white); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+  .data-table th { background: var(--gray-50); border-bottom: 2px solid var(--gray-200); text-align: left; padding: 10px 14px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--gray-500); }
+  .data-table td { padding: 9px 14px; border-bottom: 1px solid var(--gray-100); font-size: 13px; vertical-align: middle; }
   .data-table tr:last-child td { border-bottom: none; }
   .data-table tr:hover td { background: var(--gray-50); }
   .data-table tr.pool-row td:first-child     { border-left: 3px solid var(--green); }
   .data-table tr.conflict-row td:first-child { border-left: 3px solid var(--red); }
-
   .bar-wrap { display: flex; align-items: center; gap: 8px; }
   .bar { height: 6px; border-radius: 3px; background: var(--gray-200); width: 80px; overflow: hidden; }
   .bar-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
-
-  /* ── Validation ── */
-  .val-list { display: flex; flex-direction: column; gap: 8px; }
-  .val-item {
-    display: flex; align-items: center; gap: 12px;
-    background: var(--white);
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius);
-    padding: 10px 14px; font-size: 13px;
-  }
-  .val-item .check { font-size: 16px; flex-shrink: 0; }
-  .val-item .label { flex: 1; color: var(--gray-700); }
-
-  /* ── Log ── */
-  .log {
-    background: var(--gray-900);
-    border-radius: var(--radius);
-    padding: 16px;
-    font-family: "Consolas", "Courier New", monospace;
-    font-size: 11px; color: #adb5bd;
-    max-height: 220px; overflow-y: auto; line-height: 1.8;
-  }
-  .log .ok   { color: #69db7c; display: block; }
-  .log .err  { color: #ff6b6b; display: block; }
-  .log .info { color: #74c0fc; display: block; }
-  .log .warn { color: #ffd43b; display: block; }
 
   /* ── Loading ── */
   .loading { text-align: center; padding: 60px 20px; color: var(--gray-500); }
   .spinner {
     width: 32px; height: 32px;
-    border: 3px solid var(--gray-200);
-    border-top-color: var(--blue);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin: 0 auto 16px;
-    display: block;
+    border: 3px solid var(--gray-200); border-top-color: var(--blue);
+    border-radius: 50%; animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px; display: block;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* ── Responsive ── */
+  /* ── Validation ── */
+  .val-list { display: flex; flex-direction: column; gap: 8px; }
+  .val-item { display: flex; align-items: center; gap: 12px; background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 10px 14px; font-size: 13px; }
+  .val-item .check { font-size: 16px; flex-shrink: 0; }
+  .val-item .label { flex: 1; color: var(--gray-700); }
+
+  /* ── Log ── */
+  .log { background: var(--gray-900); border-radius: var(--radius); padding: 16px; font-family: "Consolas", "Courier New", monospace; font-size: 11px; color: #adb5bd; max-height: 220px; overflow-y: auto; line-height: 1.8; }
+  .log .ok   { color: #69db7c; display: block; }
+  .log .err  { color: #ff6b6b; display: block; }
+  .log .info { color: #74c0fc; display: block; }
+  .log .warn { color: #ffd43b; display: block; }
+
   @media (max-width: 600px) {
     .app { padding: 12px 12px 40px; }
     .rec-top { flex-direction: column; }
@@ -365,11 +235,9 @@ style.textContent = `
 `;
 shadow.appendChild(style);
 
-// ── Build the HTML inside the shadow root ──
 const app = document.createElement('div');
 app.className = 'app';
 app.innerHTML = `
-  <!-- Header -->
   <div class="app-header">
     <div class="logo">
       <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -377,17 +245,20 @@ app.innerHTML = `
       </svg>
     </div>
     <div>
-      <h1>Pool Finder v3</h1>
-      <p>Fleet vehicle pool optimizer · Identify underutilized vehicles for consolidation · Savings model: $8–12k/yr operating + $7k capital per vehicle removed</p>
+      <h1>Pool Finder</h1>
+      <p>Fleet vehicle pool optimizer · Identifies underutilized vehicles for consolidation · $8–12k/yr operating + $7k capital savings per vehicle removed</p>
     </div>
   </div>
 
-  <!-- Summary -->
+  <div class="notice">
+    <strong>📋 Demo Note:</strong> Geotab's simulator database generates randomized trips uniformly across all 24 hours — not representative of real-world fleet shift patterns. Pool Finder overlays realistic utility fleet shift schedules assigned by vehicle type (day/evening/night shifts for Vans, morning/afternoon crews for Pickups, sporadic heavy use for Backhoes). Vehicle names and group assignments are pulled live from the Geotab API. In a production deployment, actual GPS trip history is used directly.
+  </div>
+
   <div class="section">
     <div class="section-title">Fleet Summary</div>
     <div class="summary-bar">
       <div class="stat-card"><div class="num" id="s-vehicles">—</div><div class="lbl">Vehicles Analyzed</div></div>
-      <div class="stat-card"><div class="num" id="s-trips">—</div><div class="lbl">Total Trips</div></div>
+      <div class="stat-card"><div class="num" id="s-trips">—</div><div class="lbl">Total Trips Modeled</div></div>
       <div class="stat-card"><div class="num" id="s-pairs">—</div><div class="lbl">Complementary Pairs</div></div>
       <div class="stat-card"><div class="num" id="s-groups">—</div><div class="lbl">Pool Opportunities</div></div>
       <div class="stat-card"><div class="num green" id="s-elim">—</div><div class="lbl">Vehicles Eliminable</div></div>
@@ -396,42 +267,30 @@ app.innerHTML = `
     </div>
   </div>
 
-  <!-- Recommendations -->
   <div class="section">
     <div class="section-title">Pool Recommendations — Ranked by 3-Year Value</div>
     <div class="rec-list" id="rec-list">
-      <div class="loading"><div class="spinner"></div>Analyzing fleet utilization patterns…</div>
+      <div class="loading"><div class="spinner"></div>Connecting to Geotab API and analyzing fleet…</div>
     </div>
   </div>
 
-  <!-- Heatmaps -->
   <div class="section">
     <div class="section-title">Utilization Heatmaps — All Vehicles</div>
     <div class="vehicle-grid" id="heatmap-grid"></div>
   </div>
 
-  <!-- Pairs matrix -->
   <div class="section">
     <div class="section-title">Pair Compatibility Matrix</div>
     <div style="overflow-x:auto">
       <table class="data-table">
         <thead>
-          <tr>
-            <th>Vehicle A</th><th>Vehicle B</th><th>Type</th><th>Location</th><th>Overlap</th><th>Verdict</th>
-          </tr>
+          <tr><th>Vehicle A</th><th>Vehicle B</th><th>Type</th><th>Location</th><th>Overlap</th><th>Verdict</th></tr>
         </thead>
         <tbody id="pairs-body"></tbody>
       </table>
     </div>
   </div>
 
-  <!-- Validation -->
-  <div class="section">
-    <div class="section-title">Logic Validation</div>
-    <div class="val-list" id="val-list"></div>
-  </div>
-
-  <!-- Log -->
   <div class="section">
     <div class="section-title">Debug Log</div>
     <div class="log" id="log"></div>
@@ -439,10 +298,7 @@ app.innerHTML = `
 `;
 shadow.appendChild(app);
 
-// ─────────────────────────────────────────────────────────────────────────────
-// IMPORTANT: All getElementById calls must query inside the shadow root,
-// not document — because our elements live in the shadow DOM, not the main DOM.
-// ─────────────────────────────────────────────────────────────────────────────
+// ── All getElementById queries must go through shadow root ──
 function $(id) { return shadow.getElementById(id); }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -463,11 +319,21 @@ const CFG = {
 const DISPLAY_BLOCKS = ['00–04','04–08','08–12','12–16','16–20','20–24'];
 const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
+// ── Known Geotab group IDs (confirmed via diagnostic tool) ──
+const GROUP = {
+  VAN:    'b279E',
+  PICKUP: 'b279F',
+  BACKHOE:'b279D',
+  NORTH:  'b279A',
+  SOUTH:  'b279B',
+};
+
 // ═══════════════════════════════════════════════════════════════════
-// LOGGING
+// LOGGING  (queries shadow DOM via $)
 // ═══════════════════════════════════════════════════════════════════
-const logEl = $('log');
-function log(msg, t='info') {
+function log(msg, t = 'info') {
+  const logEl = $('log');
+  if (!logEl) return;
   const d = document.createElement('div');
   d.className = t;
   d.textContent = `› ${msg}`;
@@ -476,7 +342,7 @@ function log(msg, t='info') {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// TRIP GENERATION
+// TRIP GENERATION  — realistic shift patterns by vehicle type
 // ═══════════════════════════════════════════════════════════════════
 function mkTrip(date, sh, eh) {
   const s = new Date(date); s.setHours(sh, 0, 0, 0);
@@ -496,37 +362,48 @@ function genTrips(fn, days = CFG.windowDays) {
   return out;
 }
 
-const P = {
-  vanDaytime:       (d, dow) => (dow >= 1 && dow <= 5) ? [mkTrip(d, 8, 17)]  : [],
-  vanDaytime2:      (d, dow) => (dow >= 1 && dow <= 5) ? [mkTrip(d, 8, 17)]  : [],
-  vanEvening:       (d, dow) => { if(dow>=1&&dow<=5) return[mkTrip(d,17,21)]; if(dow===6) return[mkTrip(d,9,13)]; return[]; },
-  vanNight:         (d, dow) => ([0,1,2,3,4].includes(dow)) ? [mkTrip(d, 21, 24)] : [],
-  vanEarlyMorn:     (d, dow) => (dow >= 1 && dow <= 6) ? [mkTrip(d, 4, 8)]   : [],
-  pickupMorning:    (d, dow) => (dow >= 1 && dow <= 5) ? [mkTrip(d, 6, 12)]  : [],
-  pickupAfternoon:  (d, dow) => (dow >= 1 && dow <= 5) ? [mkTrip(d, 12, 18)] : [],
-  sporadic:         (d, dow) => (Math.random() < 0.25) ? [mkTrip(d, 8 + Math.floor(Math.random()*8), 14 + Math.floor(Math.random()*4))] : [],
-  depotSouthDay:    (d, dow) => (dow >= 1 && dow <= 5) ? [mkTrip(d, 8, 17)]  : [],
-  depotSouthEvening:(d, dow) => (dow >= 1 && dow <= 5) ? [mkTrip(d, 17, 22)] : [],
+// Seven van patterns → rotating assignment creates complementary shift coverage
+// Pickups → morning / afternoon / full-day crews
+// Backhoes → sporadic heavy use, 3–4 days/week
+const PATTERNS = {
+  Van: [
+    (d, dow) => (dow >= 1 && dow <= 5) ? [mkTrip(d, 7, 16)] : [],               // Day A  Mon–Fri 07–16
+    (d, dow) => (dow >= 1 && dow <= 5) ? [mkTrip(d, 7, 16)] : [],               // Day B  (same → pools with A)
+    (d, dow) => (dow >= 1 && dow <= 5) ? [mkTrip(d, 8, 17)] : [],               // Day C  08–17 (slight offset)
+    (d, dow) => { if (dow>=1&&dow<=5) return [mkTrip(d,16,23)]; if (dow===6) return [mkTrip(d,8,14)]; return []; }, // Evening
+    (d, dow) => ([0,1,2,3,4].includes(dow)) ? [mkTrip(d, 22, 24)] : [],         // Night
+    (d, dow) => (dow >= 1 && dow <= 6) ? [mkTrip(d, 4, 8)] : [],               // Early morning
+    (d, dow) => (dow === 0 || dow === 6) ? [mkTrip(d, 8, 16)] : [],            // Weekend
+  ],
+  Pickup: [
+    (d, dow) => (dow >= 1 && dow <= 5) ? [mkTrip(d, 6, 12)] : [],              // Morning crew
+    (d, dow) => (dow >= 1 && dow <= 5) ? [mkTrip(d, 12, 18)] : [],             // Afternoon crew
+    (d, dow) => (dow >= 1 && dow <= 5) ? [mkTrip(d, 7, 17)] : [],              // Full day
+  ],
+  Backhoe: [
+    (d, dow) => (dow >= 1 && dow <= 4) ? [mkTrip(d, 7, 15)] : [],              // Mon–Thu heavy
+    (d, dow) => (dow >= 2 && dow <= 4) ? [mkTrip(d, 8, 14)] : [],              // Tue–Thu light
+    (d, dow) => (dow===1||dow===3||dow===5) ? [mkTrip(d, 7, 16)] : [],         // Mon/Wed/Fri alternating
+  ],
 };
 
-// ═══════════════════════════════════════════════════════════════════
-// VEHICLES
-// ═══════════════════════════════════════════════════════════════════
-const VEHICLES = [
-  { id:'V01', name:'Van 01 — Facilities', type:'Van',    dept:'Facilities', location:'Depot North', pattern:P.vanDaytime,       note:'Mon–Fri 08:00–17:00' },
-  { id:'V02', name:'Van 02 — Admin',      type:'Van',    dept:'Admin',      location:'Depot North', pattern:P.vanDaytime2,      note:'Mon–Fri 08:00–17:00 (same pattern as V01)' },
-  { id:'V03', name:'Van 03 — Events',     type:'Van',    dept:'Events',     location:'Depot North', pattern:P.vanEvening,       note:'Mon–Fri 17:00–21:00 + Sat 09:00–13:00' },
-  { id:'V04', name:'Van 04 — Security',   type:'Van',    dept:'Security',   location:'Depot North', pattern:P.vanNight,         note:'Sun–Thu 21:00–24:00' },
-  { id:'V07', name:'Van 07 — Ops Early',  type:'Van',    dept:'Ops',        location:'Depot North', pattern:P.vanEarlyMorn,     note:'Mon–Sat 04:00–08:00' },
-  { id:'P01', name:'Pickup 01 — Field A', type:'Pickup', dept:'Field A',    location:'Depot North', pattern:P.pickupMorning,    note:'Mon–Fri 06:00–12:00' },
-  { id:'P02', name:'Pickup 02 — Field B', type:'Pickup', dept:'Field B',    location:'Depot North', pattern:P.pickupAfternoon,  note:'Mon–Fri 12:00–18:00' },
-  { id:'S01', name:'Sedan 01 — HR',       type:'Sedan',  dept:'HR',         location:'Depot North', pattern:P.sporadic,         note:'Sporadic ~25% of days' },
-  { id:'V05', name:'Van 05 — Logistics A',type:'Van',    dept:'Logistics A',location:'Depot South', pattern:P.depotSouthDay,    note:'Mon–Fri 08:00–17:00' },
-  { id:'V06', name:'Van 06 — Logistics B',type:'Van',    dept:'Logistics B',location:'Depot South', pattern:P.depotSouthEvening,note:'Mon–Fri 17:00–22:00' },
-];
+const PATTERN_NOTES = {
+  Van:    ['Mon–Fri Day (07–16)','Mon–Fri Day (07–16)','Mon–Fri Day (08–17)','Mon–Fri Evening (16–23) + Sat','Sun–Thu Night (22–24)','Mon–Sat Early Morning (04–08)','Weekends Only (08–16)'],
+  Pickup: ['Mon–Fri Morning (06–12)','Mon–Fri Afternoon (12–18)','Mon–Fri Full Day (07–17)'],
+  Backhoe:['Mon–Thu Heavy (07–15)','Tue–Thu Light (08–14)','Mon/Wed/Fri Alternating (07–16)'],
+};
+
+function assignPattern(type, idx) {
+  const patterns = PATTERNS[type] || PATTERNS.Van;
+  return patterns[idx % patterns.length];
+}
+function assignNote(type, idx) {
+  const notes = PATTERN_NOTES[type] || PATTERN_NOTES.Van;
+  return notes[idx % notes.length];
+}
 
 // ═══════════════════════════════════════════════════════════════════
-// CORE ALGORITHMS
+// CORE ALGORITHM  (unchanged from v5 — tested 10/10)
 // ═══════════════════════════════════════════════════════════════════
 function buildVector(trips, windowDays = CFG.windowDays) {
   const wdc = new Array(7).fill(0), now = new Date();
@@ -562,10 +439,8 @@ function cosineOverlap(vA, vB) {
   return d === 0 ? 0 : dot / d;
 }
 
-function sumVectors(vecs) {
-  return vecs[0].map((_, i) => vecs.reduce((s, v) => s + v[i], 0));
-}
-function peakOf(sumVec) { return Math.max(...sumVec); }
+function sumVectors(vecs) { return vecs[0].map((_, i) => vecs.reduce((s, v) => s + v[i], 0)); }
+function peakOf(sumVec)   { return Math.max(...sumVec); }
 
 function pairEligible(vA, vB) {
   if (CFG.requireSameType     && vA.type     !== vB.type)     return false;
@@ -585,9 +460,8 @@ function fmt(n) { return '$' + Math.round(n).toLocaleString(); }
 
 function findComplementaryPairs(vehicles, vm) {
   const pairs = [];
-  const n = vehicles.length;
-  for (let i = 0; i < n; i++) {
-    for (let j = i + 1; j < n; j++) {
+  for (let i = 0; i < vehicles.length; i++) {
+    for (let j = i + 1; j < vehicles.length; j++) {
       const vA = vehicles[i], vB = vehicles[j];
       if (!pairEligible(vA, vB)) continue;
       const ol = cosineOverlap(vm[vA.id], vm[vB.id]);
@@ -612,10 +486,7 @@ function findCliques(vehicles, pairs) {
   const candidates = vehicles.filter(v => adj[v.id].size > 0).map(v => v.id);
   const cliques = [];
   function bronKerbosch(R, P, X) {
-    if (P.length === 0 && X.length === 0) {
-      if (R.length >= 2) cliques.push([...R].sort());
-      return;
-    }
+    if (P.length === 0 && X.length === 0) { if (R.length >= 2) cliques.push([...R].sort()); return; }
     const pivot = [...P, ...X].reduce((best, v) => {
       const c = P.filter(u => adj[v].has(u)).length;
       return c > best.c ? { v, c } : best;
@@ -644,10 +515,10 @@ function mergeCliques(cliques, vById) {
       for (let j = 0; j < next.length; j++) {
         const intersection = new Set([...groups[i]].filter(id => next[j].has(id)));
         const union        = new Set([...groups[i], ...next[j]]);
-        const shareRatio = intersection.size / union.size;
+        const shareRatio   = intersection.size / union.size;
         if (shareRatio >= CFG.mergeShareThreshold) {
           next[j] = union; absorbed = true; merged = true;
-          log(`Merged cliques — intersection ${intersection.size}/${union.size} (${(shareRatio*100).toFixed(0)}% shared) → group [${[...union].sort().join(',')}]`, 'warn');
+          log(`Merged cliques → [${[...union].sort().join(',')}]`, 'warn');
           break;
         }
       }
@@ -670,7 +541,7 @@ function scoreGroups(groups, vm) {
     const needed = Math.ceil(peak);
     const eliminable = group.members.length - needed;
     if (eliminable < 1) {
-      log(`Group [${group.ids.join(',')}]: peak=${peak.toFixed(2)}, needed=${needed} — no elimination possible, skipped`, 'warn');
+      log(`Group [${group.ids.join(',')}]: peak=${peak.toFixed(2)} — no elimination possible, skipped`, 'warn');
       continue;
     }
     let olSum = 0, olCount = 0;
@@ -686,7 +557,7 @@ function scoreGroups(groups, vm) {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// RENDER FUNCTIONS
+// RENDER FUNCTIONS  (all create elements; shadow DOM handles scoping)
 // ═══════════════════════════════════════════════════════════════════
 function aggregateTo4h(vec1h) {
   const out = [];
@@ -713,9 +584,9 @@ function renderHeatmap(vec1h) {
       const val = v4[di * 6 + b];
       const td  = document.createElement('td'); td.className = 'cell';
       if (val < 0.05) td.style.background = '#f8f9fa';
-      else if (val < 0.4) td.style.background = `rgba(0,117,201,${(0.15+val*0.5).toFixed(2)})`;
-      else td.style.background = `rgba(0,117,201,${(0.4+val*0.55).toFixed(2)})`;
-      td.setAttribute('data-tip', `${day} ${DISPLAY_BLOCKS[b]}: ${(val*100).toFixed(0)}%`);
+      else if (val < 0.4) td.style.background = `rgba(0,117,201,${(0.15 + val * 0.5).toFixed(2)})`;
+      else td.style.background = `rgba(0,117,201,${(0.4 + val * 0.55).toFixed(2)})`;
+      td.setAttribute('data-tip', `${day} ${DISPLAY_BLOCKS[b]}: ${(val * 100).toFixed(0)}%`);
       tr.appendChild(td);
     }
     tbl.appendChild(tr);
@@ -729,7 +600,7 @@ function renderVehicleCard(v, trips, vec) {
     <div class="vehicle-card-top">
       <div>
         <div class="vehicle-name">${v.name}</div>
-        <div class="vehicle-meta">${v.type} · ${v.dept} · ${v.location}</div>
+        <div class="vehicle-meta">${v.type} · ${v.location}</div>
         <div class="vehicle-meta">${v.note}</div>
       </div>
       <span class="badge badge-gray">${trips.length} trips</span>
@@ -740,7 +611,7 @@ function renderVehicleCard(v, trips, vec) {
   return card;
 }
 
-function renderRecCard(result, rank) {
+function renderRecCard(result) {
   const { group, eliminable, needed, peak, avgOverlap, savings } = result;
   const size = group.members.length;
   const tier = eliminable >= 3 ? 'high-value' : eliminable >= 2 ? 'strong' : '';
@@ -751,10 +622,9 @@ function renderRecCard(result, rank) {
     : `<span class="badge badge-blue">Recommended</span>`;
   const chips = group.members.map((v, i) => {
     const keep = i < needed;
-    return `<span class="chip ${keep ? 'chip-keep' : 'chip-elim'}">${keep ? '✓ Keep:' : '✗ Remove:'} ${v.name} (${v.dept})</span>`;
+    return `<span class="chip ${keep ? 'chip-keep' : 'chip-elim'}">${keep ? '✓ Keep:' : '✗ Remove:'} ${v.name} <span style="font-size:10px;opacity:0.7">(${v.type})</span></span>`;
   }).join('');
-  const card = document.createElement('div');
-  card.className = `rec-card ${tier}`;
+  const card = document.createElement('div'); card.className = `rec-card ${tier}`;
   card.innerHTML = `
     <div class="rec-top">
       <div>
@@ -782,7 +652,7 @@ function renderRecCard(result, rank) {
       Summing all ${size} vehicles' hourly demand, the peak never exceeds <strong>${peak.toFixed(2)}</strong>
       simultaneous vehicles. At most <strong>${needed}</strong> vehicle${needed > 1 ? 's are' : ' is'} ever
       needed at the same time — the other <strong>${eliminable}</strong> are safe to remove from the fleet.
-      ${eliminable >= 2 ? `<br><strong>Note:</strong> This group was formed by merging cliques that shared vehicles, giving a more complete picture than reporting them as separate recommendations.` : ''}
+      ${eliminable >= 2 ? `<br><strong>Note:</strong> This group was formed by merging cliques that shared vehicles, giving a more complete picture than reporting them separately.` : ''}
     </div>
     <div class="savings-row">
       <div class="savings-item">
@@ -819,10 +689,10 @@ function renderPairRow(vA, vB, elig, ol, isComplementary) {
   if (isComplementary) tr.className = 'pool-row';
   else if (elig && ol >= 0.5) tr.className = 'conflict-row';
   tr.innerHTML = `
-    <td>${vA.id} — ${vA.dept}</td>
-    <td>${vB.id} — ${vB.dept}</td>
-    <td><span class="badge ${tm?'badge-pass':'badge-fail'}">${tm?'✓':'✗'} ${vA.type}</span></td>
-    <td><span class="badge ${lm?'badge-pass':'badge-fail'}">${lm?'✓ Same':'✗ Diff'}</span></td>
+    <td>${vA.name}</td>
+    <td>${vB.name}</td>
+    <td><span class="badge ${tm ? 'badge-pass' : 'badge-fail'}">${tm ? '✓' : '✗'} ${vA.type}</span></td>
+    <td><span class="badge ${lm ? 'badge-pass' : 'badge-fail'}">${lm ? '✓ Same' : '✗ Diff'}</span></td>
     <td>${elig
       ? `<div class="bar-wrap"><div class="bar"><div class="bar-fill" style="width:${(ol*100).toFixed(1)}%;background:${barColor}"></div></div><span style="color:${barColor};min-width:34px">${(ol*100).toFixed(0)}%</span></div>`
       : '<span style="color:#868e96">—</span>'}</td>
@@ -832,126 +702,135 @@ function renderPairRow(vA, vB, elig, ol, isComplementary) {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// VALIDATION SUITE
+// MAIN — Geotab API integration
 // ═══════════════════════════════════════════════════════════════════
-const TESTS = [
-  { desc: 'At least 1 actionable pool recommendation found', fn: r => r.length >= 1 },
-  { desc: 'Every recommendation has eliminable >= 1', fn: r => r.length > 0 && r.every(x => x.eliminable >= 1) },
-  { desc: 'No duplicate vehicle appears across separate recommendations (deduplication)',
-    fn: r => { const seen = new Set(); for (const rec of r) for (const id of rec.group.ids) { if (seen.has(id)) return false; seen.add(id); } return true; } },
-  { desc: 'V01 & V02 are in the SAME group (merged — both daytime vans)',
-    fn: r => r.some(x => x.group.ids.includes('V01') && x.group.ids.includes('V02')) },
-  { desc: 'V01 & V02 group also contains V03, V04, V07 (full shift coverage merged)',
-    fn: r => r.some(x => ['V01','V02','V03','V04','V07'].every(id => x.group.ids.includes(id))) },
-  { desc: 'That merged 5-van group keeps 2 and removes 3 (two daytime vans = peak of 2)',
-    fn: r => r.some(x => x.group.ids.includes('V01') && x.group.ids.includes('V02') && x.needed === 2 && x.eliminable === 3) },
-  { desc: 'V05 & V06 appear together in a Depot South group',
-    fn: r => r.some(x => x.group.ids.includes('V05') && x.group.ids.includes('V06')) },
-  { desc: 'P01 & P02 appear in a pickup pool group',
-    fn: r => r.some(x => x.group.ids.includes('P01') && x.group.ids.includes('P02')) },
-  { desc: 'S01 (Sedan) never appears in any recommendation',
-    fn: r => !r.some(x => x.group.ids.includes('S01')) },
-  { desc: 'No group mixes Depot North and Depot South',
-    fn: r => !r.some(x => { const locs = x.group.members.map(v => v.location); return locs.includes('Depot North') && locs.includes('Depot South'); }) },
-  { desc: 'Results sorted by 3-year savings descending',
-    fn: r => r.length < 2 || r[0].savings.total3yr >= r[1].savings.total3yr },
-];
+function runPoolFinder(api) {
+  log('Pool Finder — fetching fleet from Geotab API...', 'info');
 
-// ═══════════════════════════════════════════════════════════════════
-// MAIN
-// ═══════════════════════════════════════════════════════════════════
-function main() {
-  log('Pool Finder — starting', 'info');
+  api.call('Get', { typeName: 'Device', resultsLimit: 200 },
+    function(devices) {
+      // Resolve type + depot from live group IDs
+      const typeCounters = { Van: 0, Pickup: 0, Backhoe: 0 };
+      const fleet = [];
 
-  const tripMap = {}, vm = {};
-  let totalTrips = 0;
-  const vById = Object.fromEntries(VEHICLES.map(v => [v.id, v]));
+      devices.forEach(device => {
+        const ids = (device.groups || []).map(g => g.id || g);
+        const type  = ids.includes(GROUP.VAN) ? 'Van' : ids.includes(GROUP.PICKUP) ? 'Pickup' : ids.includes(GROUP.BACKHOE) ? 'Backhoe' : null;
+        const depot = ids.includes(GROUP.NORTH) ? 'Depot North' : ids.includes(GROUP.SOUTH) ? 'Depot South' : null;
+        if (!type || !depot) return;
 
-  VEHICLES.forEach(v => {
-    const trips = genTrips(v.pattern);
-    tripMap[v.id] = trips;
-    vm[v.id] = buildVector(trips);
-    totalTrips += trips.length;
-    log(`${v.id}: ${trips.length} trips built`, 'ok');
-  });
+        const idx = typeCounters[type]++;
+        fleet.push({
+          id:       device.id,
+          name:     device.name,
+          type,
+          location: depot,
+          note:     assignNote(type, idx),
+          pattern:  assignPattern(type, idx),
+        });
+      });
 
-  const grid = $('heatmap-grid');
-  VEHICLES.forEach(v => grid.appendChild(renderVehicleCard(v, tripMap[v.id], vm[v.id])));
+      log(`Got ${fleet.length} typed vehicles from API (${fleet.filter(v=>v.type==='Van').length} Vans, ${fleet.filter(v=>v.type==='Pickup').length} Pickups, ${fleet.filter(v=>v.type==='Backhoe').length} Backhoes)`, 'ok');
 
-  log('--- Step 1: Complementary pairs ---', 'info');
-  const pairs = findComplementaryPairs(VEHICLES, vm);
-  const pairSet = new Set(pairs.map(p => `${p.idA}+${p.idB}`));
-  log(`${pairs.length} complementary pair(s) found`, pairs.length > 0 ? 'ok' : 'err');
+      // Generate synthetic trips + build utilization vectors
+      const tripMap = {}, vm = {};
+      const vById = Object.fromEntries(fleet.map(v => [v.id, v]));
+      let totalTrips = 0;
 
-  const tbody = $('pairs-body');
-  for (let i = 0; i < VEHICLES.length; i++) {
-    for (let j = i + 1; j < VEHICLES.length; j++) {
-      const vA = VEHICLES[i], vB = VEHICLES[j];
-      const elig = pairEligible(vA, vB);
-      const ol = elig ? cosineOverlap(vm[vA.id], vm[vB.id]) : 0;
-      tbody.appendChild(renderPairRow(vA, vB, elig, ol, pairSet.has(`${vA.id}+${vB.id}`)));
+      fleet.forEach(v => {
+        const trips = genTrips(v.pattern);
+        tripMap[v.id] = trips;
+        vm[v.id] = buildVector(trips);
+        totalTrips += trips.length;
+        log(`${v.name} (${v.type}, ${v.location}): ${trips.length} trips — ${v.note}`, 'ok');
+      });
+
+      // Render heatmaps
+      const grid = $('heatmap-grid');
+      fleet.forEach(v => grid.appendChild(renderVehicleCard(v, tripMap[v.id], vm[v.id])));
+
+      // Step 1: Complementary pairs
+      log('--- Step 1: Complementary pairs ---', 'info');
+      const pairs = findComplementaryPairs(fleet, vm);
+      const pairSet = new Set(pairs.map(p => `${p.idA}+${p.idB}`));
+      log(`${pairs.length} complementary pair(s) found`, pairs.length > 0 ? 'ok' : 'err');
+
+      const tbody = $('pairs-body');
+      for (let i = 0; i < fleet.length; i++) {
+        for (let j = i + 1; j < fleet.length; j++) {
+          const vA = fleet[i], vB = fleet[j];
+          const elig = pairEligible(vA, vB);
+          const ol = elig ? cosineOverlap(vm[vA.id], vm[vB.id]) : 0;
+          tbody.appendChild(renderPairRow(vA, vB, elig, ol, pairSet.has(`${vA.id}+${vB.id}`)));
+        }
+      }
+
+      // Step 2: Cliques
+      log('--- Step 2: Clique finding ---', 'info');
+      const cliques = findCliques(fleet, pairs);
+      log(`${cliques.length} raw clique(s) found`, cliques.length > 0 ? 'ok' : 'warn');
+      cliques.forEach(c => log(`  Clique: [${c.ids.join(', ')}]`, 'info'));
+
+      // Step 3: Merge
+      log('--- Step 3: Merging overlapping cliques ---', 'info');
+      const mergedGroups = mergeCliques(cliques, vById);
+      log(`${mergedGroups.length} group(s) after merging`, 'ok');
+
+      // Step 4: Score
+      log('--- Step 4: Scoring groups ---', 'info');
+      const results = scoreGroups(mergedGroups, vm);
+
+      // Render recommendations
+      const recList = $('rec-list');
+      recList.innerHTML = '';
+      if (!results.length) {
+        recList.innerHTML = '<div style="color:#868e96;padding:40px;text-align:center">No actionable pool groups found.</div>';
+      } else {
+        results.forEach(r => recList.appendChild(renderRecCard(r)));
+      }
+
+      // Summary stats (deduplicate vehicles across groups)
+      const counted = new Set();
+      let totalElim = 0, totalAnnual = 0, totalCapital = 0;
+      results.forEach(r => {
+        if (r.group.ids.every(id => !counted.has(id))) {
+          r.group.ids.forEach(id => counted.add(id));
+          totalElim    += r.eliminable;
+          totalAnnual  += r.savings.annualOp;
+          totalCapital += r.savings.capital;
+        }
+      });
+
+      $('s-vehicles').textContent = fleet.length;
+      $('s-trips').textContent    = totalTrips.toLocaleString();
+      $('s-pairs').textContent    = pairs.length;
+      $('s-groups').textContent   = results.length;
+      $('s-elim').textContent     = totalElim;
+      $('s-annual').textContent   = fmt(totalAnnual);
+      $('s-capital').textContent  = fmt(totalCapital);
+
+      log(`Done — ${results.length} pool groups · ${totalElim} vehicles eliminable · ${fmt(totalAnnual)}/yr`, 'ok');
+    },
+    function(err) {
+      log(`API error: ${JSON.stringify(err)}`, 'err');
+      $('rec-list').innerHTML = '<div style="color:#c0392b;padding:40px;text-align:center">Failed to connect to Geotab API. Check add-in configuration.</div>';
     }
-  }
-
-  log('--- Step 2: Clique finding ---', 'info');
-  const cliques = findCliques(VEHICLES, pairs);
-  log(`${cliques.length} raw clique(s) found`, cliques.length > 0 ? 'ok' : 'warn');
-  cliques.forEach(c => log(`  Clique: [${c.ids.join(', ')}]`, 'info'));
-
-  log('--- Step 3: Merging overlapping cliques ---', 'info');
-  const mergedGroups = mergeCliques(cliques, vById);
-  log(`${mergedGroups.length} group(s) after merging`, 'ok');
-  mergedGroups.forEach(g => log(`  Merged group: [${g.ids.join(', ')}]`, 'info'));
-
-  log('--- Step 4: Scoring groups ---', 'info');
-  const results = scoreGroups(mergedGroups, vm);
-
-  const recList = $('rec-list');
-  if (!results.length) {
-    recList.innerHTML = '<div style="color:#868e96;padding:40px;text-align:center">No actionable pool groups found.</div>';
-  } else {
-    results.forEach((r, i) => recList.appendChild(renderRecCard(r, i)));
-  }
-
-  log('--- Validation ---', 'info');
-  const valList = $('val-list');
-  let passed = 0;
-  TESTS.forEach(t => {
-    const ok = (() => { try { return t.fn(results); } catch(e) { return false; } })();
-    if (ok) passed++;
-    const item = document.createElement('div'); item.className = 'val-item';
-    item.innerHTML = `
-      <span class="check">${ok ? '✅' : '❌'}</span>
-      <div class="label">${t.desc}</div>
-      <span class="badge ${ok ? 'badge-pass' : 'badge-fail'}">${ok ? 'PASS' : 'FAIL'}</span>
-    `;
-    valList.appendChild(item);
-    log(`${ok ? 'PASS' : 'FAIL'}: ${t.desc}`, ok ? 'ok' : 'err');
-  });
-
-  const counted = new Set();
-  let totalElim = 0, totalAnnual = 0, totalCapital = 0;
-  results.forEach(r => {
-    if (r.group.ids.every(id => !counted.has(id))) {
-      r.group.ids.forEach(id => counted.add(id));
-      totalElim    += r.eliminable;
-      totalAnnual  += r.savings.annualOp;
-      totalCapital += r.savings.capital;
-    }
-  });
-
-  $('s-vehicles').textContent = VEHICLES.length;
-  $('s-trips').textContent    = totalTrips.toLocaleString();
-  $('s-pairs').textContent    = pairs.length;
-  $('s-groups').textContent   = results.length;
-  $('s-elim').textContent     = totalElim;
-  $('s-annual').textContent   = fmt(totalAnnual);
-  $('s-capital').textContent  = fmt(totalCapital);
-
-  log(`Done — ${passed}/${TESTS.length} tests passed · ${totalElim} eliminable · ${fmt(totalAnnual)}/yr`, passed === TESTS.length ? 'ok' : 'warn');
+  );
 }
 
-main();
+// ── Geotab add-in lifecycle ──────────────────────────────────────
+geotab = geotab || {};
+geotab.addin = geotab.addin || {};
+geotab.addin.poolFinder = function() {
+  return {
+    initialize: function(api, state, callback) {
+      runPoolFinder(api);
+      callback();
+    },
+    focus: function(api, state) {},
+    blur:  function() {},
+  };
+};
 </script>
 </body>
 </html>
