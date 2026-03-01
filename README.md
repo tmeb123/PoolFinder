@@ -58,14 +58,25 @@ Peak simultaneous demand determines the minimum fleet needed, plus a **+1 safety
 
 ---
 
-## Vehicle Types
+## About the Demo Data
+
+The Geotab demo database provides real vehicle metadata via the API — Pool Finder pulls device names, serial numbers, and group assignments live. However, the demo simulator generates trips with completely random timing (100% entropy across all 24 hours), which makes utilization pattern analysis meaningless on raw demo data.
+
+To demonstrate the algorithm meaningfully, each of the 50 demo vehicles was manually configured in MyGeotab with a **vehicle type** and **depot assignment** via Geotab's group structure, and realistic **shift patterns** were overlaid in the simulation layer:
+
+**Vehicle Types & Shift Patterns**
 
 | Type | Shift Pattern | Capital Savings/Vehicle |
-|---|---|---|
-| **Service Van** | Day / Evening / Night / Early Morning / Weekend | $15,000 |
-| **Pickup Truck** | Morning crew (06–12) vs Afternoon crew (12–18) | $20,000 |
-| **Backhoe** | Project-cycle — active ~1 week/month, AM or PM shift | $30,000 |
+|------|--------------|------------------------|
+| Service Van | Day / Evening / Night / Early Morning / Weekend | $15,000 |
+| Pickup Truck | Morning crew (06–12) vs Afternoon crew (12–18) | $20,000 |
+| Backhoe | Project-cycle — active ~1 week/month, AM or PM shift | $30,000 |
 
+**Depot Configuration**
+
+Vehicles were distributed across three depot groups (North, South, Central) in MyGeotab. Pool Finder only compares vehicles within the same depot — a van assigned to the North depot will never be recommended for pooling with one assigned to South. This mirrors how real fleet operations work: vehicles need to share a home base to share a pool.
+
+In a production deployment, these group assignments already exist in your fleet's MyGeotab database. Pool Finder reads them directly from the API — no manual configuration required.
 ---
 
 ## The Vibe Coding Journey
