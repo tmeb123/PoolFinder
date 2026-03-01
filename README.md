@@ -26,6 +26,16 @@ Pool Finder connects to the MyGeotab API, pulls live fleet metadata, and analyze
 
 ---
 
+## A Note on the Demo vs. Production
+
+Geotab's demo simulator generates trips randomly and uniformly across all 24 hours — no real shift patterns, no project cycles, just noise. This makes it impossible to find meaningful pools from the raw trip data alone.
+
+To demonstrate the concept, Pool Finder currently overlays **simulated shift patterns** on top of the real vehicle metadata pulled from the API. Vans get realistic day, evening, night, and early morning shifts. Pickups get morning and afternoon crew patterns. Backhoes get project-cycle sporadic patterns — active roughly one week per month. The vehicle names, depot assignments, and group structure are all real and live from Geotab. Only the trip activity is simulated.
+
+**In a production deployment against a real fleet, none of this simulation is needed.** The core algorithm works directly on actual GPS trip history pulled from the Geotab API. Every fleet operates differently — different vehicle types, shift structures, and depot configurations — so the group assignments and vehicle type mappings would need to be configured to match each operation. But once that lightweight customization is done, the algorithm runs identically and the recommendations reflect real usage. The core logic and API integration are the same regardless of fleet size or complexity.
+
+---
+
 ## How the Algorithm Works
 
 **1 — 2,160-Slot Calendar Vectors**
@@ -60,7 +70,9 @@ Peak simultaneous demand determines the minimum fleet needed, plus a **+1 safety
 
 ## The Vibe Coding Journey
 
-This was built in collaboration with Claude (Anthropic) over the course of the hackathon — real collaboration, not "generate me an app." The major turning points:
+This was built in collaboration with Claude (Anthropic) over the course of the hackathon. My background is Python for data analysis — I've worked with APIs before, but a single-file HTML add-in deployed via GitHub Pages and integrated with the MyGeotab SDK was completely foreign territory. The math behind the algorithm was new to me too. Claude explained every step clearly enough that I could follow the logic, validate the approach, and make real decisions — I wasn't just accepting output, I was understanding it.
+
+The major turning points:
 
 - **Algorithm design** — worked through cosine similarity, vector design, and why Bron–Kerbosch was the right tool for finding groups rather than just pairs
 - **The 2am data problem** — uploaded a real 3,972-trip Geotab export and discovered the demo simulator generates completely random trips. Led directly to the 90-day calendar vector as the solution
