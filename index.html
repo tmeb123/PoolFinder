@@ -6,270 +6,155 @@
   <title>Pool Finder</title>
 </head>
 <body>
-
 <div id="pf-host"></div>
-
 <script>
 const host = document.getElementById('pf-host');
 const shadow = host.attachShadow({ mode: 'open' });
 
 const style = document.createElement('style');
 style.textContent = `
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
+  *, *::before, *::after { box-sizing:border-box;margin:0;padding:0; }
   :host {
-    display: block;
-    --blue:      #0075C9;
-    --blue-dark: #005a9e;
-    --blue-lt:   #e8f4fd;
-    --green:     #1a7f4b;
-    --green-lt:  #e6f4ec;
-    --red:       #c0392b;
-    --red-lt:    #fdf0ee;
-    --gold:      #b45309;
-    --gold-lt:   #fef3c7;
-    --gray-50:   #f8f9fa;
-    --gray-100:  #f1f3f5;
-    --gray-200:  #e9ecef;
-    --gray-300:  #dee2e6;
-    --gray-500:  #868e96;
-    --gray-700:  #495057;
-    --gray-900:  #212529;
-    --white:     #ffffff;
-    --radius:    6px;
-    --shadow:    0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
-    --shadow-md: 0 4px 12px rgba(0,0,0,0.10);
+    display:block;
+    --blue:#0075C9; --blue-dark:#005a9e; --blue-lt:#e8f4fd;
+    --green:#1a7f4b; --green-lt:#e6f4ec;
+    --red:#c0392b; --red-lt:#fdf0ee;
+    --gold:#b45309; --gold-lt:#fef3c7;
+    --gray-50:#f8f9fa; --gray-100:#f1f3f5; --gray-200:#e9ecef;
+    --gray-300:#dee2e6; --gray-500:#868e96; --gray-700:#495057; --gray-900:#212529;
+    --white:#ffffff; --radius:6px;
+    --shadow:0 1px 3px rgba(0,0,0,0.08),0 1px 2px rgba(0,0,0,0.06);
   }
+  .app { background:var(--gray-50);color:var(--gray-900);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:14px;line-height:1.5;max-width:1200px;margin:0 auto;padding:24px 20px 60px; }
 
-  .app {
-    background: var(--gray-50);
-    color: var(--gray-900);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    font-size: 14px;
-    line-height: 1.5;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 24px 20px 60px;
-  }
+  .app-header { display:flex;align-items:center;gap:14px;padding:20px 24px;background:var(--white);border-bottom:3px solid var(--blue);border-radius:var(--radius) var(--radius) 0 0;box-shadow:var(--shadow);margin-bottom:16px; }
+  .logo { width:40px;height:40px;background:var(--blue);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+  .logo svg { fill:white;width:22px;height:22px; }
+  .app-header h1 { font-size:20px;font-weight:700;color:var(--gray-900);letter-spacing:-0.3px; }
+  .app-header p  { font-size:12px;color:var(--gray-500);margin-top:2px; }
 
-  /* ── Header ── */
-  .app-header {
-    display: flex; align-items: center; gap: 14px;
-    padding: 20px 24px;
-    background: var(--white);
-    border-bottom: 3px solid var(--blue);
-    border-radius: var(--radius) var(--radius) 0 0;
-    box-shadow: var(--shadow);
-    margin-bottom: 16px;
-  }
-  .logo {
-    width: 40px; height: 40px;
-    background: var(--blue); border-radius: 8px;
-    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-  }
-  .logo svg { fill: white; width: 22px; height: 22px; }
-  .app-header h1 { font-size: 20px; font-weight: 700; color: var(--gray-900); letter-spacing: -0.3px; }
-  .app-header p  { font-size: 12px; color: var(--gray-500); margin-top: 2px; }
+  .notice { background:var(--gold-lt);border:1px solid #f6d860;border-left:4px solid var(--gold);border-radius:var(--radius);padding:10px 16px;font-size:12px;color:#92400e;margin-bottom:20px;line-height:1.7; }
+  .notice strong { font-weight:700; }
 
-  /* ── Notice banner ── */
-  .notice {
-    background: var(--gold-lt);
-    border: 1px solid #f6d860;
-    border-left: 4px solid var(--gold);
-    border-radius: var(--radius);
-    padding: 10px 16px;
-    font-size: 12px;
-    color: #92400e;
-    margin-bottom: 20px;
-    line-height: 1.7;
-  }
-  .notice strong { font-weight: 700; }
+  .section { margin-bottom:28px; }
+  .section-title { font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--gray-500);margin-bottom:12px;display:flex;align-items:center;gap:8px; }
+  .section-title::after { content:'';flex:1;height:1px;background:var(--gray-200); }
 
-  /* ── Section ── */
-  .section { margin-bottom: 28px; }
-  .section-title {
-    font-size: 11px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.08em; color: var(--gray-500);
-    margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
-  }
-  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--gray-200); }
+  .summary-bar { display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:28px; }
+  .stat-card { background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);padding:16px 20px;box-shadow:var(--shadow); }
+  .stat-card .num { font-size:28px;font-weight:800;color:var(--blue);line-height:1; }
+  .stat-card .num.green { color:var(--green); }
+  .stat-card .num.gold  { color:var(--gold); }
+  .stat-card .lbl { font-size:11px;color:var(--gray-500);margin-top:4px;font-weight:500; }
 
-  /* ── Summary bar ── */
-  .summary-bar {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 12px; margin-bottom: 28px;
-  }
-  .stat-card {
-    background: var(--white); border: 1px solid var(--gray-200);
-    border-radius: var(--radius); padding: 16px 20px; box-shadow: var(--shadow);
-  }
-  .stat-card .num { font-size: 28px; font-weight: 800; color: var(--blue); line-height: 1; }
-  .stat-card .num.green { color: var(--green); }
-  .stat-card .num.gold  { color: var(--gold); }
-  .stat-card .lbl { font-size: 11px; color: var(--gray-500); margin-top: 4px; font-weight: 500; }
+  .rec-list { display:flex;flex-direction:column;gap:16px; }
+  .rec-card { background:var(--white);border:1px solid var(--gray-200);border-left:4px solid var(--blue);border-radius:var(--radius);padding:20px 24px;box-shadow:var(--shadow); }
+  .rec-card.high-value { border-left-color:var(--gold); }
+  .rec-card.strong { border-left-color:var(--green); }
+  .rec-top { display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px; }
 
-  /* ── Rec cards ── */
-  .rec-list { display: flex; flex-direction: column; gap: 16px; }
-  .rec-card {
-    background: var(--white); border: 1px solid var(--gray-200);
-    border-left: 4px solid var(--blue);
-    border-radius: var(--radius); padding: 20px 24px; box-shadow: var(--shadow);
-  }
-  .rec-card.high-value { border-left-color: var(--gold); }
-  .rec-card.strong     { border-left-color: var(--green); }
-  .rec-top { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; }
-  .rec-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+  .badge { display:inline-block;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600;letter-spacing:0.04em; }
+  .badge-blue  { background:var(--blue-lt);color:var(--blue-dark); }
+  .badge-green { background:var(--green-lt);color:var(--green); }
+  .badge-gold  { background:var(--gold-lt);color:var(--gold); }
+  .badge-gray  { background:var(--gray-100);color:var(--gray-700); }
+  .badge-pass  { background:var(--green-lt);color:var(--green); }
+  .badge-fail  { background:var(--red-lt);color:var(--red); }
 
-  /* ── Badges ── */
-  .badge {
-    display: inline-block; padding: 2px 8px; border-radius: 3px;
-    font-size: 11px; font-weight: 600; letter-spacing: 0.04em;
-  }
-  .badge-blue    { background: var(--blue-lt);  color: var(--blue-dark); }
-  .badge-green   { background: var(--green-lt); color: var(--green); }
-  .badge-red     { background: var(--red-lt);   color: var(--red); }
-  .badge-gold    { background: var(--gold-lt);  color: var(--gold); }
-  .badge-gray    { background: var(--gray-100); color: var(--gray-700); }
-  .badge-pass    { background: var(--green-lt); color: var(--green); }
-  .badge-fail    { background: var(--red-lt);   color: var(--red); }
-  .badge-good    { background: var(--green-lt); color: var(--green); }
-  .badge-bad     { background: var(--red-lt);   color: var(--red); }
-  .badge-neutral { background: var(--gray-100); color: var(--gray-700); }
+  .rec-title { font-size:16px;font-weight:700;color:var(--gray-900); }
+  .rec-meta  { font-size:12px;color:var(--gray-500);margin-top:4px; }
+  .rec-savings { text-align:right;flex-shrink:0; }
+  .rec-savings .big   { font-size:26px;font-weight:800;color:var(--green);line-height:1; }
+  .rec-savings .sub   { font-size:11px;color:var(--gray-500);margin-top:4px; }
+  .rec-savings .total { font-size:12px;font-weight:600;color:var(--gold);margin-top:3px; }
 
-  .rec-title { font-size: 16px; font-weight: 700; color: var(--gray-900); }
-  .rec-meta  { font-size: 12px; color: var(--gray-500); margin-top: 4px; }
-  .rec-savings { text-align: right; flex-shrink: 0; }
-  .rec-savings .big   { font-size: 26px; font-weight: 800; color: var(--green); line-height: 1; }
-  .rec-savings .sub   { font-size: 11px; color: var(--gray-500); margin-top: 4px; }
-  .rec-savings .total { font-size: 12px; font-weight: 600; color: var(--gold); margin-top: 3px; }
+  .chip-row { display:flex;flex-wrap:wrap;gap:6px;margin-top:14px; }
+  .chip { padding:4px 10px;border-radius:4px;font-size:12px;font-weight:500;border:1px solid;display:inline-block; }
+  .chip-keep { background:var(--green-lt);color:var(--green);border-color:#a7d7bc; }
+  .chip-elim { background:var(--red-lt);color:var(--red);border-color:#f0b8b2;text-decoration:line-through;opacity:0.85; }
 
-  /* ── Chips ── */
-  .chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
-  .chip {
-    padding: 4px 10px; border-radius: 4px; font-size: 12px;
-    font-weight: 500; border: 1px solid; display: inline-block;
-  }
-  .chip-keep { background: var(--green-lt); color: var(--green); border-color: #a7d7bc; }
-  .chip-elim { background: var(--red-lt); color: var(--red); border-color: #f0b8b2; text-decoration: line-through; opacity: 0.85; }
+  .why-box { margin-top:14px;background:var(--gray-50);border:1px solid var(--gray-200);border-radius:4px;padding:12px 14px;font-size:12px;color:var(--gray-700);line-height:1.8; }
+  .why-box strong { color:var(--gray-900); }
 
-  /* ── Why box ── */
-  .why-box {
-    margin-top: 14px; background: var(--gray-50);
-    border: 1px solid var(--gray-200); border-radius: 4px;
-    padding: 10px 14px; font-size: 12px; color: var(--gray-700); line-height: 1.7;
-  }
+  /* Peak demand chart */
+  .demand-section { margin-top:16px; }
+  .demand-header { display:flex;justify-content:space-between;align-items:center;margin-bottom:6px; }
+  .demand-title { font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--gray-500); }
+  .demand-subtitle { font-size:11px;color:var(--gray-500); }
+  .demand-chart-wrap { position:relative;background:var(--gray-50);border:1px solid var(--gray-200);border-radius:4px;padding:8px 8px 0;height:80px;overflow:hidden; }
+  .demand-bars { display:flex;align-items:flex-end;height:100%;gap:1px; }
+  .demand-col { flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%; }
+  .demand-col-inner { border-radius:2px 2px 0 0;min-height:2px;width:100%; }
+  .demand-col-inner.safe   { background:#74c0fc; }
+  .demand-col-inner.buffer { background:#ffd43b; }
+  .demand-col-inner.over   { background:#ff6b6b; }
+  .demand-line { position:absolute;left:8px;right:8px;border-top:2px dashed;pointer-events:none; }
+  .demand-line-label { position:absolute;right:10px;font-size:9px;font-weight:800;padding:0 3px;transform:translateY(-10px); }
+  .demand-day-labels { display:flex;gap:1px;margin-top:3px; }
+  .demand-day-label { flex:1;text-align:center;font-size:8px;color:var(--gray-500); }
+  .demand-legend { display:flex;gap:14px;margin-top:8px;flex-wrap:wrap; }
+  .demand-legend-item { display:flex;align-items:center;gap:5px;font-size:11px;color:var(--gray-500); }
+  .demand-legend-dot { width:10px;height:10px;border-radius:2px;flex-shrink:0; }
 
-  /* ── Savings row ── */
-  .savings-row {
-    display: flex; flex-wrap: wrap; gap: 24px;
-    margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--gray-200);
-  }
-  .savings-item .val { font-size: 18px; font-weight: 700; color: var(--gray-900); }
-  .savings-item .lbl { font-size: 11px; color: var(--gray-500); }
+  .savings-row { display:flex;flex-wrap:wrap;gap:24px;margin-top:14px;padding-top:14px;border-top:1px solid var(--gray-200); }
+  .savings-item .val { font-size:18px;font-weight:700;color:var(--gray-900); }
+  .savings-item .lbl { font-size:11px;color:var(--gray-500); }
 
-  /* ── Vehicle grid ── */
-  .vehicle-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
-  .vehicle-card {
-    background: var(--white); border: 1px solid var(--gray-200);
-    border-radius: var(--radius); padding: 14px 16px; box-shadow: var(--shadow);
-  }
-  .vehicle-card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
-  .vehicle-name { font-size: 13px; font-weight: 700; color: var(--gray-900); }
-  .vehicle-meta { font-size: 11px; color: var(--gray-500); margin-top: 2px; }
+  .vehicle-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px; }
+  .vehicle-card { background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow); }
+  .vehicle-card-top { display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px; }
+  .vehicle-name { font-size:13px;font-weight:700;color:var(--gray-900); }
+  .vehicle-meta { font-size:11px;color:var(--gray-500);margin-top:2px; }
 
-  /* ── Heatmap ── */
-  .heatmap { border-collapse: collapse; width: 100%; }
-  .heatmap th { font-size: 9px; font-weight: 600; color: var(--gray-500); text-align: center; padding: 2px 1px; letter-spacing: 0.02em; }
-  .heatmap .row-label { font-size: 10px; color: var(--gray-500); padding-right: 6px; white-space: nowrap; font-weight: 500; }
-  .heatmap td.cell { height: 20px; border: 1px solid var(--gray-100); border-radius: 2px; cursor: default; position: relative; }
-  .heatmap td.cell:hover::after {
-    content: attr(data-tip);
-    position: absolute; bottom: 110%; left: 50%; transform: translateX(-50%);
-    background: var(--gray-900); color: white;
-    padding: 3px 7px; border-radius: 3px; font-size: 10px; white-space: nowrap;
-    z-index: 100; pointer-events: none;
-  }
+  .heatmap { border-collapse:collapse;width:100%; }
+  .heatmap th { font-size:9px;font-weight:600;color:var(--gray-500);text-align:center;padding:2px 1px;letter-spacing:0.02em; }
+  .heatmap .row-label { font-size:10px;color:var(--gray-500);padding-right:6px;white-space:nowrap;font-weight:500; }
+  .heatmap td.cell { height:20px;border:1px solid var(--gray-100);border-radius:2px;cursor:default;position:relative; }
+  .heatmap td.cell:hover::after { content:attr(data-tip);position:absolute;bottom:110%;left:50%;transform:translateX(-50%);background:var(--gray-900);color:white;padding:3px 7px;border-radius:3px;font-size:10px;white-space:nowrap;z-index:100;pointer-events:none; }
 
-  /* ── Pairs table ── */
-  .data-table { width: 100%; border-collapse: collapse; background: var(--white); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
-  .data-table th { background: var(--gray-50); border-bottom: 2px solid var(--gray-200); text-align: left; padding: 10px 14px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--gray-500); }
-  .data-table td { padding: 9px 14px; border-bottom: 1px solid var(--gray-100); font-size: 13px; vertical-align: middle; }
-  .data-table tr:last-child td { border-bottom: none; }
-  .data-table tr:hover td { background: var(--gray-50); }
-  .data-table tr.pool-row td:first-child     { border-left: 3px solid var(--green); }
-  .data-table tr.conflict-row td:first-child { border-left: 3px solid var(--red); }
-  .bar-wrap { display: flex; align-items: center; gap: 8px; }
-  .bar { height: 6px; border-radius: 3px; background: var(--gray-200); width: 80px; overflow: hidden; }
-  .bar-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
+  .data-table { width:100%;border-collapse:collapse;background:var(--white);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow); }
+  .data-table th { background:var(--gray-50);border-bottom:2px solid var(--gray-200);text-align:left;padding:10px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--gray-500); }
+  .data-table td { padding:9px 14px;border-bottom:1px solid var(--gray-100);font-size:13px;vertical-align:middle; }
+  .data-table tr:last-child td { border-bottom:none; }
+  .data-table tr:hover td { background:var(--gray-50); }
+  .data-table tr.pool-row td:first-child { border-left:3px solid var(--green); }
+  .bar-wrap { display:flex;align-items:center;gap:8px; }
+  .bar { height:6px;border-radius:3px;background:var(--gray-200);width:80px;overflow:hidden; }
+  .bar-fill { height:100%;border-radius:3px; }
 
-  /* ── Loading ── */
-  .loading { text-align: center; padding: 60px 20px; color: var(--gray-500); }
-  .spinner {
-    width: 32px; height: 32px;
-    border: 3px solid var(--gray-200); border-top-color: var(--blue);
-    border-radius: 50%; animation: spin 0.8s linear infinite;
-    margin: 0 auto 16px; display: block;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
+  .collapse-toggle { display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;padding:10px 16px;background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);font-size:13px;font-weight:600;color:var(--gray-700);box-shadow:var(--shadow);transition:background 0.15s; }
+  .collapse-toggle:hover { background:var(--gray-50); }
+  .collapse-toggle .toggle-icon { font-size:11px;color:var(--gray-500);transition:transform 0.2s; }
+  .collapse-toggle.open .toggle-icon { transform:rotate(180deg); }
+  .collapse-body { display:none;margin-top:12px; }
+  .collapse-body.open { display:block; }
 
-  /* ── Validation ── */
-  .val-list { display: flex; flex-direction: column; gap: 8px; }
-  .val-item { display: flex; align-items: center; gap: 12px; background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 10px 14px; font-size: 13px; }
-  .val-item .check { font-size: 16px; flex-shrink: 0; }
-  .val-item .label { flex: 1; color: var(--gray-700); }
+  .loading { text-align:center;padding:60px 20px;color:var(--gray-500); }
+  .spinner { width:32px;height:32px;border:3px solid var(--gray-200);border-top-color:var(--blue);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px;display:block; }
+  @keyframes spin { to { transform:rotate(360deg); } }
 
-  /* ── Collapsible sections ── */
-  .collapse-toggle {
-    display: flex; align-items: center; justify-content: space-between;
-    cursor: pointer; user-select: none;
-    padding: 10px 16px;
-    background: var(--white);
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius);
-    font-size: 13px; font-weight: 600; color: var(--gray-700);
-    box-shadow: var(--shadow);
-    transition: background 0.15s;
-  }
-  .collapse-toggle:hover { background: var(--gray-50); }
-  .collapse-toggle .toggle-label { display: flex; align-items: center; gap: 8px; }
-  .collapse-toggle .toggle-icon {
-    font-size: 11px; color: var(--gray-500);
-    transition: transform 0.2s;
-    display: inline-block;
-  }
-  .collapse-toggle.open .toggle-icon { transform: rotate(180deg); }
-  .collapse-body { display: none; margin-top: 12px; }
-  .collapse-body.open { display: block; }
+  /* About */
+  .about-card { background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);padding:28px 32px;box-shadow:var(--shadow);line-height:1.8; }
+  .about-card h2 { font-size:18px;font-weight:700;color:var(--gray-900);margin-bottom:6px; }
+  .about-card h3 { font-size:12px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:0.07em;margin:22px 0 8px; }
+  .about-card p  { font-size:13px;color:var(--gray-700);margin-bottom:10px; }
+  .about-card .tagline { font-size:13px;color:var(--gray-500);margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--gray-200); }
+  .about-steps { display:flex;flex-direction:column;gap:10px;margin-bottom:10px; }
+  .about-step { display:flex;gap:14px;align-items:flex-start; }
+  .step-num { width:26px;height:26px;border-radius:50%;background:var(--blue);color:white;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px; }
+  .step-text { font-size:13px;color:var(--gray-700); }
+  .step-text strong { color:var(--gray-900); }
+  .future-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-bottom:10px; }
+  .future-card { background:var(--gray-50);border:1px solid var(--gray-200);border-radius:var(--radius);padding:14px 16px; }
+  .future-card h4 { font-size:12px;font-weight:700;color:var(--blue);margin-bottom:5px; }
+  .future-card p  { font-size:12px;color:var(--gray-700);margin:0;line-height:1.6; }
+  .about-footer { margin-top:24px;padding-top:18px;border-top:1px solid var(--gray-200);font-size:12px;color:var(--gray-500);font-style:italic; }
 
-  /* ── About section ── */
-  .about-card {
-    background: var(--white); border: 1px solid var(--gray-200);
-    border-radius: var(--radius); padding: 28px 32px; box-shadow: var(--shadow);
-    line-height: 1.8;
-  }
-  .about-card h2 { font-size: 18px; font-weight: 700; color: var(--gray-900); margin-bottom: 6px; }
-  .about-card h3 { font-size: 13px; font-weight: 700; color: var(--blue); text-transform: uppercase; letter-spacing: 0.06em; margin: 22px 0 8px; }
-  .about-card p  { font-size: 13px; color: var(--gray-700); margin-bottom: 10px; }
-  .about-card .tagline { font-size: 13px; color: var(--gray-500); margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--gray-200); }
-  .about-steps { display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; }
-  .about-step { display: flex; gap: 14px; align-items: flex-start; }
-  .about-step .step-num {
-    width: 26px; height: 26px; border-radius: 50%;
-    background: var(--blue); color: white;
-    font-size: 12px; font-weight: 700;
-    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-    margin-top: 1px;
-  }
-  .about-step .step-text { font-size: 13px; color: var(--gray-700); }
-  .about-step .step-text strong { color: var(--gray-900); }
-  .about-footer { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--gray-200); font-size: 12px; color: var(--gray-500); font-style: italic; }
-
-  @media (max-width: 600px) {
-    .app { padding: 12px 12px 40px; }
-    .rec-top { flex-direction: column; }
-    .rec-savings { text-align: left; }
-    .summary-bar { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width:600px) {
+    .app { padding:12px 12px 40px; }
+    .rec-top { flex-direction:column; }
+    .rec-savings { text-align:left; }
+    .summary-bar { grid-template-columns:repeat(2,1fr); }
   }
 `;
 shadow.appendChild(style);
@@ -279,9 +164,7 @@ app.className = 'app';
 app.innerHTML = `
   <div class="app-header">
     <div class="logo">
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M18 4H6C4.9 4 4 4.9 4 6v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 11h-2v-4H9l3-5 3 5h-2v4z"/>
-      </svg>
+      <svg viewBox="0 0 24 24"><path d="M18 4H6C4.9 4 4 4.9 4 6v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 11h-2v-4H9l3-5 3 5h-2v4z"/></svg>
     </div>
     <div>
       <h1>Pool Finder</h1>
@@ -290,7 +173,7 @@ app.innerHTML = `
   </div>
 
   <div class="notice">
-    <strong>📋 Demo Note:</strong> Geotab's simulator database generates randomized trips uniformly across all 24 hours — not representative of real-world fleet shift patterns. Pool Finder overlays realistic utility fleet shift schedules assigned by vehicle type (day/evening/night shifts for Vans, morning/afternoon crews for Pickups, sporadic heavy use for Backhoes). Vehicle names and group assignments are pulled live from the Geotab API. In a production deployment, actual GPS trip history is used directly.
+    <strong>📋 Demo Note:</strong> Geotab's simulator generates randomized trips uniformly across all 24 hours — not representative of real-world fleet shift patterns. Pool Finder overlays realistic utility fleet shift schedules assigned by vehicle type: shift-based patterns for Vans and Pickups, and project-cycle sporadic patterns for Backhoes (active one week per month, idle otherwise). Vehicle names and group assignments are pulled live from the Geotab API. In a production deployment, actual GPS trip history is used directly with no overrides.
   </div>
 
   <div class="section">
@@ -315,7 +198,7 @@ app.innerHTML = `
 
   <div class="section">
     <div class="collapse-toggle" id="toggle-heatmaps">
-      <span class="toggle-label">🗓 Utilization Heatmaps — All Vehicles</span>
+      <span>🗓 Utilization Heatmaps — All Vehicles</span>
       <span class="toggle-icon">▼</span>
     </div>
     <div class="collapse-body" id="body-heatmaps">
@@ -325,15 +208,13 @@ app.innerHTML = `
 
   <div class="section">
     <div class="collapse-toggle" id="toggle-pairs">
-      <span class="toggle-label">🔗 Pair Compatibility Matrix — Complementary Pairs Only</span>
+      <span>🔗 Complementary Pair Matrix</span>
       <span class="toggle-icon">▼</span>
     </div>
     <div class="collapse-body" id="body-pairs">
       <div style="overflow-x:auto">
         <table class="data-table">
-          <thead>
-            <tr><th>Vehicle A</th><th>Vehicle B</th><th>Type</th><th>Location</th><th>Overlap</th></tr>
-          </thead>
+          <thead><tr><th>Vehicle A</th><th>Vehicle B</th><th>Type</th><th>Location</th><th>Overlap</th></tr></thead>
           <tbody id="pairs-body"></tbody>
         </table>
       </div>
@@ -348,24 +229,52 @@ app.innerHTML = `
 
       <h3>The Real-World Problem</h3>
       <p>Mixed-use fleets — like those operated by utilities, municipalities, and construction firms — often carry far more vehicles than they actually need at any given moment. The reason isn't that the vehicles are unused; it's that <strong>usage is sequential, not simultaneous</strong>. A van used for a 6am maintenance run sits idle all afternoon while an identical van sits idle all morning waiting for an evening shift. Neither fleet manager sees this — they only see that both vans are "actively assigned."</p>
-      <p>Pool Finder makes this invisible pattern visible. If two vehicles never need to be on the road at the same time, the fleet can operate with just one of them — shared across both crews. This is vehicle pooling, and at $8,000–$12,000 per vehicle per year in operating costs plus $7,000 in capital value, even eliminating three or four vehicles delivers six-figure savings over three years.</p>
+      <p>Pool Finder makes this invisible pattern visible. If a group of vehicles never all need to be on the road at the same time, the fleet can operate with fewer of them — shared across multiple crews. At $8,000–$12,000 per vehicle per year in operating costs plus $7,000 in capital value, even eliminating three or four vehicles delivers six-figure savings over three years.</p>
 
       <h3>How the Algorithm Works</h3>
       <div class="about-steps">
         <div class="about-step"><div class="step-num">1</div><div class="step-text"><strong>Utilization Vectors.</strong> Each vehicle's GPS trip history is converted into a 168-slot vector (24 hours × 7 days). Each slot holds the fraction of weeks that vehicle was in use during that hour — a normalized fingerprint of when it actually moves.</div></div>
-        <div class="about-step"><div class="step-num">2</div><div class="step-text"><strong>Cosine Overlap Scoring.</strong> Every eligible pair of vehicles (same type, same depot) is tested using cosine similarity on their utilization vectors. Low overlap = complementary schedules. High overlap = they compete for the same hours and cannot share.</div></div>
-        <div class="about-step"><div class="step-num">3</div><div class="step-text"><strong>Sum-Peak Gating.</strong> A pair passes only if their combined demand never exceeds 1.0 simultaneous vehicle. This is the hard physical constraint — if their peak demand stacks, pooling them would leave a crew without a vehicle.</div></div>
-        <div class="about-step"><div class="step-num">4</div><div class="step-text"><strong>Clique Detection (Bron–Kerbosch).</strong> Complementary pairs are assembled into a graph. The Bron–Kerbosch algorithm finds all maximal cliques — groups of vehicles where every member is complementary to every other. These become pool candidates.</div></div>
-        <div class="about-step"><div class="step-num">5</div><div class="step-text"><strong>Clique Merging.</strong> Cliques that share a large fraction of members are merged into a single consolidated group. This prevents the same vehicle from appearing in conflicting recommendations.</div></div>
-        <div class="about-step"><div class="step-num">6</div><div class="step-text"><strong>Elimination Scoring.</strong> For each group, the summed demand vector's peak tells us the minimum number of vehicles ever needed simultaneously. Everything above that threshold is eliminable. Groups are ranked by 3-year total savings.</div></div>
+        <div class="about-step"><div class="step-num">2</div><div class="step-text"><strong>Cosine Overlap Scoring.</strong> Every eligible pair of vehicles (same type, same depot) is tested using cosine similarity on their utilization vectors. Low overlap = complementary schedules. High overlap = they compete for the same hours and cannot share a vehicle.</div></div>
+        <div class="about-step"><div class="step-num">3</div><div class="step-text"><strong>Sum-Peak Gating.</strong> A pair passes only if their combined hourly demand never exceeds 1.0 simultaneous vehicles at any point. This is the hard physical constraint — if their peaks stack, pooling them would strand a crew.</div></div>
+        <div class="about-step"><div class="step-num">4</div><div class="step-text"><strong>Clique Detection (Bron–Kerbosch).</strong> Passing pairs are assembled into a graph. The Bron–Kerbosch algorithm finds all maximal cliques — groups of vehicles where every member is complementary to every other member. These become pool candidates.</div></div>
+        <div class="about-step"><div class="step-num">5</div><div class="step-text"><strong>Clique Merging & Deduplication.</strong> Cliques sharing members are merged into consolidated groups, and each vehicle is assigned to exactly one group — its highest-value pool — so no vehicle appears in conflicting recommendations.</div></div>
+        <div class="about-step"><div class="step-num">6</div><div class="step-text"><strong>Buffer-Safe Elimination Scoring.</strong> For each group, the peak simultaneous demand tells us the minimum fleet size needed. Pool Finder then adds a +1 safety buffer — so a group with peak demand of 3 recommends keeping 4 vehicles, not 3. This ensures operational resilience. Every vehicle above that threshold is safely eliminable.</div></div>
+      </div>
+
+      <h3>Future Goals — Where Pool Finder Goes Next</h3>
+      <div class="future-grid">
+        <div class="future-card">
+          <h4>📍 GPS-Based Proximity Pooling</h4>
+          <p>Today, pooling is restricted to the same assigned depot. A future version would use real-time and historical GPS coordinates to detect when vehicles from different depots spend most of their time in the same geographic zone — enabling cross-depot pool recommendations based on where vehicles actually operate, not just where they're assigned.</p>
+        </div>
+        <div class="future-card">
+          <h4>🔮 Predictive Schedule Modeling</h4>
+          <p>Rather than analyzing historical trips in isolation, future versions could incorporate seasonal demand curves, project calendars, and known schedule changes to forecast future utilization. This would allow pool recommendations to be forward-looking — flagging vehicles that will become poolable after a project ends, or warning when a pool will need to be dissolved due to upcoming demand.</p>
+        </div>
+        <div class="future-card">
+          <h4>⚡ Real-Time Pool Availability</h4>
+          <p>A live dashboard layer could show which pooled vehicles are currently in use vs. available, giving dispatchers an at-a-glance view of pool capacity in real time. If a shared vehicle is unexpectedly occupied, the system could automatically suggest which other pool vehicle is nearest and available.</p>
+        </div>
+        <div class="future-card">
+          <h4>🏗 Project-Cycle Aware Grouping</h4>
+          <p>Heavy equipment like backhoes often follows project cycles — active for a few weeks, then idle for a month. Future versions would detect these multi-week utilization cycles and group equipment by project cadence rather than just shift hours, enabling smarter equipment sharing across project teams.</p>
+        </div>
+        <div class="future-card">
+          <h4>📊 Multi-Depot Cross-Pooling</h4>
+          <p>When two depots are close enough geographically, it may make sense to share a pool vehicle between them. A future routing layer could calculate deadhead drive time between depots and factor it into the pool viability calculation — if the drive time between locations is under 20 minutes, cross-depot pooling becomes operationally feasible.</p>
+        </div>
+        <div class="future-card">
+          <h4>🔔 Automated Fleet Right-Sizing Reports</h4>
+          <p>Pool Finder could automatically generate monthly fleet right-sizing reports — flagging newly poolable vehicles as usage patterns shift, tracking how much has been saved since pools were implemented, and surfacing vehicles that have drifted out of their pool patterns and may need reassignment.</p>
+        </div>
       </div>
 
       <h3>Why Geotab?</h3>
-      <p>Geotab's MyGeotab platform gives fleet managers real-time GPS data, vehicle grouping, and a rich API — everything Pool Finder needs to run. The add-in pulls live vehicle metadata (names, types, depot assignments) directly from the API on load. In a production deployment, it would also pull real trip history and run the full analysis against actual GPS data, with no synthetic overrides needed.</p>
+      <p>Geotab's MyGeotab platform provides the real-time GPS data, vehicle grouping, and rich API that Pool Finder needs to operate. The add-in pulls live vehicle metadata (names, types, depot assignments) directly from the API on every load. In a production deployment, it would also consume real trip history for the analysis with no synthetic overrides needed — every fleet is different, and Pool Finder adapts to whatever patterns actually exist in the data.</p>
 
       <h3>Built With</h3>
-      <p>Pool Finder was built as part of a vibe coding hackathon — which basically means me and Claude going back and forth until something brilliant emerged. The algorithm design, Shadow DOM isolation pattern, Geotab API integration, and the debugging process of figuring out why MyGeotab was eating all our CSS were all done collaboratively with Claude (Anthropic). It's a genuinely good example of what AI-assisted development looks like when you let it run: fast, iterative, and occasionally requiring a deep dive into why simulator data is entirely random at 3am.</p>
-      <p>Stack: vanilla JS, Shadow DOM for CSS isolation, Geotab MyGeotab Add-In SDK, Bron–Kerbosch clique detection, cosine similarity for schedule comparison.</p>
+      <p>Pool Finder was built as a vibe coding hackathon project — which in practice meant a rapid back-and-forth collaboration with Claude (Anthropic's AI) to design the algorithm, work through the Shadow DOM CSS isolation problem, debug the Geotab add-in namespace pattern, and figure out why simulator data turned out to be completely random at 2am. It's a genuinely fun example of what AI-assisted development looks like when you just let it run.</p>
+      <p>Stack: vanilla JS · Shadow DOM for CSS isolation · Geotab MyGeotab Add-In SDK · Bron–Kerbosch clique detection · cosine similarity for schedule comparison · no external dependencies.</p>
 
       <div class="about-footer">Built for the Geotab Hackathon · Pool Finder v1.0 · Real vehicle data, realistic shift patterns, real savings math.</div>
     </div>
@@ -373,12 +282,11 @@ app.innerHTML = `
 `;
 shadow.appendChild(app);
 
-// ── All getElementById queries must go through shadow root ──
 function $(id) { return shadow.getElementById(id); }
 
-// ═══════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════
 // CONFIG
-// ═══════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════
 const CFG = {
   windowDays:          90,
   SLOTS_PER_DAY:       24,
@@ -389,12 +297,13 @@ const CFG = {
   requireSameLocation: true,
   annualOpMid:         10000,
   capitalPerVehicle:   7000,
+  safetyBuffer:        1,   // keep peak+1 vehicles, not just peak
+  minGroupSize:        3,   // ignore groups smaller than this after buffer
 };
 
 const DISPLAY_BLOCKS = ['00–04','04–08','08–12','12–16','16–20','20–24'];
 const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
-// ── Known Geotab group IDs (confirmed via diagnostic tool) ──
 const GROUP = {
   VAN:    'b279E',
   PICKUP: 'b279F',
@@ -403,12 +312,12 @@ const GROUP = {
   SOUTH:  'b279B',
 };
 
-// ═══════════════════════════════════════════════════════════════════
-// TRIP GENERATION  — realistic shift patterns by vehicle type
-// ═══════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════
+// TRIP PATTERNS — realistic utility fleet
+// ═══════════════════════════════════════════
 function mkTrip(date, sh, eh) {
-  const s = new Date(date); s.setHours(sh, 0, 0, 0);
-  const e = new Date(date); e.setHours(eh, 0, 0, 0);
+  const s = new Date(date); s.setHours(sh,0,0,0);
+  const e = new Date(date); e.setHours(eh,0,0,0);
   if (e <= s) return null;
   return { start: s.toISOString(), stop: e.toISOString() };
 }
@@ -416,93 +325,122 @@ function mkTrip(date, sh, eh) {
 function genTrips(fn, days = CFG.windowDays) {
   const out = [], now = new Date();
   for (let i = days; i >= 0; i--) {
-    const d = new Date(now);
-    d.setDate(d.getDate() - i);
-    d.setHours(0, 0, 0, 0);
-    fn(d, d.getDay()).forEach(t => { if (t) out.push(t); });
+    const d = new Date(now); d.setDate(d.getDate() - i); d.setHours(0,0,0,0);
+    fn(d, d.getDay(), i).forEach(t => { if (t) out.push(t); });
   }
   return out;
 }
 
-// Seven van patterns → rotating assignment creates complementary shift coverage
-// Pickups → morning / afternoon / full-day crews
-// Backhoes → sporadic heavy use, 3–4 days/week
-const PATTERNS = {
-  Van: [
-    (d, dow) => (dow >= 1 && dow <= 5) ? [mkTrip(d, 7, 16)] : [],               // Day A  Mon–Fri 07–16
-    (d, dow) => (dow >= 1 && dow <= 5) ? [mkTrip(d, 7, 16)] : [],               // Day B  (same → pools with A)
-    (d, dow) => (dow >= 1 && dow <= 5) ? [mkTrip(d, 8, 17)] : [],               // Day C  08–17 (slight offset)
-    (d, dow) => { if (dow>=1&&dow<=5) return [mkTrip(d,16,23)]; if (dow===6) return [mkTrip(d,8,14)]; return []; }, // Evening
-    (d, dow) => ([0,1,2,3,4].includes(dow)) ? [mkTrip(d, 22, 24)] : [],         // Night
-    (d, dow) => (dow >= 1 && dow <= 6) ? [mkTrip(d, 4, 8)] : [],               // Early morning
-    (d, dow) => (dow === 0 || dow === 6) ? [mkTrip(d, 8, 16)] : [],            // Weekend
-  ],
-  Pickup: [
-    (d, dow) => (dow >= 1 && dow <= 5) ? [mkTrip(d, 6, 12)] : [],              // Morning crew
-    (d, dow) => (dow >= 1 && dow <= 5) ? [mkTrip(d, 12, 18)] : [],             // Afternoon crew
-    (d, dow) => (dow >= 1 && dow <= 5) ? [mkTrip(d, 7, 17)] : [],              // Full day
-  ],
-  Backhoe: [
-    (d, dow) => (dow >= 1 && dow <= 4) ? [mkTrip(d, 7, 15)] : [],              // Mon–Thu heavy
-    (d, dow) => (dow >= 2 && dow <= 4) ? [mkTrip(d, 8, 14)] : [],              // Tue–Thu light
-    (d, dow) => (dow===1||dow===3||dow===5) ? [mkTrip(d, 7, 16)] : [],         // Mon/Wed/Fri alternating
-  ],
-};
+// Van patterns — 7 distinct shift schedules
+const VAN_PATTERNS = [
+  (d,dow)    => (dow>=1&&dow<=5) ? [mkTrip(d,7,16)] : [],                            // Day A  Mon–Fri 07–16
+  (d,dow)    => (dow>=1&&dow<=5) ? [mkTrip(d,7,16)] : [],                            // Day B  (pools with A)
+  (d,dow)    => (dow>=1&&dow<=5) ? [mkTrip(d,8,17)] : [],                            // Day C  08–17
+  (d,dow)    => { if(dow>=1&&dow<=5) return [mkTrip(d,16,23)]; if(dow===6) return [mkTrip(d,8,14)]; return []; }, // Evening
+  (d,dow)    => ([0,1,2,3,4].includes(dow)) ? [mkTrip(d,22,24)] : [],               // Night
+  (d,dow)    => (dow>=1&&dow<=6) ? [mkTrip(d,4,8)] : [],                            // Early morning
+  (d,dow)    => (dow===0||dow===6) ? [mkTrip(d,8,16)] : [],                         // Weekends only
+];
+const VAN_NOTES = [
+  'Mon–Fri Day Shift (07–16)','Mon–Fri Day Shift (07–16)','Mon–Fri Day Shift (08–17)',
+  'Mon–Fri Evening (16–23) + Sat','Sun–Thu Night (22–24)',
+  'Mon–Sat Early Morning (04–08)','Weekends Only (08–16)',
+];
 
-const PATTERN_NOTES = {
-  Van:    ['Mon–Fri Day (07–16)','Mon–Fri Day (07–16)','Mon–Fri Day (08–17)','Mon–Fri Evening (16–23) + Sat','Sun–Thu Night (22–24)','Mon–Sat Early Morning (04–08)','Weekends Only (08–16)'],
-  Pickup: ['Mon–Fri Morning (06–12)','Mon–Fri Afternoon (12–18)','Mon–Fri Full Day (07–17)'],
-  Backhoe:['Mon–Thu Heavy (07–15)','Tue–Thu Light (08–14)','Mon/Wed/Fri Alternating (07–16)'],
-};
+// Pickup patterns — 5 schedules to produce more pool groupings
+const PICKUP_PATTERNS = [
+  (d,dow) => (dow>=1&&dow<=5) ? [mkTrip(d,6,12)] : [],                              // Morning crew A
+  (d,dow) => (dow>=1&&dow<=5) ? [mkTrip(d,6,12)] : [],                              // Morning crew B (pools with A)
+  (d,dow) => (dow>=1&&dow<=5) ? [mkTrip(d,12,18)] : [],                             // Afternoon crew A
+  (d,dow) => (dow>=1&&dow<=5) ? [mkTrip(d,12,18)] : [],                             // Afternoon crew B (pools with C)
+  (d,dow) => (dow>=1&&dow<=5) ? [mkTrip(d,7,17)] : [],                              // Full day
+];
+const PICKUP_NOTES = [
+  'Mon–Fri Morning (06–12)','Mon–Fri Morning (06–12)',
+  'Mon–Fri Afternoon (12–18)','Mon–Fri Afternoon (12–18)',
+  'Mon–Fri Full Day (07–17)',
+];
+
+// Backhoe patterns — project-cycle sporadic
+// Active ~1 week out of every 4, mimicking real project cycles
+// daysAgo param lets us create staggered project weeks across units
+function makeBackhoePattern(projectWeekOffset) {
+  // Each backhoe is on a 4-week cycle; offset staggers which week they're active
+  return (d, dow, daysAgo) => {
+    // Which 4-week cycle are we in?
+    const weekNum = Math.floor(daysAgo / 7);
+    const cycleWeek = (weekNum + projectWeekOffset) % 4;
+    // Only active in cycle week 0 (the "project week"), on weekdays
+    if (cycleWeek !== 0) return [];
+    if (dow === 0 || dow === 6) return [];
+    // During project week: random-ish but consistent hours (heavy equipment hours)
+    return [mkTrip(d, 7, 15)];
+  };
+}
+
+const BACKHOE_PATTERNS = [
+  makeBackhoePattern(0),  // project week: weeks 1, 5, 9... of window
+  makeBackhoePattern(1),  // project week: weeks 2, 6, 10...
+  makeBackhoePattern(2),  // project week: weeks 3, 7, 11...
+  makeBackhoePattern(0),  // second unit on same cycle as first (pools with it)
+  makeBackhoePattern(1),
+  makeBackhoePattern(2),
+];
+const BACKHOE_NOTES = [
+  'Project Cycle A — active ~1wk/month (07–15)','Project Cycle B — active ~1wk/month (07–15)',
+  'Project Cycle C — active ~1wk/month (07–15)','Project Cycle A — active ~1wk/month (07–15)',
+  'Project Cycle B — active ~1wk/month (07–15)','Project Cycle C — active ~1wk/month (07–15)',
+];
 
 function assignPattern(type, idx) {
-  const patterns = PATTERNS[type] || PATTERNS.Van;
-  return patterns[idx % patterns.length];
+  if (type === 'Van')     return VAN_PATTERNS[idx % VAN_PATTERNS.length];
+  if (type === 'Pickup')  return PICKUP_PATTERNS[idx % PICKUP_PATTERNS.length];
+  if (type === 'Backhoe') return BACKHOE_PATTERNS[idx % BACKHOE_PATTERNS.length];
+  return VAN_PATTERNS[0];
 }
 function assignNote(type, idx) {
-  const notes = PATTERN_NOTES[type] || PATTERN_NOTES.Van;
-  return notes[idx % notes.length];
+  if (type === 'Van')     return VAN_NOTES[idx % VAN_NOTES.length];
+  if (type === 'Pickup')  return PICKUP_NOTES[idx % PICKUP_NOTES.length];
+  if (type === 'Backhoe') return BACKHOE_NOTES[idx % BACKHOE_NOTES.length];
+  return '';
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// CORE ALGORITHM  (unchanged from v5 — tested 10/10)
-// ═══════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════
+// CORE ALGORITHM
+// ═══════════════════════════════════════════
 function buildVector(trips, windowDays = CFG.windowDays) {
   const wdc = new Array(7).fill(0), now = new Date();
   for (let i = 0; i <= windowDays; i++) {
-    const d = new Date(now); d.setDate(d.getDate() - i); wdc[d.getDay()]++;
+    const d = new Date(now); d.setDate(d.getDate()-i); wdc[d.getDay()]++;
   }
   const hits = new Array(CFG.TOTAL_SLOTS).fill(0);
   for (const trip of trips) {
     const ts = new Date(trip.start), te = new Date(trip.stop);
     if (te <= ts) continue;
-    const cur = new Date(ts); cur.setMinutes(0, 0, 0);
+    const cur = new Date(ts); cur.setMinutes(0,0,0);
     while (cur < te) {
-      const next = new Date(cur); next.setHours(cur.getHours() + 1);
+      const next = new Date(cur); next.setHours(cur.getHours()+1);
       if (cur < te && next > ts) {
-        const idx = cur.getDay() * CFG.SLOTS_PER_DAY + cur.getHours();
+        const idx = cur.getDay()*CFG.SLOTS_PER_DAY + cur.getHours();
         if (idx >= 0 && idx < CFG.TOTAL_SLOTS) hits[idx]++;
       }
-      cur.setHours(cur.getHours() + 1);
+      cur.setHours(cur.getHours()+1);
     }
   }
-  return hits.map((h, i) => {
-    const day = Math.floor(i / CFG.SLOTS_PER_DAY);
-    return wdc[day] > 0 ? Math.min(1, h / wdc[day]) : 0;
+  return hits.map((h,i) => {
+    const day = Math.floor(i/CFG.SLOTS_PER_DAY);
+    return wdc[day] > 0 ? Math.min(1, h/wdc[day]) : 0;
   });
 }
 
 function cosineOverlap(vA, vB) {
-  let dot = 0, mA = 0, mB = 0;
-  for (let i = 0; i < vA.length; i++) {
-    dot += vA[i] * vB[i]; mA += vA[i] * vA[i]; mB += vB[i] * vB[i];
-  }
-  const d = Math.sqrt(mA) * Math.sqrt(mB);
-  return d === 0 ? 0 : dot / d;
+  let dot=0, mA=0, mB=0;
+  for (let i=0; i<vA.length; i++) { dot+=vA[i]*vB[i]; mA+=vA[i]*vA[i]; mB+=vB[i]*vB[i]; }
+  const d = Math.sqrt(mA)*Math.sqrt(mB);
+  return d===0 ? 0 : dot/d;
 }
-
-function sumVectors(vecs) { return vecs[0].map((_, i) => vecs.reduce((s, v) => s + v[i], 0)); }
-function peakOf(sumVec)   { return Math.max(...sumVec); }
+function sumVectors(vecs) { return vecs[0].map((_,i) => vecs.reduce((s,v)=>s+v[i],0)); }
+function peakOf(sv)       { return Math.max(...sv); }
 
 function pairEligible(vA, vB) {
   if (CFG.requireSameType     && vA.type     !== vB.type)     return false;
@@ -511,145 +449,138 @@ function pairEligible(vA, vB) {
 }
 
 function calcSavings(n) {
-  return {
-    n,
-    annualOp: n * CFG.annualOpMid,
-    capital:  n * CFG.capitalPerVehicle,
-    total3yr: n * CFG.annualOpMid * 3 + n * CFG.capitalPerVehicle,
-  };
+  return { n, annualOp: n*CFG.annualOpMid, capital: n*CFG.capitalPerVehicle, total3yr: n*CFG.annualOpMid*3+n*CFG.capitalPerVehicle };
 }
-function fmt(n) { return '$' + Math.round(n).toLocaleString(); }
+function fmt(n) { return '$'+Math.round(n).toLocaleString(); }
 
 function findComplementaryPairs(vehicles, vm) {
   const pairs = [];
-  for (let i = 0; i < vehicles.length; i++) {
-    for (let j = i + 1; j < vehicles.length; j++) {
-      const vA = vehicles[i], vB = vehicles[j];
-      if (!pairEligible(vA, vB)) continue;
+  for (let i=0; i<vehicles.length; i++) {
+    for (let j=i+1; j<vehicles.length; j++) {
+      const vA=vehicles[i], vB=vehicles[j];
+      if (!pairEligible(vA,vB)) continue;
       const ol = cosineOverlap(vm[vA.id], vm[vB.id]);
       if (ol > CFG.maxOverlapPair) continue;
       const sumPeak = peakOf(sumVectors([vm[vA.id], vm[vB.id]]));
-      if (sumPeak <= 1.0) {
-        pairs.push({ idA: vA.id, idB: vB.id, overlap: ol });
-      }
+      if (sumPeak <= 1.0) pairs.push({ idA:vA.id, idB:vB.id, overlap:ol });
     }
   }
   return pairs;
 }
 
 function findCliques(vehicles, pairs) {
-  const vById = Object.fromEntries(vehicles.map(v => [v.id, v]));
+  const vById = Object.fromEntries(vehicles.map(v=>[v.id,v]));
   const adj = {};
-  vehicles.forEach(v => { adj[v.id] = new Set(); });
-  pairs.forEach(p => { adj[p.idA].add(p.idB); adj[p.idB].add(p.idA); });
-  const candidates = vehicles.filter(v => adj[v.id].size > 0).map(v => v.id);
+  vehicles.forEach(v=>{ adj[v.id]=new Set(); });
+  pairs.forEach(p=>{ adj[p.idA].add(p.idB); adj[p.idB].add(p.idA); });
+  const candidates = vehicles.filter(v=>adj[v.id].size>0).map(v=>v.id);
   const cliques = [];
-  function bronKerbosch(R, P, X) {
-    if (P.length === 0 && X.length === 0) { if (R.length >= 2) cliques.push([...R].sort()); return; }
-    const pivot = [...P, ...X].reduce((best, v) => {
-      const c = P.filter(u => adj[v].has(u)).length;
-      return c > best.c ? { v, c } : best;
-    }, { v: null, c: -1 }).v;
+  function bk(R,P,X) {
+    if (P.length===0&&X.length===0) { if(R.length>=2) cliques.push([...R].sort()); return; }
+    const pivot = [...P,...X].reduce((best,v)=>{
+      const c=P.filter(u=>adj[v].has(u)).length;
+      return c>best.c?{v,c}:best;
+    },{v:null,c:-1}).v;
     const pivotN = pivot ? adj[pivot] : new Set();
-    const toProcess = P.filter(v => !pivotN.has(v));
+    const toProcess = P.filter(v=>!pivotN.has(v));
     for (const v of toProcess) {
-      const nb = [...adj[v]];
-      bronKerbosch([...R, v], P.filter(u => nb.includes(u)), X.filter(u => nb.includes(u)));
-      P = P.filter(u => u !== v);
-      X = [...X, v];
+      const nb=[...adj[v]];
+      bk([...R,v],P.filter(u=>nb.includes(u)),X.filter(u=>nb.includes(u)));
+      P=P.filter(u=>u!==v); X=[...X,v];
     }
   }
-  bronKerbosch([], candidates, []);
-  return cliques.map(ids => ({ ids, members: ids.map(id => vById[id]) }));
+  bk([],candidates,[]);
+  return cliques.map(ids=>({ids,members:ids.map(id=>vById[id])}));
 }
 
 function mergeCliques(cliques, vById) {
-  let groups = cliques.map(c => new Set(c.ids));
+  let groups = cliques.map(c=>new Set(c.ids));
   let merged = true;
   while (merged) {
     merged = false;
     const next = [];
-    for (let i = 0; i < groups.length; i++) {
+    for (let i=0; i<groups.length; i++) {
       let absorbed = false;
-      for (let j = 0; j < next.length; j++) {
-        const intersection = new Set([...groups[i]].filter(id => next[j].has(id)));
-        const union        = new Set([...groups[i], ...next[j]]);
-        const shareRatio   = intersection.size / union.size;
-        if (shareRatio >= CFG.mergeShareThreshold) {
-          next[j] = union; absorbed = true; merged = true; break;
+      for (let j=0; j<next.length; j++) {
+        const inter = new Set([...groups[i]].filter(id=>next[j].has(id)));
+        const union  = new Set([...groups[i],...next[j]]);
+        if (inter.size/union.size >= CFG.mergeShareThreshold) {
+          next[j]=union; absorbed=true; merged=true; break;
         }
       }
       if (!absorbed) next.push(new Set(groups[i]));
     }
     groups = next;
   }
-  return groups.map(idSet => {
-    const ids = [...idSet].sort();
-    return { ids, members: ids.map(id => vById[id]) };
+  return groups.map(idSet=>{
+    const ids=[...idSet].sort();
+    return {ids, members:ids.map(id=>vById[id])};
   });
 }
 
 function scoreGroups(groups, vm) {
-  // First pass: score all valid groups
   const scored = [];
   for (const group of groups) {
-    const vecs = group.members.map(v => vm[v.id]);
+    const vecs = group.members.map(v=>vm[v.id]);
     const sumVec = sumVectors(vecs);
     const peak = peakOf(sumVec);
-    const needed = Math.ceil(peak);
+    // Keep peak + safety buffer; eliminable = everything above that
+    const needed = Math.ceil(peak) + CFG.safetyBuffer;
     const eliminable = group.members.length - needed;
-    if (eliminable < 1) continue;
-    let olSum = 0, olCount = 0;
-    for (let i = 0; i < vecs.length; i++)
-      for (let j = i + 1; j < vecs.length; j++) { olSum += cosineOverlap(vecs[i], vecs[j]); olCount++; }
-    const avgOverlap = olCount > 0 ? olSum / olCount : 0;
+    // Require eliminable >= 2 (no single-vehicle recommendations — unrealistic)
+    if (eliminable < 2) continue;
+    // Also require the group is at least minGroupSize total
+    if (group.members.length < CFG.minGroupSize) continue;
+    let olSum=0, olCount=0;
+    for (let i=0; i<vecs.length; i++)
+      for (let j=i+1; j<vecs.length; j++) { olSum+=cosineOverlap(vecs[i],vecs[j]); olCount++; }
+    const avgOverlap = olCount>0 ? olSum/olCount : 0;
     const sv = calcSavings(eliminable);
-    scored.push({ group, sumVec, peak, needed, eliminable, avgOverlap, savings: sv });
+    scored.push({ group, sumVec, peak, needed, eliminable, avgOverlap, savings:sv });
   }
-  // Sort by value descending
-  scored.sort((a, b) => b.savings.total3yr - a.savings.total3yr);
-  // Second pass: each vehicle goes to its highest-value group only — no conflicts
+  scored.sort((a,b)=>b.savings.total3yr-a.savings.total3yr);
+  // Deduplicate: each vehicle goes to its best group only
   const claimed = new Set();
   const results = [];
   for (const r of scored) {
-    if (r.group.ids.some(id => claimed.has(id))) continue;
-    r.group.ids.forEach(id => claimed.add(id));
+    if (r.group.ids.some(id=>claimed.has(id))) continue;
+    r.group.ids.forEach(id=>claimed.add(id));
     results.push(r);
   }
   return results;
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// RENDER FUNCTIONS  (all create elements; shadow DOM handles scoping)
-// ═══════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════
+// RENDER HELPERS
+// ═══════════════════════════════════════════
 function aggregateTo4h(vec1h) {
   const out = [];
-  for (let day = 0; day < 7; day++)
-    for (let block = 0; block < 6; block++) {
-      let sum = 0;
-      for (let h = 0; h < 4; h++) sum += vec1h[day * 24 + block * 4 + h];
-      out.push(sum / 4);
+  for (let day=0; day<7; day++)
+    for (let block=0; block<6; block++) {
+      let sum=0;
+      for (let h=0; h<4; h++) sum+=vec1h[day*24+block*4+h];
+      out.push(sum/4);
     }
   return out;
 }
 
 function renderHeatmap(vec1h) {
   const v4 = aggregateTo4h(vec1h);
-  const tbl = document.createElement('table'); tbl.className = 'heatmap';
+  const tbl = document.createElement('table'); tbl.className='heatmap';
   const hdr = document.createElement('tr');
-  const c = document.createElement('th'); c.style.width = '34px'; hdr.appendChild(c);
-  DISPLAY_BLOCKS.forEach(b => { const th = document.createElement('th'); th.textContent = b; hdr.appendChild(th); });
+  const c = document.createElement('th'); c.style.width='34px'; hdr.appendChild(c);
+  DISPLAY_BLOCKS.forEach(b=>{ const th=document.createElement('th'); th.textContent=b; hdr.appendChild(th); });
   tbl.appendChild(hdr);
-  DAYS.forEach((day, di) => {
-    const tr = document.createElement('tr');
-    const lbl = document.createElement('td'); lbl.className = 'row-label'; lbl.textContent = day; tr.appendChild(lbl);
-    for (let b = 0; b < 6; b++) {
-      const val = v4[di * 6 + b];
-      const td  = document.createElement('td'); td.className = 'cell';
-      if (val < 0.05) td.style.background = '#f8f9fa';
-      else if (val < 0.4) td.style.background = `rgba(0,117,201,${(0.15 + val * 0.5).toFixed(2)})`;
-      else td.style.background = `rgba(0,117,201,${(0.4 + val * 0.55).toFixed(2)})`;
-      td.setAttribute('data-tip', `${day} ${DISPLAY_BLOCKS[b]}: ${(val * 100).toFixed(0)}%`);
+  DAYS.forEach((day,di)=>{
+    const tr=document.createElement('tr');
+    const lbl=document.createElement('td'); lbl.className='row-label'; lbl.textContent=day; tr.appendChild(lbl);
+    for (let b=0; b<6; b++) {
+      const val=v4[di*6+b];
+      const td=document.createElement('td'); td.className='cell';
+      if (val<0.05) td.style.background='#f8f9fa';
+      else if (val<0.4) td.style.background=`rgba(0,117,201,${(0.15+val*0.5).toFixed(2)})`;
+      else td.style.background=`rgba(0,117,201,${(0.4+val*0.55).toFixed(2)})`;
+      td.setAttribute('data-tip',`${day} ${DISPLAY_BLOCKS[b]}: ${(val*100).toFixed(0)}%`);
       tr.appendChild(td);
     }
     tbl.appendChild(tr);
@@ -658,8 +589,8 @@ function renderHeatmap(vec1h) {
 }
 
 function renderVehicleCard(v, trips, vec) {
-  const card = document.createElement('div'); card.className = 'vehicle-card';
-  card.innerHTML = `
+  const card=document.createElement('div'); card.className='vehicle-card';
+  card.innerHTML=`
     <div class="vehicle-card-top">
       <div>
         <div class="vehicle-name">${v.name}</div>
@@ -667,41 +598,112 @@ function renderVehicleCard(v, trips, vec) {
         <div class="vehicle-meta">${v.note}</div>
       </div>
       <span class="badge badge-gray">${trips.length} trips</span>
-    </div>
-  `;
-  const w = document.createElement('div'); w.className = 'heatmap-wrap'; w.appendChild(renderHeatmap(vec));
+    </div>`;
+  const w=document.createElement('div'); w.appendChild(renderHeatmap(vec));
   card.appendChild(w);
   return card;
 }
 
+// Peak demand bar chart — aggregated to 4h blocks across 7 days (42 columns)
+function renderDemandChart(sumVec, peak, needed, size) {
+  const v4 = aggregateTo4h(sumVec);
+  const maxVal = Math.max(size, peak, needed + 0.5);  // y-axis scale
+
+  const section = document.createElement('div'); section.className='demand-section';
+
+  // Header
+  const header = document.createElement('div'); header.className='demand-header';
+  header.innerHTML=`
+    <div class="demand-title">Peak Simultaneous Usage — 4h Blocks</div>
+    <div class="demand-subtitle">Max ever needed at once: <strong style="color:var(--gray-900)">${peak.toFixed(2)}</strong> · Keeping: <strong style="color:var(--green)">${needed}</strong> · Fleet size: ${size}</div>
+  `;
+  section.appendChild(header);
+
+  // Chart
+  const wrap = document.createElement('div'); wrap.className='demand-chart-wrap';
+  const bars = document.createElement('div'); bars.className='demand-bars';
+
+  v4.forEach(val => {
+    const col = document.createElement('div'); col.className='demand-col';
+    const pct = Math.min(100, (val/maxVal)*100);
+    // Color: over needed+buffer = red, within buffer zone = yellow, safe = blue
+    const colorClass = val > needed ? 'over' : val > (needed - CFG.safetyBuffer) ? 'buffer' : 'safe';
+    const inner = document.createElement('div');
+    inner.className=`demand-col-inner ${colorClass}`;
+    inner.style.height=`${pct}%`;
+    col.appendChild(inner);
+    bars.appendChild(col);
+  });
+  wrap.appendChild(bars);
+
+  // Threshold line for "keep" level
+  const keepPct = Math.min(100, (needed/maxVal)*100);
+  const keepLine = document.createElement('div');
+  keepLine.className='demand-line';
+  keepLine.style.cssText=`bottom:${keepPct}%;border-top:2px dashed var(--green);`;
+  keepLine.innerHTML=`<span style="position:absolute;right:4px;font-size:9px;font-weight:800;color:var(--green);transform:translateY(-11px);background:var(--gray-50);padding:0 3px">Keep ${needed}</span>`;
+  wrap.appendChild(keepLine);
+
+  // Peak line
+  const peakPct = Math.min(100, (peak/maxVal)*100);
+  const peakLine = document.createElement('div');
+  peakLine.className='demand-line';
+  peakLine.style.cssText=`bottom:${peakPct}%;border-top:1.5px dashed #74c0fc;`;
+  peakLine.innerHTML=`<span style="position:absolute;left:4px;font-size:9px;font-weight:800;color:#4dabf7;transform:translateY(-11px);background:var(--gray-50);padding:0 3px">Peak ${peak.toFixed(1)}</span>`;
+  wrap.appendChild(peakLine);
+
+  section.appendChild(wrap);
+
+  // Day labels
+  const dayLabels = document.createElement('div'); dayLabels.className='demand-day-labels';
+  DAYS.forEach(d => {
+    for (let b=0; b<6; b++) {
+      const lbl=document.createElement('div'); lbl.className='demand-day-label';
+      if (b===0) lbl.textContent=d.charAt(0); else lbl.textContent='';
+      dayLabels.appendChild(lbl);
+    }
+  });
+  section.appendChild(dayLabels);
+
+  // Legend
+  const legend = document.createElement('div'); legend.className='demand-legend';
+  legend.innerHTML=`
+    <div class="demand-legend-item"><div class="demand-legend-dot" style="background:#74c0fc"></div>Safe (below peak)</div>
+    <div class="demand-legend-item"><div class="demand-legend-dot" style="background:#ffd43b"></div>Buffer zone</div>
+    <div class="demand-legend-item"><div class="demand-legend-dot" style="background:#ff6b6b"></div>Above keep threshold</div>
+    <div class="demand-legend-item" style="gap:6px">— — <span style="color:var(--green);font-weight:700;font-size:11px">Keep ${needed}</span> &nbsp; — — <span style="color:#4dabf7;font-weight:700;font-size:11px">Peak ${peak.toFixed(1)}</span></div>
+  `;
+  section.appendChild(legend);
+
+  return section;
+}
+
 function renderRecCard(result) {
-  const { group, eliminable, needed, peak, avgOverlap, savings } = result;
+  const { group, sumVec, eliminable, needed, peak, avgOverlap, savings } = result;
   const size = group.members.length;
-  const tier = eliminable >= 3 ? 'high-value' : eliminable >= 2 ? 'strong' : '';
-  const topBadge = eliminable >= 3
+  const tier = eliminable >= 4 ? 'high-value' : eliminable >= 3 ? 'strong' : '';
+  const topBadge = eliminable >= 4
     ? `<span class="badge badge-gold">★ High Value</span>`
-    : eliminable >= 2
+    : eliminable >= 3
     ? `<span class="badge badge-green">Strong Opportunity</span>`
     : `<span class="badge badge-blue">Recommended</span>`;
-  const chips = group.members.map((v, i) => {
+
+  const chips = group.members.map((v,i) => {
     const keep = i < needed;
-    return `<span class="chip ${keep ? 'chip-keep' : 'chip-elim'}">${keep ? '✓ Keep:' : '✗ Remove:'} ${v.name} <span style="font-size:10px;opacity:0.7">(${v.type})</span></span>`;
+    return `<span class="chip ${keep?'chip-keep':'chip-elim'}">${keep?'✓ Keep:':'✗ Remove:'} ${v.name} <span style="font-size:10px;opacity:0.7">(${v.type})</span></span>`;
   }).join('');
-  const card = document.createElement('div'); card.className = `rec-card ${tier}`;
-  card.innerHTML = `
+
+  const card = document.createElement('div'); card.className=`rec-card ${tier}`;
+  card.innerHTML=`
     <div class="rec-top">
       <div>
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap">
           ${topBadge}
           <span class="badge badge-gray">${group.members[0].type} · ${group.members[0].location}</span>
           <span class="badge badge-gray">${size} vehicles → keep ${needed}, remove ${eliminable}</span>
         </div>
-        <div class="rec-title">${size} ${group.members[0].type}s form a pool — ${eliminable} can be eliminated</div>
-        <div class="rec-meta">
-          Avg pairwise overlap: ${(avgOverlap*100).toFixed(0)}% ·
-          Peak simultaneous demand: ${peak.toFixed(2)} ·
-          Min vehicles needed: ${needed}
-        </div>
+        <div class="rec-title">${size} ${group.members[0].type}s — pool of ${size}, safely reduced to ${needed}</div>
+        <div class="rec-meta">Avg schedule overlap: ${(avgOverlap*100).toFixed(0)}% · Peak simultaneous: ${peak.toFixed(2)} vehicles · Safety buffer: +${CFG.safetyBuffer}</div>
       </div>
       <div class="rec-savings">
         <div class="big">${fmt(savings.annualOp)}<span style="font-size:13px;color:#868e96">/yr</span></div>
@@ -711,40 +713,31 @@ function renderRecCard(result) {
     </div>
     <div class="chip-row">${chips}</div>
     <div class="why-box">
-      <strong>Why this works:</strong>
-      Summing all ${size} vehicles' hourly demand, the peak never exceeds <strong>${peak.toFixed(2)}</strong>
-      simultaneous vehicles. At most <strong>${needed}</strong> vehicle${needed > 1 ? 's are' : ' is'} ever
-      needed at the same time — the other <strong>${eliminable}</strong> are safe to remove from the fleet.
-      ${eliminable >= 2 ? `<br><strong>Note:</strong> This group was formed by merging cliques that shared vehicles, giving a more complete picture than reporting them separately.` : ''}
-    </div>
-    <div class="savings-row">
-      <div class="savings-item">
-        <div class="val">${fmt(savings.annualOp)}</div>
-        <div class="lbl">Annual Op Savings<br><span style="color:#2a3060">$8k–$12k/vehicle/yr</span></div>
-      </div>
-      <div class="savings-item">
-        <div class="val">${fmt(savings.capital)}</div>
-        <div class="lbl">Capital Savings<br><span style="color:#2a3060">$7,000/vehicle one-time</span></div>
-      </div>
-      <div class="savings-item">
-        <div class="val">${fmt(savings.total3yr)}</div>
-        <div class="lbl">3-Year Total Value</div>
-      </div>
-      <div class="savings-item">
-        <div class="val">${eliminable} of ${size}</div>
-        <div class="lbl">Vehicles Removed</div>
-      </div>
+      <strong>Why this pool works:</strong> Summing all ${size} vehicles' hourly demand across the 90-day window, the peak never exceeds <strong>${peak.toFixed(2)} simultaneous vehicles</strong>. These ${size} vehicles never all need to be on the road at the same time — their schedules are complementary. Pool Finder rounds up to <strong>${Math.ceil(peak)} vehicles</strong> as the strict minimum, then adds a <strong>+${CFG.safetyBuffer} safety buffer</strong> for operational resilience, meaning the fleet needs only <strong>${needed} vehicles</strong> to handle every observed demand scenario with headroom. The remaining <strong>${eliminable} vehicles</strong> are safe to remove.
+      <br><br>
+      <strong>The demand chart below</strong> shows each 4-hour block of the week — blue bars are safely below the keep threshold, yellow bars are in the safety buffer zone. If any bar reached red, the pool would be too aggressive.
     </div>
   `;
+
+  // Inject demand chart
+  card.appendChild(renderDemandChart(sumVec, peak, needed, size));
+
+  // Savings breakdown
+  const savingsRow = document.createElement('div'); savingsRow.className='savings-row';
+  savingsRow.innerHTML=`
+    <div class="savings-item"><div class="val">${fmt(savings.annualOp)}</div><div class="lbl">Annual Op Savings<br><span style="color:#2a3060">$8k–$12k/vehicle/yr</span></div></div>
+    <div class="savings-item"><div class="val">${fmt(savings.capital)}</div><div class="lbl">Capital Savings<br><span style="color:#2a3060">$7,000/vehicle one-time</span></div></div>
+    <div class="savings-item"><div class="val">${fmt(savings.total3yr)}</div><div class="lbl">3-Year Total Value</div></div>
+    <div class="savings-item"><div class="val">${eliminable} of ${size}</div><div class="lbl">Vehicles Removed</div></div>
+  `;
+  card.appendChild(savingsRow);
   return card;
 }
 
 function renderPairRow(vA, vB, ol) {
-  const tr = document.createElement('tr');
-  tr.className = 'pool-row';
-  tr.innerHTML = `
-    <td>${vA.name}</td>
-    <td>${vB.name}</td>
+  const tr=document.createElement('tr'); tr.className='pool-row';
+  tr.innerHTML=`
+    <td>${vA.name}</td><td>${vB.name}</td>
     <td><span class="badge badge-pass">✓ ${vA.type}</span></td>
     <td><span class="badge badge-pass">✓ Same</span></td>
     <td><div class="bar-wrap"><div class="bar"><div class="bar-fill" style="width:${(ol*100).toFixed(1)}%;background:#1a7f4b"></div></div><span style="color:#1a7f4b;min-width:34px">${(ol*100).toFixed(0)}%</span></div></td>
@@ -753,104 +746,71 @@ function renderPairRow(vA, vB, ol) {
 }
 
 function setupCollapsibles() {
-  [['toggle-heatmaps','body-heatmaps'],['toggle-pairs','body-pairs']].forEach(([tid, bid]) => {
-    const toggle = $(tid), body = $(bid);
-    if (!toggle || !body) return;
-    toggle.addEventListener('click', () => {
-      const open = body.classList.toggle('open');
-      toggle.classList.toggle('open', open);
+  [['toggle-heatmaps','body-heatmaps'],['toggle-pairs','body-pairs']].forEach(([tid,bid])=>{
+    const toggle=$(tid), body=$(bid);
+    if (!toggle||!body) return;
+    toggle.addEventListener('click',()=>{
+      const open=body.classList.toggle('open');
+      toggle.classList.toggle('open',open);
     });
   });
 }
 
-// ═══════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════
 // MAIN — Geotab API integration
-// ═══════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════
 function runPoolFinder(api) {
-  api.call('Get', { typeName: 'Device', resultsLimit: 200 },
+  api.call('Get', { typeName:'Device', resultsLimit:200 },
     function(devices) {
-      // Resolve type + depot from live group IDs
-      const typeCounters = { Van: 0, Pickup: 0, Backhoe: 0 };
+      const typeCounters = { Van:0, Pickup:0, Backhoe:0 };
       const fleet = [];
 
       devices.forEach(device => {
-        const ids = (device.groups || []).map(g => g.id || g);
-        const type  = ids.includes(GROUP.VAN) ? 'Van' : ids.includes(GROUP.PICKUP) ? 'Pickup' : ids.includes(GROUP.BACKHOE) ? 'Backhoe' : null;
-        const depot = ids.includes(GROUP.NORTH) ? 'Depot North' : ids.includes(GROUP.SOUTH) ? 'Depot South' : null;
-        if (!type || !depot) return;
-
+        const ids = (device.groups||[]).map(g=>g.id||g);
+        const type  = ids.includes(GROUP.VAN)?'Van':ids.includes(GROUP.PICKUP)?'Pickup':ids.includes(GROUP.BACKHOE)?'Backhoe':null;
+        const depot = ids.includes(GROUP.NORTH)?'Depot North':ids.includes(GROUP.SOUTH)?'Depot South':null;
+        if (!type||!depot) return;
         const idx = typeCounters[type]++;
-        fleet.push({
-          id:       device.id,
-          name:     device.name,
-          type,
-          location: depot,
-          note:     assignNote(type, idx),
-          pattern:  assignPattern(type, idx),
-        });
+        fleet.push({ id:device.id, name:device.name, type, location:depot, note:assignNote(type,idx), pattern:assignPattern(type,idx) });
       });
 
       if (!fleet.length) {
-        $('rec-list').innerHTML = '<div style="color:#c0392b;padding:40px;text-align:center">No typed fleet vehicles found. Check group assignments.</div>';
+        $('rec-list').innerHTML='<div style="color:#c0392b;padding:40px;text-align:center">No typed fleet vehicles found.</div>';
         return;
       }
 
-      // Generate synthetic trips + build utilization vectors
-      const tripMap = {}, vm = {};
-      const vById = Object.fromEntries(fleet.map(v => [v.id, v]));
-      let totalTrips = 0;
+      const tripMap={}, vm={};
+      const vById = Object.fromEntries(fleet.map(v=>[v.id,v]));
+      let totalTrips=0;
 
-      fleet.forEach(v => {
-        const trips = genTrips(v.pattern);
-        tripMap[v.id] = trips;
-        vm[v.id] = buildVector(trips);
-        totalTrips += trips.length;
+      fleet.forEach(v=>{
+        const trips=genTrips(v.pattern);
+        tripMap[v.id]=trips;
+        vm[v.id]=buildVector(trips);
+        totalTrips+=trips.length;
       });
 
-      // Render heatmaps
-      const grid = $('heatmap-grid');
-      fleet.forEach(v => grid.appendChild(renderVehicleCard(v, tripMap[v.id], vm[v.id])));
+      const grid=$('heatmap-grid');
+      fleet.forEach(v=>grid.appendChild(renderVehicleCard(v,tripMap[v.id],vm[v.id])));
 
-      // Step 1: Complementary pairs
-      const pairs = findComplementaryPairs(fleet, vm);
-      const pairSet = new Set(pairs.map(p => `${p.idA}+${p.idB}`));
+      const pairs=findComplementaryPairs(fleet,vm);
+      const tbody=$('pairs-body');
+      pairs.forEach(p=>{ const vA=vById[p.idA],vB=vById[p.idB]; tbody.appendChild(renderPairRow(vA,vB,p.overlap)); });
 
-      // Render complementary pairs only into the collapsible table
-      const tbody = $('pairs-body');
-      pairs.forEach(p => {
-        const vA = vById[p.idA], vB = vById[p.idB];
-        tbody.appendChild(renderPairRow(vA, vB, p.overlap));
-      });
+      const cliques=findCliques(fleet,pairs);
+      const mergedGroups=mergeCliques(cliques,vById);
+      const results=scoreGroups(mergedGroups,vm);
 
-      // Step 2: Cliques
-      const cliques = findCliques(fleet, pairs);
-
-      // Step 3: Merge
-      const mergedGroups = mergeCliques(cliques, vById);
-
-      // Step 4: Score + deduplicate
-      const results = scoreGroups(mergedGroups, vm);
-
-      // Render recommendations
-      const recList = $('rec-list');
-      recList.innerHTML = '';
+      const recList=$('rec-list');
+      recList.innerHTML='';
       if (!results.length) {
-        recList.innerHTML = '<div style="color:#868e96;padding:40px;text-align:center">No actionable pool groups found.</div>';
+        recList.innerHTML='<div style="color:#868e96;padding:40px;text-align:center">No actionable pool groups found with current thresholds.</div>';
       } else {
-        results.forEach(r => recList.appendChild(renderRecCard(r)));
+        results.forEach(r=>recList.appendChild(renderRecCard(r)));
       }
 
-      // Summary stats (deduplicate vehicles across groups)
-      const counted = new Set();
-      let totalElim = 0, totalAnnual = 0, totalCapital = 0;
-      results.forEach(r => {
-        if (r.group.ids.every(id => !counted.has(id))) {
-          r.group.ids.forEach(id => counted.add(id));
-          totalElim    += r.eliminable;
-          totalAnnual  += r.savings.annualOp;
-          totalCapital += r.savings.capital;
-        }
-      });
+      let totalElim=0,totalAnnual=0,totalCapital=0;
+      results.forEach(r=>{ totalElim+=r.eliminable; totalAnnual+=r.savings.annualOp; totalCapital+=r.savings.capital; });
 
       $('s-vehicles').textContent = fleet.length;
       $('s-trips').textContent    = totalTrips.toLocaleString();
@@ -863,22 +823,18 @@ function runPoolFinder(api) {
       setupCollapsibles();
     },
     function(err) {
-      $('rec-list').innerHTML = '<div style="color:#c0392b;padding:40px;text-align:center">Failed to connect to Geotab API. Check add-in configuration.</div>';
+      $('rec-list').innerHTML='<div style="color:#c0392b;padding:40px;text-align:center">Failed to connect to Geotab API. Check add-in configuration.</div>';
     }
   );
 }
 
-// ── Geotab add-in lifecycle ──────────────────────────────────────
 geotab = geotab || {};
 geotab.addin = geotab.addin || {};
 geotab.addin.poolFinder = function() {
   return {
-    initialize: function(api, state, callback) {
-      runPoolFinder(api);
-      callback();
-    },
-    focus: function(api, state) {},
-    blur:  function() {},
+    initialize: function(api, state, callback) { runPoolFinder(api); callback(); },
+    focus:      function(api, state) {},
+    blur:       function() {},
   };
 };
 </script>
