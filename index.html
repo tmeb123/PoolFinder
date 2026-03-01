@@ -241,28 +241,36 @@ app.innerHTML = `
       <h3>Future Goals — Where Pool Finder Goes Next</h3>
       <div class="future-grid">
         <div class="future-card">
-          <h4>📍 GPS-Based Proximity Pooling</h4>
-          <p>Today pooling is restricted to the same assigned depot. A future version would use historical GPS coordinates to detect when vehicles from different depots spend most of their operating time in the same geographic zone — enabling cross-depot pool recommendations based on where vehicles actually work, not just where they're parked.</p>
+          <h4>🗓 Expanded Analysis Window</h4>
+          <p>Grow the utilization vector from 90 days to 365 days (8,760 slots per vehicle) for more accurate recommendations on seasonal fleets and project-cycle equipment that may only appear a few times in a 90-day window.</p>
         </div>
         <div class="future-card">
-          <h4>🔮 Predictive Schedule Modeling</h4>
-          <p>Rather than analyzing historical trips alone, future versions could incorporate project calendars, seasonal demand curves, and known schedule changes to forecast future utilization. This would allow recommendations to be forward-looking — flagging vehicles that will become poolable after a project ends, or warning when a pool needs to be dissolved due to upcoming demand increases.</p>
+          <h4>⚙️ Configurable Time Window</h4>
+          <p>Let fleet managers choose their own analysis window — 30, 90, 180, or 365 days — with a built-in confidence indicator that warns when the window is too short to be statistically reliable for a given vehicle type.</p>
         </div>
         <div class="future-card">
-          <h4>⚡ Real-Time Pool Availability Dashboard</h4>
-          <p>A live layer on top of Pool Finder could show dispatchers which pooled vehicles are currently in use versus available, updated from the Geotab API in real time. If a shared vehicle is unexpectedly occupied, the system could automatically surface which other pool vehicle is nearest and available for dispatch.</p>
+          <h4>🛠 Fleet Configuration UI</h4>
+          <p>Replace hardcoded vehicle type mappings and group IDs with a settings interface so any fleet manager can configure Pool Finder to their own operation without touching the source code — making deployment fully self-serve.</p>
         </div>
         <div class="future-card">
           <h4>💰 Advanced Depreciation & Maintenance Modeling</h4>
-          <p>Rather than using flat per-vehicle cost estimates, a future version would integrate with Geotab's engine hour and odometer data to model true total cost of ownership — applying vehicle-specific depreciation curves based on age and mileage, and pulling actual maintenance records to compute real operational savings per vehicle eliminated rather than industry averages.</p>
+          <p>Replace the current flat per-vehicle cost estimates with real numbers pulled from Geotab — engine hours, odometer readings, and maintenance records — so savings figures reflect the actual cost of each specific vehicle being eliminated.</p>
         </div>
         <div class="future-card">
-          <h4>🏗 Project-Cycle Aware Grouping</h4>
-          <p>Heavy equipment like backhoes and aerial lifts often follows project cycles — active for a few weeks, then idle for a month. Future versions would automatically detect these multi-week utilization cycles from GPS history and group equipment by project cadence, enabling smarter sharing across project teams without requiring manual schedule input.</p>
+          <h4>📍 GPS Proximity Pooling</h4>
+          <p>Expand pool eligibility beyond assigned depot by detecting when vehicles from different depots consistently operate in the same geographic zone, enabling cross-depot recommendations based on where vehicles actually work.</p>
         </div>
         <div class="future-card">
-          <h4>📊 Fleet Benchmarking & ROI Tracking</h4>
-          <p>Once pools are implemented, Pool Finder could automatically track whether predicted savings are materializing — comparing actual vehicle utilization against the pooled baseline, reporting realized savings month over month, and flagging vehicles that have drifted out of their pool patterns and may need reassignment or replacement.</p>
+          <h4>⚡ Real-Time Pool Availability</h4>
+          <p>Add a live dispatch layer showing which pooled vehicles are currently in use versus available, updated directly from the Geotab API, with automatic suggestions for the nearest available pool vehicle when one is occupied.</p>
+        </div>
+        <div class="future-card">
+          <h4>🔮 Predictive Recommendations</h4>
+          <p>Incorporate project calendars and seasonal demand curves to make recommendations forward-looking — flagging vehicles that will become poolable after a project ends, or warning when a pool should be dissolved ahead of a demand increase.</p>
+        </div>
+        <div class="future-card">
+          <h4>📊 Automated ROI Reporting</h4>
+          <p>Generate monthly right-sizing reports that track whether predicted savings are actually materializing, flag vehicles that have drifted out of their pool patterns, and show cumulative savings since pools were implemented.</p>
         </div>
       </div>
 
