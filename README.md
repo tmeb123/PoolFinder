@@ -75,7 +75,7 @@ This was built in collaboration with Claude (Anthropic) over the course of the h
 The Pool Finder Prompt History
 
 - "I want to build a 'pool finder' app that identifies vehicles with non-overlapping utilization patterns that could share a pool" — The original idea. Validated the concept, established cosine similarity on utilization vectors as the core approach, and produced the first working test harness.
-"Can we go beyond pairs and compare groups of 3 or more vehicles to find true pooling opportunities?" — Pushed beyond pair matching into true group detection, which exposed the limits of the pair-based approach and led directly to the graph rebuild.
+- "Can we go beyond pairs and compare groups of 3 or more vehicles to find true pooling opportunities?" — Pushed beyond pair matching into true group detection, which exposed the limits of the pair-based approach and led directly to the graph rebuild.
 - "Let's do a full architectural rebuild using graph-based clique detection" — Triggered the complete v3 rewrite: Bron-Kerbosch clique detection replacing pair comparisons. The algorithm that shipped was born here.
 - "The validation tests are failing — the algorithm keeps returning 0 vehicles eliminated. Let's keep iterating until all tests pass" — Identified that 4-hour blocks were too coarse and peak calculation was broken. Switched to 1-hour resolution (168-slot vectors) and got all tests passing.
 - "The add-in renders completely differently inside MyGeotab than it does in the browser — how do we fix this?" — Discovered MyGeotab's stylesheet was overriding all add-in styles. Shadow DOM isolation solved it completely.
