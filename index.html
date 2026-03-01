@@ -292,7 +292,13 @@ const CFG = {
   requireSameType:     true,
   requireSameLocation: true,
   annualOpMid:         10000,
-  capitalPerVehicle:   7000,
+  // Capital savings vary by vehicle type — heavier equipment costs more
+  capitalByType: {
+    Van:     15000,
+    Pickup:  20000,
+    Backhoe: 30000,
+  },
+  capitalDefault:      15000,  // fallback for unknown types
   safetyBuffer:        1,         // keep peak+1 always
   minGroupSize:        3,         // no 2-vehicle pools
   minEliminable:       1,         // at least 1 must be removable
@@ -352,18 +358,19 @@ const VAN_NOTES = [
   'Mon–Sat Early Morning (04–08)','Weekends Only (08–16)',
 ];
 
-// ── Pickup patterns (4) — morning/afternoon crews only ──────────
-// No full-day pattern: fullday overlaps both morning and afternoon
-// so it prevents pool formation. Morning vs afternoon is clean.
+// ── Pickup patterns (4) — alternating morning/afternoon ─────────
+// IMPORTANT: order is M,A,M,A so that any 6-pickup depot gets
+// exactly 3 morning + 3 afternoon via idx%4 cycling.
+// [0,1,2,3,4,5] % 4 = [0,1,2,3,0,1] → M,A,M,A,M,A = 3M+3A ✓
 const PICKUP_PATTERNS = [
   (d,dow) => dow>=1&&dow<=5 ? [mkTrip(d,6,12)]  : [],   // Morning crew A
-  (d,dow) => dow>=1&&dow<=5 ? [mkTrip(d,6,12)]  : [],   // Morning crew B
   (d,dow) => dow>=1&&dow<=5 ? [mkTrip(d,12,18)] : [],   // Afternoon crew A
+  (d,dow) => dow>=1&&dow<=5 ? [mkTrip(d,6,12)]  : [],   // Morning crew B
   (d,dow) => dow>=1&&dow<=5 ? [mkTrip(d,12,18)] : [],   // Afternoon crew B
 ];
 const PICKUP_NOTES = [
-  'Mon–Fri Morning Crew (06–12)','Mon–Fri Morning Crew (06–12)',
-  'Mon–Fri Afternoon Crew (12–18)','Mon–Fri Afternoon Crew (12–18)',
+  'Mon–Fri Morning Crew (06–12)','Mon–Fri Afternoon Crew (12–18)',
+  'Mon–Fri Morning Crew (06–12)','Mon–Fri Afternoon Crew (12–18)',
 ];
 
 // ── Backhoe patterns (6) — project-cycle sporadic ────────────────
@@ -453,8 +460,9 @@ function pairEligible(vA, vB) {
   if (CFG.requireSameLocation && vA.location !== vB.location) return false;
   return true;
 }
-function calcSavings(n) {
-  return { n, annualOp:n*CFG.annualOpMid, capital:n*CFG.capitalPerVehicle, total3yr:n*CFG.annualOpMid*3+n*CFG.capitalPerVehicle };
+function calcSavings(n, vehicleType) {
+  const cap = (CFG.capitalByType[vehicleType] || CFG.capitalDefault);
+  return { n, annualOp:n*CFG.annualOpMid, capital:n*cap, total3yr:n*CFG.annualOpMid*3+n*cap };
 }
 function fmt(n) { return '$'+Math.round(n).toLocaleString(); }
 
@@ -533,7 +541,8 @@ function scoreGroups(groups, vm) {
     for (let i=0; i<vecs.length; i++)
       for (let j=i+1; j<vecs.length; j++) { olSum+=cosineOverlap(vecs[i],vecs[j]); olCount++; }
     const avgOverlap = olCount>0 ? olSum/olCount : 0;
-    scored.push({ group, sumVec, peak, needed, eliminable, avgOverlap, savings:calcSavings(eliminable) });
+    const vehicleType = group.members[0].type;
+    scored.push({ group, sumVec, peak, needed, eliminable, avgOverlap, savings:calcSavings(eliminable, vehicleType) });
   }
   scored.sort((a,b)=>b.savings.total3yr-a.savings.total3yr);
   // Deduplicate — each vehicle goes to its highest-value group only
@@ -703,7 +712,7 @@ function renderRecCard(result) {
     return `<span class="chip ${keep?'chip-keep':'chip-elim'}">${keep?'✓ Keep:':'✗ Remove:'} ${v.name} <span style="font-size:10px;opacity:0.7">(${v.type})</span></span>`;
   }).join('');
 
-  const card = document.createElement('div'); card.className=`rec-card ${tier}`;
+  const capPerVehicle = CFG.capitalByType[group.members[0].type] || CFG.capitalDefault;
   card.innerHTML=`
     <div class="rec-top">
       <div>
@@ -730,7 +739,7 @@ function renderRecCard(result) {
   const savingsRow = document.createElement('div'); savingsRow.className='savings-row';
   savingsRow.innerHTML=`
     <div class="savings-item"><div class="val">${fmt(savings.annualOp)}</div><div class="lbl">Annual Op Savings<br><span style="color:#2a3060">$8k–$12k/vehicle/yr</span></div></div>
-    <div class="savings-item"><div class="val">${fmt(savings.capital)}</div><div class="lbl">Capital Savings<br><span style="color:#2a3060">$7,000/vehicle one-time</span></div></div>
+    <div class="savings-item"><div class="val">${fmt(savings.capital)}</div><div class="lbl">Capital Savings<br><span style="color:#2a3060">${fmt(capPerVehicle)}/vehicle one-time</span></div></div>
     <div class="savings-item"><div class="val">${fmt(savings.total3yr)}</div><div class="lbl">3-Year Total Value</div></div>
     <div class="savings-item"><div class="val">${eliminable} of ${size}</div><div class="lbl">Vehicles Removed</div></div>
   `;
@@ -763,14 +772,19 @@ function setupCollapsibles() {
 function runPoolFinder(api) {
   api.call('Get', { typeName:'Device', resultsLimit:200 },
     function(devices) {
-      const typeCounters = { Van:0, Pickup:0, Backhoe:0 };
+      // Track idx per type AND per depot so each depot independently cycles
+      // through patterns from 0. Without this, South pickups would start at
+      // idx=6 and get a skewed morning/afternoon split.
+      const typeCounters = {};
       const fleet = [];
       devices.forEach(device => {
         const ids = (device.groups||[]).map(g=>g.id||g);
         const type  = ids.includes(GROUP.VAN)?'Van':ids.includes(GROUP.PICKUP)?'Pickup':ids.includes(GROUP.BACKHOE)?'Backhoe':null;
         const depot = ids.includes(GROUP.NORTH)?'Depot North':ids.includes(GROUP.SOUTH)?'Depot South':null;
         if (!type||!depot) return;
-        const idx = typeCounters[type]++;
+        const key = type + '|' + depot;
+        if (!typeCounters[key]) typeCounters[key] = 0;
+        const idx = typeCounters[key]++;
         fleet.push({ id:device.id, name:device.name, type, location:depot, note:assignNote(type,idx), pattern:assignPattern(type,idx) });
       });
 
