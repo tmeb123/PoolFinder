@@ -828,13 +828,13 @@ function runPoolFinder(api) {
       const results=scoreGroups(mergedGroups,vm);
 
       // Render recs
+      setTimeout(() => {
       const recList=$('rec-list'); recList.innerHTML='';
       if (!results.length) {
         recList.innerHTML='<div style="color:#868e96;padding:40px;text-align:center">No actionable pool groups found.</div>';
       } else {
         results.forEach(r=>recList.appendChild(renderRecCard(r)));
       }
-
       // Summary
       let totalElim=0,totalAnnual=0,totalCapital=0;
       results.forEach(r=>{ totalElim+=r.eliminable; totalAnnual+=r.savings.annualOp; totalCapital+=r.savings.capital; });
@@ -845,15 +845,16 @@ function runPoolFinder(api) {
       $('s-elim').textContent     = totalElim;
       $('s-annual').textContent   = fmt(totalAnnual);
       $('s-capital').textContent  = fmt(totalCapital);
-
       setupCollapsibles();
+    }, 15000);
     },
     function(err) {
-      $('rec-list').innerHTML='<div style="color:#c0392b;padding:40px;text-align:center">Failed to connect to Geotab API.</div>';
+      setTimeout(() => {
+        $('rec-list').innerHTML='<div style="color:#c0392b;padding:40px;text-align:center">Failed to connect to Geotab API.</div>';
+      }, 15000);
     }
   );
 }
-
 geotab = geotab || {};
 geotab.addin = geotab.addin || {};
 geotab.addin.poolFinder = function() {
