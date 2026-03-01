@@ -1,6 +1,4 @@
-// Pool Finder Diagnostics — main.js
-// Geotab add-in entry point using the official geotab.addin.* namespace pattern
-
+// Pool Finder Diagnostics v2 — full fleet trip analysis
 var pfDebug = (function() {
   var _api = null;
 
@@ -13,123 +11,186 @@ var pfDebug = (function() {
     if (el) el.textContent = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
   }
   function enableButtons() {
-    ['btn-groups','btn-devices','btn-trips','btn-counts','btn-all'].forEach(function(id) {
+    ['btn-analyze'].forEach(function(id) {
       var el = document.getElementById(id);
       if (el) el.disabled = false;
     });
   }
 
+  // Group ID constants from diagnostic run
+  var GROUP_IDS = {
+    VAN:         'b279E',
+    PICKUP:      'b279F',
+    BACKHOE:     'b279D',
+    DEPOT_NORTH: 'b279A',
+    DEPOT_SOUTH: 'b279B'
+  };
+
+  function resolveVehicle(device) {
+    var groups = device.groups || [];
+    var type = groups.includes(GROUP_IDS.VAN)     ? 'Van'
+              : groups.includes(GROUP_IDS.PICKUP)  ? 'Pickup'
+              : groups.includes(GROUP_IDS.BACKHOE) ? 'Backhoe'
+              : 'Unknown';
+    var depot = groups.includes(GROUP_IDS.DEPOT_NORTH) ? 'Depot North'
+               : groups.includes(GROUP_IDS.DEPOT_SOUTH) ? 'Depot South'
+               : 'Unknown';
+    return { id: device.id, name: device.name, type: type, depot: depot };
+  }
+
+  function analyzeTrips(trips) {
+    if (!trips.length) return { count: 0, note: 'No trips' };
+
+    // Get unique start hours across all trips
+    var hourCounts = new Array(24).fill(0);
+    var uniqueStartTimes = new Set();
+    var uniqueStopTimes  = new Set();
+    var durations = [];
+
+    trips.forEach(function(t) {
+      var start = new Date(t.start);
+      var stop  = new Date(t.stop);
+      hourCounts[start.getUTCHours()]++;
+      uniqueStartTimes.add(t.start);
+      uniqueStopTimes.add(t.stop);
+      durations.push((stop - start) / 3600000);
+    });
+
+    var peakHour = hourCounts.indexOf(Math.max.apply(null, hourCounts));
+    var avgDur   = (durations.reduce(function(a,b){return a+b;},0) / durations.length).toFixed(1);
+    var allSameStart = uniqueStartTimes.size === 1;
+    var allSameStop  = uniqueStopTimes.size  === 1;
+
+    return {
+      count:        trips.length,
+      uniqueStarts: uniqueStartTimes.size,
+      uniqueStops:  uniqueStopTimes.size,
+      allSameStart: allSameStart,
+      allSameStop:  allSameStop,
+      peakHour:     peakHour + ':00 UTC',
+      avgDurHrs:    parseFloat(avgDur),
+      sampleStart:  trips[0].start,
+      sampleStop:   trips[0].stop,
+      verdict:      allSameStart && allSameStop
+                    ? '⚠ SYNTHETIC — all trips identical, unusable for pooling analysis'
+                    : '✓ REAL — varied timestamps, usable for pooling analysis'
+    };
+  }
+
   return {
-    runGroups: function() {
-      setStatus('groups-status', 'Fetching groups...', 'info');
-      _api.call('Get', { typeName: 'Group' },
-        function(groups) {
-          var shaped = groups.map(function(g) {
-            return { id: g.id, name: g.name || '(no name)', parent: g.parent ? g.parent.id : null };
-          });
-          setStatus('groups-status', '✓ ' + groups.length + ' groups found', 'ok');
-          setOut('groups-out', shaped);
-        },
-        function(err) { setStatus('groups-status', '✗ ' + JSON.stringify(err), 'err'); }
-      );
-    },
+    runAnalysis: function() {
+      setStatus('main-status', 'Fetching all 50 vehicles...', 'info');
+      setOut('main-out', 'Loading...');
 
-    runDevices: function() {
-      setStatus('devices-status', 'Fetching devices...', 'info');
-      _api.call('Get', { typeName: 'Device', resultsLimit: 10 },
-        function(devices) {
-          var shaped = devices.map(function(d) {
-            return { id: d.id, name: d.name, groups: d.groups ? d.groups.map(function(g){ return g.id; }) : [] };
-          });
-          setStatus('devices-status', '✓ ' + devices.length + ' devices returned', 'ok');
-          setOut('devices-out', shaped);
-        },
-        function(err) { setStatus('devices-status', '✗ ' + JSON.stringify(err), 'err'); }
-      );
-    },
-
-    runTrips: function() {
-      setStatus('trips-status', 'Fetching sample trips...', 'info');
       var fromDate = new Date();
-      fromDate.setDate(fromDate.getDate() - 90);
-      _api.call('Get', {
-        typeName: 'Trip',
-        search: { fromDate: fromDate.toISOString() },
-        resultsLimit: 3
-      },
-        function(trips) {
-          setStatus('trips-status', '✓ ' + trips.length + ' trips returned', 'ok');
-          setOut('trips-out', trips);
-        },
-        function(err) { setStatus('trips-status', '✗ ' + JSON.stringify(err), 'err'); }
-      );
-    },
+      fromDate.setDate(fromDate.getDate() - 14);
+      var fromISO = fromDate.toISOString();
 
-    runCounts: function() {
-      setStatus('counts-status', 'Fetching devices...', 'info');
-      var fromDate = new Date();
-      fromDate.setDate(fromDate.getDate() - 90);
-      _api.call('Get', { typeName: 'Device', resultsLimit: 5 },
+      _api.call('Get', { typeName: 'Device', resultsLimit: 100 },
         function(devices) {
-          var results = [], done = 0;
-          devices.forEach(function(device) {
+          // Filter to only our fleet vehicles (ones with type assignment)
+          var fleet = devices.map(resolveVehicle).filter(function(v) {
+            return v.type !== 'Unknown';
+          });
+
+          setStatus('main-status', 'Got ' + fleet.length + ' fleet vehicles — pulling trips (this takes ~30s)...', 'info');
+
+          var results = [];
+          var done    = 0;
+          var total   = fleet.length;
+
+          fleet.forEach(function(vehicle) {
             _api.call('Get', {
               typeName: 'Trip',
-              search: { deviceSearch: { id: device.id }, fromDate: fromDate.toISOString() },
-              resultsLimit: 1000
+              search: {
+                deviceSearch: { id: vehicle.id },
+                fromDate: fromISO
+              },
+              resultsLimit: 500
             },
               function(trips) {
+                var analysis = analyzeTrips(trips);
                 results.push({
-                  vehicle: device.name,
-                  deviceId: device.id,
-                  tripCount: trips.length,
-                  sampleTrip: trips.length > 0 ? { start: trips[0].start, stop: trips[0].stop } : null
+                  name:   vehicle.name,
+                  type:   vehicle.type,
+                  depot:  vehicle.depot,
+                  id:     vehicle.id,
+                  trips:  analysis
                 });
-                if (++done === devices.length) {
-                  setStatus('counts-status', '✓ Done', 'ok');
-                  setOut('counts-out', results);
-                }
+                done++;
+                setStatus('main-status',
+                  'Pulling trips... ' + done + '/' + total + ' vehicles done', 'info');
+                if (done === total) { finish(results); }
               },
               function(err) {
-                results.push({ vehicle: device.name, error: err });
-                if (++done === devices.length) {
-                  setStatus('counts-status', '⚠ Done with errors', 'warn');
-                  setOut('counts-out', results);
-                }
+                results.push({ name: vehicle.name, error: JSON.stringify(err) });
+                done++;
+                if (done === total) { finish(results); }
               }
             );
           });
         },
-        function(err) { setStatus('counts-status', '✗ ' + JSON.stringify(err), 'err'); }
+        function(err) {
+          setStatus('main-status', '✗ Failed to fetch devices: ' + JSON.stringify(err), 'err');
+        }
       );
     },
 
-    runAll: function() {
-      this.runGroups();
-      this.runDevices();
-      this.runTrips();
-      this.runCounts();
-    },
-
-    // Called by MyGeotab lifecycle
     initialize: function(api, state, callback) {
       _api = api;
-      setStatus('api-status', '✓ MyGeotab api object received! Click any button to run diagnostics.', 'ok');
+      setStatus('api-status', '✓ Connected to MyGeotab — click Analyze Fleet to pull 14 days of trip data', 'ok');
       enableButtons();
       callback();
     },
     focus: function(api, state) {},
     blur:  function() {}
   };
+
+  function finish(results) {
+    // Sort by depot then type then name
+    results.sort(function(a,b) {
+      if (!a.trips) return 1;
+      var d = (a.depot||'').localeCompare(b.depot||'');
+      if (d !== 0) return d;
+      var t = (a.type||'').localeCompare(b.type||'');
+      if (t !== 0) return t;
+      return a.name.localeCompare(b.name);
+    });
+
+    // Summary counts
+    var syntheticCount = 0, realCount = 0, noTripCount = 0;
+    results.forEach(function(r) {
+      if (!r.trips) return;
+      if (r.trips.count === 0) noTripCount++;
+      else if (r.trips.allSameStart && r.trips.allSameStop) syntheticCount++;
+      else realCount++;
+    });
+
+    var summary = {
+      totalVehicles:  results.length,
+      syntheticData:  syntheticCount,
+      variedData:     realCount,
+      noTrips:        noTripCount,
+      RECOMMENDATION: realCount > 0
+        ? '✓ USE REAL DATA — ' + realCount + ' vehicles have varied timestamps'
+        : '⚠ USE SYNTHETIC PATTERNS — all demo trips are identical, real pooling analysis not possible with this data'
+    };
+
+    var el = document.getElementById('main-status');
+    el.textContent = '✓ Done! ' + results.length + ' vehicles analyzed — see summary below';
+    el.className = 'status ok';
+
+    document.getElementById('summary-out').textContent = JSON.stringify(summary, null, 2);
+    document.getElementById('main-out').textContent    = JSON.stringify(results, null, 2);
+  }
 }());
 
-// Register with Geotab using official namespace
 geotab = geotab || {};
 geotab.addin = geotab.addin || {};
 geotab.addin.poolFinderDebug = function() {
   return {
-    initialize: function(api, state, callback) { pfDebug.initialize(api, state, callback); },
-    focus:      function(api, state)           { pfDebug.focus(api, state); },
-    blur:       function()                     { pfDebug.blur(); }
+    initialize: function(api, state, cb) { pfDebug.initialize(api, state, cb); },
+    focus:      function(api, state)     { pfDebug.focus(api, state); },
+    blur:       function()               { pfDebug.blur(); }
   };
 };
