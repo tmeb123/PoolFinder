@@ -18,6 +18,16 @@ The problem isn't that these fleets are wasteful — it's that the inefficiency 
 
 ---
 
+## How is Pool Finder Different?
+
+Most fleet rightsizing tools flag vehicles by average utilization — if a vehicle is driven under a certain mileage or hours threshold, it gets flagged as underutilized. The problem is that's the wrong question. A van driven 4 hours a day looks perfectly utilized by that metric, but if 8 identical vans are running different shifts and never all needed at once, you might only need 5 of them.
+
+Pool Finder asks a different question entirely: are these vehicles ever all needed at the same time? Instead of scoring individual vehicles, it analyzes simultaneous peak demand across groups — and only recommends elimination when the math confirms the fleet can operate safely with fewer. The 90-day calendar vector is what makes this work for project-cycle equipment like backhoes, which look underutilized by weekly averages but are essential when active. Pool Finder only pools them with equipment whose active periods don't overlap.
+
+The result is the difference between observation ("this vehicle isn't used much") and actionable recommendation ("this specific group of 18 vehicles can be safely reduced to 10, and here's the demand chart that proves it").
+
+---
+
 ## What It Does
 
 Pool Finder connects to the MyGeotab API, pulls live fleet metadata, and analyzes **90 days of hourly utilization** across all vehicles. It surfaces pool recommendations ranked by 3-year savings value — showing exactly which vehicles to keep, which to eliminate, and why the pool is operationally safe. Each recommendation includes a demand chart showing daily peak usage across the full 90-day window.
@@ -96,6 +106,7 @@ The Pool Finder Prompt History
 **The full conversation including all prompts:** 🔗 *(https://claude.ai/share/b6fe48b9-d141-4390-a629-f1ae0b5d3a28)*
 
 ---
+
 ## To Do
 
 - Expand utilization window from 90 days to 365 days (8,760-slot vectors) for better seasonal and project-cycle accuracy
@@ -109,6 +120,7 @@ The Pool Finder Prompt History
 - Make vehicle type mappings and shift pattern definitions configurable per fleet without code changes
 
 ---
+
 ## Stack
 
 Vanilla JS · Shadow DOM · Geotab MyGeotab Add-In SDK · Bron–Kerbosch clique detection · Cosine similarity on 2,160-slot calendar vectors · No external dependencies · Single-file deployment
