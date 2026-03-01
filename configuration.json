@@ -5,7 +5,7 @@
   "items": [
     {
       "url": "https://tmeb123.github.io/PoolFinder/index.html",
-      "path": "ActivityLink",
+      "path": "ActivityLink/",
       "menuName": {
         "en": "Pool Finder"
       }
