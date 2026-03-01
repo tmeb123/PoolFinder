@@ -59,7 +59,6 @@ style.textContent = `
   .badge-gold  { background:var(--gold-lt);color:var(--gold); }
   .badge-gray  { background:var(--gray-100);color:var(--gray-700); }
   .badge-pass  { background:var(--green-lt);color:var(--green); }
-  .badge-fail  { background:var(--red-lt);color:var(--red); }
 
   .rec-title { font-size:16px;font-weight:700;color:var(--gray-900); }
   .rec-meta  { font-size:12px;color:var(--gray-500);margin-top:4px; }
@@ -76,9 +75,9 @@ style.textContent = `
   .why-box { margin-top:14px;background:var(--gray-50);border:1px solid var(--gray-200);border-radius:4px;padding:12px 14px;font-size:12px;color:var(--gray-700);line-height:1.8; }
   .why-box strong { color:var(--gray-900); }
 
-  /* Peak demand chart */
+  /* Demand chart */
   .demand-section { margin-top:16px; }
-  .demand-header { display:flex;justify-content:space-between;align-items:center;margin-bottom:6px; }
+  .demand-header { display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;flex-wrap:wrap;gap:4px; }
   .demand-title { font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--gray-500); }
   .demand-subtitle { font-size:11px;color:var(--gray-500); }
   .demand-chart-wrap { position:relative;background:var(--gray-50);border:1px solid var(--gray-200);border-radius:4px;padding:8px 8px 0;height:80px;overflow:hidden; }
@@ -88,8 +87,7 @@ style.textContent = `
   .demand-col-inner.safe   { background:#74c0fc; }
   .demand-col-inner.buffer { background:#ffd43b; }
   .demand-col-inner.over   { background:#ff6b6b; }
-  .demand-line { position:absolute;left:8px;right:8px;border-top:2px dashed;pointer-events:none; }
-  .demand-line-label { position:absolute;right:10px;font-size:9px;font-weight:800;padding:0 3px;transform:translateY(-10px); }
+  .demand-line { position:absolute;left:8px;right:8px;pointer-events:none; }
   .demand-day-labels { display:flex;gap:1px;margin-top:3px; }
   .demand-day-label { flex:1;text-align:center;font-size:8px;color:var(--gray-500); }
   .demand-legend { display:flex;gap:14px;margin-top:8px;flex-wrap:wrap; }
@@ -133,7 +131,6 @@ style.textContent = `
   .spinner { width:32px;height:32px;border:3px solid var(--gray-200);border-top-color:var(--blue);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px;display:block; }
   @keyframes spin { to { transform:rotate(360deg); } }
 
-  /* About */
   .about-card { background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);padding:28px 32px;box-shadow:var(--shadow);line-height:1.8; }
   .about-card h2 { font-size:18px;font-weight:700;color:var(--gray-900);margin-bottom:6px; }
   .about-card h3 { font-size:12px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:0.07em;margin:22px 0 8px; }
@@ -173,7 +170,7 @@ app.innerHTML = `
   </div>
 
   <div class="notice">
-    <strong>📋 Demo Note:</strong> Geotab's simulator generates randomized trips uniformly across all 24 hours — not representative of real-world fleet shift patterns. Pool Finder overlays realistic utility fleet shift schedules assigned by vehicle type: shift-based patterns for Vans and Pickups, and project-cycle sporadic patterns for Backhoes (active one week per month, idle otherwise). Vehicle names and group assignments are pulled live from the Geotab API. In a production deployment, actual GPS trip history is used directly with no overrides.
+    <strong>📋 Demo Note:</strong> Geotab's simulator generates randomized trips uniformly — not representative of real-world shift patterns. Pool Finder overlays realistic utility fleet schedules by vehicle type: shift-based patterns for Vans and Pickups, and project-cycle sporadic patterns for Backhoes (active ~1 week per month). Utilization is analyzed across a full <strong>90-day calendar window at hourly resolution (2,160 slots)</strong> so that project-cycle equipment and alternating-week schedules are captured accurately. Vehicle names and depot assignments are pulled live from the Geotab API.
   </div>
 
   <div class="section">
@@ -192,7 +189,7 @@ app.innerHTML = `
   <div class="section">
     <div class="section-title">Pool Recommendations — Ranked by 3-Year Value</div>
     <div class="rec-list" id="rec-list">
-      <div class="loading"><div class="spinner"></div>Connecting to Geotab API and analyzing fleet…</div>
+      <div class="loading"><div class="spinner"></div>Connecting to Geotab API and analyzing 90-day fleet utilization…</div>
     </div>
   </div>
 
@@ -225,58 +222,58 @@ app.innerHTML = `
     <div class="section-title">About Pool Finder</div>
     <div class="about-card">
       <h2>Pool Finder</h2>
-      <p class="tagline">A fleet vehicle pool optimizer built for the Geotab Hackathon — identifying underutilized vehicles through shift-pattern analysis and graph-based clique detection.</p>
+      <p class="tagline">A fleet vehicle pool optimizer built for the Geotab Hackathon — identifying underutilized vehicles through 90-day calendar utilization analysis and graph-based clique detection.</p>
 
       <h3>The Real-World Problem</h3>
-      <p>Mixed-use fleets — like those operated by utilities, municipalities, and construction firms — often carry far more vehicles than they actually need at any given moment. The reason isn't that the vehicles are unused; it's that <strong>usage is sequential, not simultaneous</strong>. A van used for a 6am maintenance run sits idle all afternoon while an identical van sits idle all morning waiting for an evening shift. Neither fleet manager sees this — they only see that both vans are "actively assigned."</p>
-      <p>Pool Finder makes this invisible pattern visible. If a group of vehicles never all need to be on the road at the same time, the fleet can operate with fewer of them — shared across multiple crews. At $8,000–$12,000 per vehicle per year in operating costs plus $7,000 in capital value, even eliminating three or four vehicles delivers six-figure savings over three years.</p>
+      <p>Mixed-use fleets — like those operated by utilities, municipalities, and construction firms — often carry far more vehicles than they actually need at any given moment. The reason isn't that the vehicles are unused; it's that <strong>usage is sequential, not simultaneous</strong>. A van used for a 6am maintenance run sits idle all afternoon while an identical van sits idle all morning waiting for an evening shift. A backhoe deployed on a project for one week sits in the yard for the following three. Neither fleet manager sees this — they only see that both are "actively assigned."</p>
+      <p>Pool Finder makes this invisible pattern visible. If a group of vehicles never all need to be on the road at the same time, the fleet can safely operate with fewer of them. At $8,000–$12,000 per vehicle per year in operating costs plus $7,000 in capital value, eliminating even a handful of vehicles delivers six-figure savings over three years.</p>
 
       <h3>How the Algorithm Works</h3>
       <div class="about-steps">
-        <div class="about-step"><div class="step-num">1</div><div class="step-text"><strong>Utilization Vectors.</strong> Each vehicle's GPS trip history is converted into a 168-slot vector (24 hours × 7 days). Each slot holds the fraction of weeks that vehicle was in use during that hour — a normalized fingerprint of when it actually moves.</div></div>
-        <div class="about-step"><div class="step-num">2</div><div class="step-text"><strong>Cosine Overlap Scoring.</strong> Every eligible pair of vehicles (same type, same depot) is tested using cosine similarity on their utilization vectors. Low overlap = complementary schedules. High overlap = they compete for the same hours and cannot share a vehicle.</div></div>
-        <div class="about-step"><div class="step-num">3</div><div class="step-text"><strong>Sum-Peak Gating.</strong> A pair passes only if their combined hourly demand never exceeds 1.0 simultaneous vehicles at any point. This is the hard physical constraint — if their peaks stack, pooling them would strand a crew.</div></div>
-        <div class="about-step"><div class="step-num">4</div><div class="step-text"><strong>Clique Detection (Bron–Kerbosch).</strong> Passing pairs are assembled into a graph. The Bron–Kerbosch algorithm finds all maximal cliques — groups of vehicles where every member is complementary to every other member. These become pool candidates.</div></div>
-        <div class="about-step"><div class="step-num">5</div><div class="step-text"><strong>Clique Merging & Deduplication.</strong> Cliques sharing members are merged into consolidated groups, and each vehicle is assigned to exactly one group — its highest-value pool — so no vehicle appears in conflicting recommendations.</div></div>
-        <div class="about-step"><div class="step-num">6</div><div class="step-text"><strong>Buffer-Safe Elimination Scoring.</strong> For each group, the peak simultaneous demand tells us the minimum fleet size needed. Pool Finder then adds a +1 safety buffer — so a group with peak demand of 3 recommends keeping 4 vehicles, not 3. This ensures operational resilience. Every vehicle above that threshold is safely eliminable.</div></div>
+        <div class="about-step"><div class="step-num">1</div><div class="step-text"><strong>90-Day Calendar Vectors (2,160 slots).</strong> Each vehicle's trip history is mapped onto a 90-day × 24-hour binary grid — 2,160 slots total. Each slot is 1 if the vehicle was in use during that specific hour on that specific calendar day, and 0 otherwise. This preserves real calendar position, meaning a backhoe active in week 1 and one active in week 3 will have zero overlapping 1s — something a normalized weekly vector cannot detect.</div></div>
+        <div class="about-step"><div class="step-num">2</div><div class="step-text"><strong>Cosine Overlap Scoring.</strong> Every eligible pair of vehicles (same type, same depot) is scored using cosine similarity on their 2,160-slot vectors. A score near 0 means their schedules never overlap in calendar time — they are complementary. A score near 1 means they work the same hours on the same days and cannot share a vehicle.</div></div>
+        <div class="about-step"><div class="step-num">3</div><div class="step-text"><strong>Sum-Peak Gating.</strong> A pair passes only if summing their two vectors never produces a value above 1.0 in any single hour — meaning they are never both needed at the same time. This is the hard physical constraint of pooling.</div></div>
+        <div class="about-step"><div class="step-num">4</div><div class="step-text"><strong>Clique Detection (Bron–Kerbosch).</strong> Passing pairs are assembled into a graph and the Bron–Kerbosch algorithm finds all maximal cliques — groups where every member is complementary to every other. These become pool candidates.</div></div>
+        <div class="about-step"><div class="step-num">5</div><div class="step-text"><strong>Clique Merging & Deduplication.</strong> Cliques sharing members are merged into consolidated groups. Each vehicle is then assigned to exactly one group — its highest-value pool — so no vehicle ever appears in conflicting recommendations.</div></div>
+        <div class="about-step"><div class="step-num">6</div><div class="step-text"><strong>Buffer-Safe Elimination Scoring.</strong> For each group, the peak simultaneous demand across the full 90-day window determines the minimum fleet needed. Pool Finder adds a +1 safety buffer — so a group with a peak demand of 3 recommends keeping 4, not 3. Groups of fewer than 3 vehicles are excluded entirely. Everything above the buffered threshold is safely eliminable.</div></div>
       </div>
 
       <h3>Future Goals — Where Pool Finder Goes Next</h3>
       <div class="future-grid">
         <div class="future-card">
           <h4>📍 GPS-Based Proximity Pooling</h4>
-          <p>Today, pooling is restricted to the same assigned depot. A future version would use real-time and historical GPS coordinates to detect when vehicles from different depots spend most of their time in the same geographic zone — enabling cross-depot pool recommendations based on where vehicles actually operate, not just where they're assigned.</p>
+          <p>Today pooling is restricted to the same assigned depot. A future version would use historical GPS coordinates to detect when vehicles from different depots spend most of their operating time in the same geographic zone — enabling cross-depot pool recommendations based on where vehicles actually work, not just where they're parked.</p>
         </div>
         <div class="future-card">
           <h4>🔮 Predictive Schedule Modeling</h4>
-          <p>Rather than analyzing historical trips in isolation, future versions could incorporate seasonal demand curves, project calendars, and known schedule changes to forecast future utilization. This would allow pool recommendations to be forward-looking — flagging vehicles that will become poolable after a project ends, or warning when a pool will need to be dissolved due to upcoming demand.</p>
+          <p>Rather than analyzing historical trips alone, future versions could incorporate project calendars, seasonal demand curves, and known schedule changes to forecast future utilization. This would allow recommendations to be forward-looking — flagging vehicles that will become poolable after a project ends, or warning when a pool needs to be dissolved due to upcoming demand increases.</p>
         </div>
         <div class="future-card">
-          <h4>⚡ Real-Time Pool Availability</h4>
-          <p>A live dashboard layer could show which pooled vehicles are currently in use vs. available, giving dispatchers an at-a-glance view of pool capacity in real time. If a shared vehicle is unexpectedly occupied, the system could automatically suggest which other pool vehicle is nearest and available.</p>
+          <h4>⚡ Real-Time Pool Availability Dashboard</h4>
+          <p>A live layer on top of Pool Finder could show dispatchers which pooled vehicles are currently in use versus available, updated from the Geotab API in real time. If a shared vehicle is unexpectedly occupied, the system could automatically surface which other pool vehicle is nearest and available for dispatch.</p>
+        </div>
+        <div class="future-card">
+          <h4>💰 Advanced Depreciation & Maintenance Modeling</h4>
+          <p>Rather than using flat per-vehicle cost estimates, a future version would integrate with Geotab's engine hour and odometer data to model true total cost of ownership — applying vehicle-specific depreciation curves based on age and mileage, and pulling actual maintenance records to compute real operational savings per vehicle eliminated rather than industry averages.</p>
         </div>
         <div class="future-card">
           <h4>🏗 Project-Cycle Aware Grouping</h4>
-          <p>Heavy equipment like backhoes often follows project cycles — active for a few weeks, then idle for a month. Future versions would detect these multi-week utilization cycles and group equipment by project cadence rather than just shift hours, enabling smarter equipment sharing across project teams.</p>
+          <p>Heavy equipment like backhoes and aerial lifts often follows project cycles — active for a few weeks, then idle for a month. Future versions would automatically detect these multi-week utilization cycles from GPS history and group equipment by project cadence, enabling smarter sharing across project teams without requiring manual schedule input.</p>
         </div>
         <div class="future-card">
-          <h4>📊 Multi-Depot Cross-Pooling</h4>
-          <p>When two depots are close enough geographically, it may make sense to share a pool vehicle between them. A future routing layer could calculate deadhead drive time between depots and factor it into the pool viability calculation — if the drive time between locations is under 20 minutes, cross-depot pooling becomes operationally feasible.</p>
-        </div>
-        <div class="future-card">
-          <h4>🔔 Automated Fleet Right-Sizing Reports</h4>
-          <p>Pool Finder could automatically generate monthly fleet right-sizing reports — flagging newly poolable vehicles as usage patterns shift, tracking how much has been saved since pools were implemented, and surfacing vehicles that have drifted out of their pool patterns and may need reassignment.</p>
+          <h4>📊 Fleet Benchmarking & ROI Tracking</h4>
+          <p>Once pools are implemented, Pool Finder could automatically track whether predicted savings are materializing — comparing actual vehicle utilization against the pooled baseline, reporting realized savings month over month, and flagging vehicles that have drifted out of their pool patterns and may need reassignment or replacement.</p>
         </div>
       </div>
 
       <h3>Why Geotab?</h3>
-      <p>Geotab's MyGeotab platform provides the real-time GPS data, vehicle grouping, and rich API that Pool Finder needs to operate. The add-in pulls live vehicle metadata (names, types, depot assignments) directly from the API on every load. In a production deployment, it would also consume real trip history for the analysis with no synthetic overrides needed — every fleet is different, and Pool Finder adapts to whatever patterns actually exist in the data.</p>
+      <p>Geotab's MyGeotab platform provides the real-time GPS data, vehicle grouping, and rich API that Pool Finder needs. The add-in pulls live vehicle metadata directly from the API on every load. In production, actual 90-day trip history replaces the synthetic patterns — every fleet is different, and the 2,160-slot calendar vector captures whatever utilization patterns actually exist in the data.</p>
 
       <h3>Built With</h3>
-      <p>Pool Finder was built as a vibe coding hackathon project — which in practice meant a rapid back-and-forth collaboration with Claude (Anthropic's AI) to design the algorithm, work through the Shadow DOM CSS isolation problem, debug the Geotab add-in namespace pattern, and figure out why simulator data turned out to be completely random at 2am. It's a genuinely fun example of what AI-assisted development looks like when you just let it run.</p>
-      <p>Stack: vanilla JS · Shadow DOM for CSS isolation · Geotab MyGeotab Add-In SDK · Bron–Kerbosch clique detection · cosine similarity for schedule comparison · no external dependencies.</p>
+      <p>Pool Finder was built as a vibe coding hackathon project — a rapid back-and-forth collaboration with Claude (Anthropic) to design the algorithm, debug the Geotab add-in namespace, solve the Shadow DOM CSS isolation problem, and figure out at 2am why the simulator data was completely uniform. Turns out Geotab's demo database randomizes trips across all 24 hours equally — which is exactly why we needed the 90-day calendar vector approach instead of a normalized weekly shape.</p>
+      <p>Stack: vanilla JS · Shadow DOM for CSS isolation · Geotab MyGeotab Add-In SDK · Bron–Kerbosch maximal clique detection · cosine similarity on 2,160-slot calendar vectors · no external dependencies.</p>
 
-      <div class="about-footer">Built for the Geotab Hackathon · Pool Finder v1.0 · Real vehicle data, realistic shift patterns, real savings math.</div>
+      <div class="about-footer">Built for the Geotab Hackathon · Pool Finder v2.0 · 90-day calendar analysis · real vehicle data · realistic shift patterns · real savings math.</div>
     </div>
   </div>
 `;
@@ -289,16 +286,16 @@ function $(id) { return shadow.getElementById(id); }
 // ═══════════════════════════════════════════
 const CFG = {
   windowDays:          90,
-  SLOTS_PER_DAY:       24,
-  TOTAL_SLOTS:         168,
+  TOTAL_SLOTS:         90 * 24,   // 2160 — one slot per calendar hour
   maxOverlapPair:      0.20,
   mergeShareThreshold: 0.50,
   requireSameType:     true,
   requireSameLocation: true,
   annualOpMid:         10000,
   capitalPerVehicle:   7000,
-  safetyBuffer:        1,   // keep peak+1 vehicles, not just peak
-  minGroupSize:        3,   // ignore groups smaller than this after buffer
+  safetyBuffer:        1,         // keep peak+1 always
+  minGroupSize:        3,         // no 2-vehicle pools
+  minEliminable:       1,         // at least 1 must be removable
 };
 
 const DISPLAY_BLOCKS = ['00–04','04–08','08–12','12–16','16–20','20–24'];
@@ -313,33 +310,41 @@ const GROUP = {
 };
 
 // ═══════════════════════════════════════════
-// TRIP PATTERNS — realistic utility fleet
+// TRIP GENERATION
 // ═══════════════════════════════════════════
 function mkTrip(date, sh, eh) {
   const s = new Date(date); s.setHours(sh,0,0,0);
-  const e = new Date(date); e.setHours(eh,0,0,0);
+  // eh=24 means midnight next day
+  let e;
+  if (eh >= 24) {
+    e = new Date(date); e.setDate(e.getDate()+1); e.setHours(0,0,0,0);
+  } else {
+    e = new Date(date); e.setHours(eh,0,0,0);
+  }
   if (e <= s) return null;
   return { start: s.toISOString(), stop: e.toISOString() };
 }
 
-function genTrips(fn, days = CFG.windowDays) {
+function genTrips(fn) {
   const out = [], now = new Date();
-  for (let i = days; i >= 0; i--) {
-    const d = new Date(now); d.setDate(d.getDate() - i); d.setHours(0,0,0,0);
-    fn(d, d.getDay(), i).forEach(t => { if (t) out.push(t); });
+  for (let i = CFG.windowDays; i >= 0; i--) {
+    const d = new Date(now); d.setDate(d.getDate()-i); d.setHours(0,0,0,0);
+    const dow = d.getDay(); // 0=Sun..6=Sat
+    const results = fn(d, dow, i);
+    results.forEach(t => { if (t) out.push(t); });
   }
   return out;
 }
 
-// Van patterns — 7 distinct shift schedules
+// ── Van patterns (7) — shift-based ──────────────────────────────
 const VAN_PATTERNS = [
-  (d,dow)    => (dow>=1&&dow<=5) ? [mkTrip(d,7,16)] : [],                            // Day A  Mon–Fri 07–16
-  (d,dow)    => (dow>=1&&dow<=5) ? [mkTrip(d,7,16)] : [],                            // Day B  (pools with A)
-  (d,dow)    => (dow>=1&&dow<=5) ? [mkTrip(d,8,17)] : [],                            // Day C  08–17
-  (d,dow)    => { if(dow>=1&&dow<=5) return [mkTrip(d,16,23)]; if(dow===6) return [mkTrip(d,8,14)]; return []; }, // Evening
-  (d,dow)    => ([0,1,2,3,4].includes(dow)) ? [mkTrip(d,22,24)] : [],               // Night
-  (d,dow)    => (dow>=1&&dow<=6) ? [mkTrip(d,4,8)] : [],                            // Early morning
-  (d,dow)    => (dow===0||dow===6) ? [mkTrip(d,8,16)] : [],                         // Weekends only
+  (d,dow) => dow>=1&&dow<=5 ? [mkTrip(d,7,16)]  : [],   // Day A   Mon–Fri 07–16
+  (d,dow) => dow>=1&&dow<=5 ? [mkTrip(d,7,16)]  : [],   // Day B   (pools with A)
+  (d,dow) => dow>=1&&dow<=5 ? [mkTrip(d,8,17)]  : [],   // Day C   08–17
+  (d,dow) => { if(dow>=1&&dow<=5) return [mkTrip(d,16,23)]; if(dow===6) return [mkTrip(d,8,14)]; return []; }, // Evening
+  (d,dow) => [0,1,2,3,4].includes(dow) ? [mkTrip(d,22,24)] : [],  // Night
+  (d,dow) => dow>=1&&dow<=6 ? [mkTrip(d,4,8)]   : [],   // Early morning
+  (d,dow) => dow===0||dow===6 ? [mkTrip(d,8,16)] : [],  // Weekends
 ];
 const VAN_NOTES = [
   'Mon–Fri Day Shift (07–16)','Mon–Fri Day Shift (07–16)','Mon–Fri Day Shift (08–17)',
@@ -347,92 +352,93 @@ const VAN_NOTES = [
   'Mon–Sat Early Morning (04–08)','Weekends Only (08–16)',
 ];
 
-// Pickup patterns — 5 schedules to produce more pool groupings
+// ── Pickup patterns (4) — morning/afternoon crews only ──────────
+// No full-day pattern: fullday overlaps both morning and afternoon
+// so it prevents pool formation. Morning vs afternoon is clean.
 const PICKUP_PATTERNS = [
-  (d,dow) => (dow>=1&&dow<=5) ? [mkTrip(d,6,12)] : [],                              // Morning crew A
-  (d,dow) => (dow>=1&&dow<=5) ? [mkTrip(d,6,12)] : [],                              // Morning crew B (pools with A)
-  (d,dow) => (dow>=1&&dow<=5) ? [mkTrip(d,12,18)] : [],                             // Afternoon crew A
-  (d,dow) => (dow>=1&&dow<=5) ? [mkTrip(d,12,18)] : [],                             // Afternoon crew B (pools with C)
-  (d,dow) => (dow>=1&&dow<=5) ? [mkTrip(d,7,17)] : [],                              // Full day
+  (d,dow) => dow>=1&&dow<=5 ? [mkTrip(d,6,12)]  : [],   // Morning crew A
+  (d,dow) => dow>=1&&dow<=5 ? [mkTrip(d,6,12)]  : [],   // Morning crew B
+  (d,dow) => dow>=1&&dow<=5 ? [mkTrip(d,12,18)] : [],   // Afternoon crew A
+  (d,dow) => dow>=1&&dow<=5 ? [mkTrip(d,12,18)] : [],   // Afternoon crew B
 ];
 const PICKUP_NOTES = [
-  'Mon–Fri Morning (06–12)','Mon–Fri Morning (06–12)',
-  'Mon–Fri Afternoon (12–18)','Mon–Fri Afternoon (12–18)',
-  'Mon–Fri Full Day (07–17)',
+  'Mon–Fri Morning Crew (06–12)','Mon–Fri Morning Crew (06–12)',
+  'Mon–Fri Afternoon Crew (12–18)','Mon–Fri Afternoon Crew (12–18)',
 ];
 
-// Backhoe patterns — project-cycle sporadic
-// Active ~1 week out of every 4, mimicking real project cycles
-// daysAgo param lets us create staggered project weeks across units
-function makeBackhoePattern(projectWeekOffset) {
-  // Each backhoe is on a 4-week cycle; offset staggers which week they're active
+// ── Backhoe patterns (6) — project-cycle sporadic ────────────────
+// 3 cycle offsets × 2 hour splits = 6 distinct patterns
+// On-cycle: Mon–Fri active. Off-cycle weeks: completely idle.
+// Different hour splits (AM vs PM) ensure cosine ≠ 1 within a cycle.
+function makeBackhoePattern(cycleOffset, h1, h2) {
   return (d, dow, daysAgo) => {
-    // Which 4-week cycle are we in?
+    if (dow === 0 || dow === 6) return [];               // no weekends
     const weekNum = Math.floor(daysAgo / 7);
-    const cycleWeek = (weekNum + projectWeekOffset) % 4;
-    // Only active in cycle week 0 (the "project week"), on weekdays
-    if (cycleWeek !== 0) return [];
-    if (dow === 0 || dow === 6) return [];
-    // During project week: random-ish but consistent hours (heavy equipment hours)
-    return [mkTrip(d, 7, 15)];
+    if ((weekNum + cycleOffset) % 4 !== 0) return [];   // idle 3 of 4 weeks
+    return [mkTrip(d, h1, h2)];
   };
 }
 
 const BACKHOE_PATTERNS = [
-  makeBackhoePattern(0),  // project week: weeks 1, 5, 9... of window
-  makeBackhoePattern(1),  // project week: weeks 2, 6, 10...
-  makeBackhoePattern(2),  // project week: weeks 3, 7, 11...
-  makeBackhoePattern(0),  // second unit on same cycle as first (pools with it)
-  makeBackhoePattern(1),
-  makeBackhoePattern(2),
+  makeBackhoePattern(0, 6, 14),   // cycle 0, morning shift
+  makeBackhoePattern(0, 14, 22),  // cycle 0, afternoon shift
+  makeBackhoePattern(1, 6, 14),   // cycle 1, morning shift
+  makeBackhoePattern(1, 14, 22),  // cycle 1, afternoon shift
+  makeBackhoePattern(2, 6, 14),   // cycle 2, morning shift
+  makeBackhoePattern(2, 14, 22),  // cycle 2, afternoon shift
 ];
 const BACKHOE_NOTES = [
-  'Project Cycle A — active ~1wk/month (07–15)','Project Cycle B — active ~1wk/month (07–15)',
-  'Project Cycle C — active ~1wk/month (07–15)','Project Cycle A — active ~1wk/month (07–15)',
-  'Project Cycle B — active ~1wk/month (07–15)','Project Cycle C — active ~1wk/month (07–15)',
+  'Project Cycle A — Morning (06–14, ~1wk/month)',
+  'Project Cycle A — Afternoon (14–22, ~1wk/month)',
+  'Project Cycle B — Morning (06–14, ~1wk/month)',
+  'Project Cycle B — Afternoon (14–22, ~1wk/month)',
+  'Project Cycle C — Morning (06–14, ~1wk/month)',
+  'Project Cycle C — Afternoon (14–22, ~1wk/month)',
 ];
 
 function assignPattern(type, idx) {
-  if (type === 'Van')     return VAN_PATTERNS[idx % VAN_PATTERNS.length];
-  if (type === 'Pickup')  return PICKUP_PATTERNS[idx % PICKUP_PATTERNS.length];
-  if (type === 'Backhoe') return BACKHOE_PATTERNS[idx % BACKHOE_PATTERNS.length];
+  if (type==='Van')     return VAN_PATTERNS[idx % VAN_PATTERNS.length];
+  if (type==='Pickup')  return PICKUP_PATTERNS[idx % PICKUP_PATTERNS.length];
+  if (type==='Backhoe') return BACKHOE_PATTERNS[idx % BACKHOE_PATTERNS.length];
   return VAN_PATTERNS[0];
 }
 function assignNote(type, idx) {
-  if (type === 'Van')     return VAN_NOTES[idx % VAN_NOTES.length];
-  if (type === 'Pickup')  return PICKUP_NOTES[idx % PICKUP_NOTES.length];
-  if (type === 'Backhoe') return BACKHOE_NOTES[idx % BACKHOE_NOTES.length];
+  if (type==='Van')     return VAN_NOTES[idx % VAN_NOTES.length];
+  if (type==='Pickup')  return PICKUP_NOTES[idx % PICKUP_NOTES.length];
+  if (type==='Backhoe') return BACKHOE_NOTES[idx % BACKHOE_NOTES.length];
   return '';
 }
 
 // ═══════════════════════════════════════════
-// CORE ALGORITHM
+// 2160-SLOT CALENDAR VECTOR
+// Each slot = one specific calendar hour over the 90-day window.
+// Value = 1 if vehicle was in use that hour, 0 otherwise.
+// Preserves calendar position — project-cycle gaps are visible.
 // ═══════════════════════════════════════════
-function buildVector(trips, windowDays = CFG.windowDays) {
-  const wdc = new Array(7).fill(0), now = new Date();
-  for (let i = 0; i <= windowDays; i++) {
-    const d = new Date(now); d.setDate(d.getDate()-i); wdc[d.getDay()]++;
-  }
+function buildVector(trips) {
   const hits = new Array(CFG.TOTAL_SLOTS).fill(0);
+  const now = new Date();
+  const todayMidnight = new Date(now); todayMidnight.setHours(0,0,0,0);
+
   for (const trip of trips) {
     const ts = new Date(trip.start), te = new Date(trip.stop);
     if (te <= ts) continue;
     const cur = new Date(ts); cur.setMinutes(0,0,0);
     while (cur < te) {
-      const next = new Date(cur); next.setHours(cur.getHours()+1);
-      if (cur < te && next > ts) {
-        const idx = cur.getDay()*CFG.SLOTS_PER_DAY + cur.getHours();
-        if (idx >= 0 && idx < CFG.TOTAL_SLOTS) hits[idx]++;
+      const daysAgo = Math.floor((todayMidnight - new Date(cur.getFullYear(), cur.getMonth(), cur.getDate())) / 86400000);
+      if (daysAgo >= 0 && daysAgo < CFG.windowDays) {
+        const slot = (CFG.windowDays - 1 - daysAgo) * 24 + cur.getHours();
+        if (slot >= 0 && slot < CFG.TOTAL_SLOTS) hits[slot] = 1;
       }
       cur.setHours(cur.getHours()+1);
     }
   }
-  return hits.map((h,i) => {
-    const day = Math.floor(i/CFG.SLOTS_PER_DAY);
-    return wdc[day] > 0 ? Math.min(1, h/wdc[day]) : 0;
-  });
+  return hits;
 }
 
+// ═══════════════════════════════════════════
+// CORE ALGORITHM
+// ═══════════════════════════════════════════
 function cosineOverlap(vA, vB) {
   let dot=0, mA=0, mB=0;
   for (let i=0; i<vA.length; i++) { dot+=vA[i]*vB[i]; mA+=vA[i]*vA[i]; mB+=vB[i]*vB[i]; }
@@ -447,9 +453,8 @@ function pairEligible(vA, vB) {
   if (CFG.requireSameLocation && vA.location !== vB.location) return false;
   return true;
 }
-
 function calcSavings(n) {
-  return { n, annualOp: n*CFG.annualOpMid, capital: n*CFG.capitalPerVehicle, total3yr: n*CFG.annualOpMid*3+n*CFG.capitalPerVehicle };
+  return { n, annualOp:n*CFG.annualOpMid, capital:n*CFG.capitalPerVehicle, total3yr:n*CFG.annualOpMid*3+n*CFG.capitalPerVehicle };
 }
 function fmt(n) { return '$'+Math.round(n).toLocaleString(); }
 
@@ -478,8 +483,7 @@ function findCliques(vehicles, pairs) {
   function bk(R,P,X) {
     if (P.length===0&&X.length===0) { if(R.length>=2) cliques.push([...R].sort()); return; }
     const pivot = [...P,...X].reduce((best,v)=>{
-      const c=P.filter(u=>adj[v].has(u)).length;
-      return c>best.c?{v,c}:best;
+      const c=P.filter(u=>adj[v].has(u)).length; return c>best.c?{v,c}:best;
     },{v:null,c:-1}).v;
     const pivotN = pivot ? adj[pivot] : new Set();
     const toProcess = P.filter(v=>!pivotN.has(v));
@@ -512,60 +516,60 @@ function mergeCliques(cliques, vById) {
     }
     groups = next;
   }
-  return groups.map(idSet=>{
-    const ids=[...idSet].sort();
-    return {ids, members:ids.map(id=>vById[id])};
-  });
+  return groups.map(idSet=>{ const ids=[...idSet].sort(); return {ids,members:ids.map(id=>vById[id])}; });
 }
 
 function scoreGroups(groups, vm) {
   const scored = [];
   for (const group of groups) {
+    if (group.members.length < CFG.minGroupSize) continue;
     const vecs = group.members.map(v=>vm[v.id]);
     const sumVec = sumVectors(vecs);
     const peak = peakOf(sumVec);
-    // Keep peak + safety buffer; eliminable = everything above that
     const needed = Math.ceil(peak) + CFG.safetyBuffer;
     const eliminable = group.members.length - needed;
-    // Require eliminable >= 2 (no single-vehicle recommendations — unrealistic)
-    if (eliminable < 2) continue;
-    // Also require the group is at least minGroupSize total
-    if (group.members.length < CFG.minGroupSize) continue;
+    if (eliminable < CFG.minEliminable) continue;
     let olSum=0, olCount=0;
     for (let i=0; i<vecs.length; i++)
       for (let j=i+1; j<vecs.length; j++) { olSum+=cosineOverlap(vecs[i],vecs[j]); olCount++; }
     const avgOverlap = olCount>0 ? olSum/olCount : 0;
-    const sv = calcSavings(eliminable);
-    scored.push({ group, sumVec, peak, needed, eliminable, avgOverlap, savings:sv });
+    scored.push({ group, sumVec, peak, needed, eliminable, avgOverlap, savings:calcSavings(eliminable) });
   }
   scored.sort((a,b)=>b.savings.total3yr-a.savings.total3yr);
-  // Deduplicate: each vehicle goes to its best group only
+  // Deduplicate — each vehicle goes to its highest-value group only
   const claimed = new Set();
-  const results = [];
-  for (const r of scored) {
-    if (r.group.ids.some(id=>claimed.has(id))) continue;
+  return scored.filter(r => {
+    if (r.group.ids.some(id=>claimed.has(id))) return false;
     r.group.ids.forEach(id=>claimed.add(id));
-    results.push(r);
-  }
-  return results;
+    return true;
+  });
 }
 
 // ═══════════════════════════════════════════
-// RENDER HELPERS
+// HEATMAP — aggregates 2160-slot vector back to weekly 4h view for display
 // ═══════════════════════════════════════════
-function aggregateTo4h(vec1h) {
-  const out = [];
-  for (let day=0; day<7; day++)
+function buildWeeklyHeatmap(vec2160) {
+  // Average each day-of-week × 4h-block across all 90 days
+  const sums = new Array(7*6).fill(0), counts = new Array(7*6).fill(0);
+  const now = new Date(); const todayMid = new Date(now); todayMid.setHours(0,0,0,0);
+  for (let daysAgo=0; daysAgo<CFG.windowDays; daysAgo++) {
+    const d = new Date(todayMid); d.setDate(d.getDate()-daysAgo);
+    const dow = d.getDay();
     for (let block=0; block<6; block++) {
-      let sum=0;
-      for (let h=0; h<4; h++) sum+=vec1h[day*24+block*4+h];
-      out.push(sum/4);
+      let blockVal = 0;
+      for (let h=0; h<4; h++) {
+        const slot = (CFG.windowDays-1-daysAgo)*24 + block*4 + h;
+        if (slot>=0&&slot<CFG.TOTAL_SLOTS) blockVal += vec2160[slot];
+      }
+      sums[dow*6+block]  += blockVal/4;
+      counts[dow*6+block]++;
     }
-  return out;
+  }
+  return sums.map((s,i) => counts[i]>0 ? s/counts[i] : 0);
 }
 
-function renderHeatmap(vec1h) {
-  const v4 = aggregateTo4h(vec1h);
+function renderHeatmap(vec2160) {
+  const v = buildWeeklyHeatmap(vec2160);
   const tbl = document.createElement('table'); tbl.className='heatmap';
   const hdr = document.createElement('tr');
   const c = document.createElement('th'); c.style.width='34px'; hdr.appendChild(c);
@@ -575,7 +579,7 @@ function renderHeatmap(vec1h) {
     const tr=document.createElement('tr');
     const lbl=document.createElement('td'); lbl.className='row-label'; lbl.textContent=day; tr.appendChild(lbl);
     for (let b=0; b<6; b++) {
-      const val=v4[di*6+b];
+      const val=v[di*6+b];
       const td=document.createElement('td'); td.className='cell';
       if (val<0.05) td.style.background='#f8f9fa';
       else if (val<0.4) td.style.background=`rgba(0,117,201,${(0.15+val*0.5).toFixed(2)})`;
@@ -604,30 +608,37 @@ function renderVehicleCard(v, trips, vec) {
   return card;
 }
 
-// Peak demand bar chart — aggregated to 4h blocks across 7 days (42 columns)
+// ═══════════════════════════════════════════
+// DEMAND CHART — shows summed group demand over 90 days, aggregated to daily peaks
+// ═══════════════════════════════════════════
 function renderDemandChart(sumVec, peak, needed, size) {
-  const v4 = aggregateTo4h(sumVec);
-  const maxVal = Math.max(size, peak, needed + 0.5);  // y-axis scale
+  // Aggregate 2160-slot sum vector to 90 daily peak values for the chart
+  const dailyPeaks = [];
+  for (let day=0; day<CFG.windowDays; day++) {
+    let dayMax = 0;
+    for (let h=0; h<24; h++) {
+      const slot = day*24+h;
+      if (sumVec[slot] > dayMax) dayMax = sumVec[slot];
+    }
+    dailyPeaks.push(dayMax);
+  }
+  const maxVal = Math.max(size, peak, needed+0.5);
 
   const section = document.createElement('div'); section.className='demand-section';
-
-  // Header
   const header = document.createElement('div'); header.className='demand-header';
   header.innerHTML=`
-    <div class="demand-title">Peak Simultaneous Usage — 4h Blocks</div>
-    <div class="demand-subtitle">Max ever needed at once: <strong style="color:var(--gray-900)">${peak.toFixed(2)}</strong> · Keeping: <strong style="color:var(--green)">${needed}</strong> · Fleet size: ${size}</div>
+    <div class="demand-title">Daily Peak Demand — 90-Day Window</div>
+    <div class="demand-subtitle">Peak ever: <strong style="color:var(--gray-900)">${peak.toFixed(2)}</strong> simultaneous · Keeping: <strong style="color:var(--green)">${needed}</strong> · Buffer: +${CFG.safetyBuffer}</div>
   `;
   section.appendChild(header);
 
-  // Chart
   const wrap = document.createElement('div'); wrap.className='demand-chart-wrap';
   const bars = document.createElement('div'); bars.className='demand-bars';
 
-  v4.forEach(val => {
+  dailyPeaks.forEach(val => {
     const col = document.createElement('div'); col.className='demand-col';
-    const pct = Math.min(100, (val/maxVal)*100);
-    // Color: over needed+buffer = red, within buffer zone = yellow, safe = blue
-    const colorClass = val > needed ? 'over' : val > (needed - CFG.safetyBuffer) ? 'buffer' : 'safe';
+    const pct = Math.min(100,(val/maxVal)*100);
+    const colorClass = val > needed ? 'over' : val > (needed-CFG.safetyBuffer) ? 'buffer' : 'safe';
     const inner = document.createElement('div');
     inner.className=`demand-col-inner ${colorClass}`;
     inner.style.height=`${pct}%`;
@@ -636,48 +647,48 @@ function renderDemandChart(sumVec, peak, needed, size) {
   });
   wrap.appendChild(bars);
 
-  // Threshold line for "keep" level
-  const keepPct = Math.min(100, (needed/maxVal)*100);
-  const keepLine = document.createElement('div');
-  keepLine.className='demand-line';
+  // Keep threshold line
+  const keepPct = Math.min(100,(needed/maxVal)*100);
+  const keepLine = document.createElement('div'); keepLine.className='demand-line';
   keepLine.style.cssText=`bottom:${keepPct}%;border-top:2px dashed var(--green);`;
   keepLine.innerHTML=`<span style="position:absolute;right:4px;font-size:9px;font-weight:800;color:var(--green);transform:translateY(-11px);background:var(--gray-50);padding:0 3px">Keep ${needed}</span>`;
   wrap.appendChild(keepLine);
 
   // Peak line
-  const peakPct = Math.min(100, (peak/maxVal)*100);
-  const peakLine = document.createElement('div');
-  peakLine.className='demand-line';
+  const peakPct = Math.min(100,(peak/maxVal)*100);
+  const peakLine = document.createElement('div'); peakLine.className='demand-line';
   peakLine.style.cssText=`bottom:${peakPct}%;border-top:1.5px dashed #74c0fc;`;
   peakLine.innerHTML=`<span style="position:absolute;left:4px;font-size:9px;font-weight:800;color:#4dabf7;transform:translateY(-11px);background:var(--gray-50);padding:0 3px">Peak ${peak.toFixed(1)}</span>`;
   wrap.appendChild(peakLine);
 
   section.appendChild(wrap);
 
-  // Day labels
-  const dayLabels = document.createElement('div'); dayLabels.className='demand-day-labels';
-  DAYS.forEach(d => {
-    for (let b=0; b<6; b++) {
-      const lbl=document.createElement('div'); lbl.className='demand-day-label';
-      if (b===0) lbl.textContent=d.charAt(0); else lbl.textContent='';
-      dayLabels.appendChild(lbl);
-    }
-  });
-  section.appendChild(dayLabels);
+  // Month labels under chart
+  const monthLabels = document.createElement('div'); monthLabels.className='demand-day-labels';
+  const monthNames=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const now = new Date();
+  let lastMonth = -1;
+  for (let day=0; day<CFG.windowDays; day++) {
+    const d = new Date(now); d.setDate(d.getDate()-(CFG.windowDays-1-day));
+    const lbl=document.createElement('div'); lbl.className='demand-day-label';
+    if (d.getMonth()!==lastMonth) { lbl.textContent=monthNames[d.getMonth()]; lastMonth=d.getMonth(); }
+    monthLabels.appendChild(lbl);
+  }
+  section.appendChild(monthLabels);
 
-  // Legend
   const legend = document.createElement('div'); legend.className='demand-legend';
   legend.innerHTML=`
-    <div class="demand-legend-item"><div class="demand-legend-dot" style="background:#74c0fc"></div>Safe (below peak)</div>
-    <div class="demand-legend-item"><div class="demand-legend-dot" style="background:#ffd43b"></div>Buffer zone</div>
+    <div class="demand-legend-item"><div class="demand-legend-dot" style="background:#74c0fc"></div>Within safe threshold</div>
+    <div class="demand-legend-item"><div class="demand-legend-dot" style="background:#ffd43b"></div>Safety buffer zone</div>
     <div class="demand-legend-item"><div class="demand-legend-dot" style="background:#ff6b6b"></div>Above keep threshold</div>
-    <div class="demand-legend-item" style="gap:6px">— — <span style="color:var(--green);font-weight:700;font-size:11px">Keep ${needed}</span> &nbsp; — — <span style="color:#4dabf7;font-weight:700;font-size:11px">Peak ${peak.toFixed(1)}</span></div>
   `;
   section.appendChild(legend);
-
   return section;
 }
 
+// ═══════════════════════════════════════════
+// REC CARD
+// ═══════════════════════════════════════════
 function renderRecCard(result) {
   const { group, sumVec, eliminable, needed, peak, avgOverlap, savings } = result;
   const size = group.members.length;
@@ -687,7 +698,6 @@ function renderRecCard(result) {
     : eliminable >= 3
     ? `<span class="badge badge-green">Strong Opportunity</span>`
     : `<span class="badge badge-blue">Recommended</span>`;
-
   const chips = group.members.map((v,i) => {
     const keep = i < needed;
     return `<span class="chip ${keep?'chip-keep':'chip-elim'}">${keep?'✓ Keep:':'✗ Remove:'} ${v.name} <span style="font-size:10px;opacity:0.7">(${v.type})</span></span>`;
@@ -703,7 +713,7 @@ function renderRecCard(result) {
           <span class="badge badge-gray">${size} vehicles → keep ${needed}, remove ${eliminable}</span>
         </div>
         <div class="rec-title">${size} ${group.members[0].type}s — pool of ${size}, safely reduced to ${needed}</div>
-        <div class="rec-meta">Avg schedule overlap: ${(avgOverlap*100).toFixed(0)}% · Peak simultaneous: ${peak.toFixed(2)} vehicles · Safety buffer: +${CFG.safetyBuffer}</div>
+        <div class="rec-meta">Schedule overlap: ${(avgOverlap*100).toFixed(0)}% avg · Peak simultaneous demand: ${peak.toFixed(2)} · Safety buffer: +${CFG.safetyBuffer}</div>
       </div>
       <div class="rec-savings">
         <div class="big">${fmt(savings.annualOp)}<span style="font-size:13px;color:#868e96">/yr</span></div>
@@ -713,16 +723,10 @@ function renderRecCard(result) {
     </div>
     <div class="chip-row">${chips}</div>
     <div class="why-box">
-      <strong>Why this pool works:</strong> Summing all ${size} vehicles' hourly demand across the 90-day window, the peak never exceeds <strong>${peak.toFixed(2)} simultaneous vehicles</strong>. These ${size} vehicles never all need to be on the road at the same time — their schedules are complementary. Pool Finder rounds up to <strong>${Math.ceil(peak)} vehicles</strong> as the strict minimum, then adds a <strong>+${CFG.safetyBuffer} safety buffer</strong> for operational resilience, meaning the fleet needs only <strong>${needed} vehicles</strong> to handle every observed demand scenario with headroom. The remaining <strong>${eliminable} vehicles</strong> are safe to remove.
-      <br><br>
-      <strong>The demand chart below</strong> shows each 4-hour block of the week — blue bars are safely below the keep threshold, yellow bars are in the safety buffer zone. If any bar reached red, the pool would be too aggressive.
+      <strong>Why this pool works:</strong> Across the full 90-day calendar window (2,160 hourly slots), the combined demand of these ${size} vehicles never exceeds <strong>${peak.toFixed(2)} simultaneously</strong>. Their schedules are genuinely complementary — they work different hours, different shifts, or different project weeks and are never all needed at once. Pool Finder rounds up to <strong>${Math.ceil(peak)}</strong> as the strict minimum, then adds a <strong>+${CFG.safetyBuffer} safety buffer</strong> for operational headroom, bringing the recommended fleet size to <strong>${needed} vehicles</strong>. The <strong>${eliminable} vehicle${eliminable>1?'s':''}</strong> above that threshold can be safely eliminated. The chart below shows daily peak demand across all 90 days — blue bars confirm demand stays comfortably below the keep threshold.
     </div>
   `;
-
-  // Inject demand chart
   card.appendChild(renderDemandChart(sumVec, peak, needed, size));
-
-  // Savings breakdown
   const savingsRow = document.createElement('div'); savingsRow.className='savings-row';
   savingsRow.innerHTML=`
     <div class="savings-item"><div class="val">${fmt(savings.annualOp)}</div><div class="lbl">Annual Op Savings<br><span style="color:#2a3060">$8k–$12k/vehicle/yr</span></div></div>
@@ -749,22 +753,18 @@ function setupCollapsibles() {
   [['toggle-heatmaps','body-heatmaps'],['toggle-pairs','body-pairs']].forEach(([tid,bid])=>{
     const toggle=$(tid), body=$(bid);
     if (!toggle||!body) return;
-    toggle.addEventListener('click',()=>{
-      const open=body.classList.toggle('open');
-      toggle.classList.toggle('open',open);
-    });
+    toggle.addEventListener('click',()=>{ const open=body.classList.toggle('open'); toggle.classList.toggle('open',open); });
   });
 }
 
 // ═══════════════════════════════════════════
-// MAIN — Geotab API integration
+// MAIN
 // ═══════════════════════════════════════════
 function runPoolFinder(api) {
   api.call('Get', { typeName:'Device', resultsLimit:200 },
     function(devices) {
       const typeCounters = { Van:0, Pickup:0, Backhoe:0 };
       const fleet = [];
-
       devices.forEach(device => {
         const ids = (device.groups||[]).map(g=>g.id||g);
         const type  = ids.includes(GROUP.VAN)?'Van':ids.includes(GROUP.PICKUP)?'Pickup':ids.includes(GROUP.BACKHOE)?'Backhoe':null;
@@ -779,10 +779,10 @@ function runPoolFinder(api) {
         return;
       }
 
+      // Build 2160-slot calendar vectors
       const tripMap={}, vm={};
       const vById = Object.fromEntries(fleet.map(v=>[v.id,v]));
       let totalTrips=0;
-
       fleet.forEach(v=>{
         const trips=genTrips(v.pattern);
         tripMap[v.id]=trips;
@@ -790,28 +790,31 @@ function runPoolFinder(api) {
         totalTrips+=trips.length;
       });
 
+      // Heatmaps
       const grid=$('heatmap-grid');
       fleet.forEach(v=>grid.appendChild(renderVehicleCard(v,tripMap[v.id],vm[v.id])));
 
+      // Pairs
       const pairs=findComplementaryPairs(fleet,vm);
       const tbody=$('pairs-body');
       pairs.forEach(p=>{ const vA=vById[p.idA],vB=vById[p.idB]; tbody.appendChild(renderPairRow(vA,vB,p.overlap)); });
 
+      // Cliques → merge → score
       const cliques=findCliques(fleet,pairs);
       const mergedGroups=mergeCliques(cliques,vById);
       const results=scoreGroups(mergedGroups,vm);
 
-      const recList=$('rec-list');
-      recList.innerHTML='';
+      // Render recs
+      const recList=$('rec-list'); recList.innerHTML='';
       if (!results.length) {
-        recList.innerHTML='<div style="color:#868e96;padding:40px;text-align:center">No actionable pool groups found with current thresholds.</div>';
+        recList.innerHTML='<div style="color:#868e96;padding:40px;text-align:center">No actionable pool groups found.</div>';
       } else {
         results.forEach(r=>recList.appendChild(renderRecCard(r)));
       }
 
+      // Summary
       let totalElim=0,totalAnnual=0,totalCapital=0;
       results.forEach(r=>{ totalElim+=r.eliminable; totalAnnual+=r.savings.annualOp; totalCapital+=r.savings.capital; });
-
       $('s-vehicles').textContent = fleet.length;
       $('s-trips').textContent    = totalTrips.toLocaleString();
       $('s-pairs').textContent    = pairs.length;
@@ -823,7 +826,7 @@ function runPoolFinder(api) {
       setupCollapsibles();
     },
     function(err) {
-      $('rec-list').innerHTML='<div style="color:#c0392b;padding:40px;text-align:center">Failed to connect to Geotab API. Check add-in configuration.</div>';
+      $('rec-list').innerHTML='<div style="color:#c0392b;padding:40px;text-align:center">Failed to connect to Geotab API.</div>';
     }
   );
 }
