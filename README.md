@@ -76,9 +76,7 @@ To demonstrate the algorithm meaningfully, each of the 50 demo vehicles was manu
 
 Vehicles were distributed across two depot groups (North and South) in MyGeotab. Pool Finder only compares vehicles within the same depot — a van assigned to the North depot will never be recommended for pooling with one assigned to South. This mirrors how real fleet operations work: vehicles need to share a home base to share a pool.
 
-In a production deployment, these group assignments already exist in your fleet's MyGeotab database. Pool Finder reads them directly from the API — no manual configuration required.
 ---
-
 ## The Vibe Coding Journey
 
 This was built in collaboration with Claude (Anthropic) over the course of the hackathon. My background is Python for data analysis — I've worked with APIs before, but a single-file HTML add-in deployed via GitHub Pages and integrated with the MyGeotab SDK was completely foreign territory. The math behind the algorithm was new to me too. Claude explained every step clearly enough that I could follow the logic, validate the approach, and make real decisions — I wasn't just accepting output, I was understanding it.
