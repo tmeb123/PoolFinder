@@ -96,6 +96,7 @@ Vanilla JS · Shadow DOM · Geotab MyGeotab Add-In SDK · Bron–Kerbosch clique
 2. Update `configuration.json` with the hosted URL
 3. MyGeotab → Administration → Add-Ins → Add new → paste `configuration.json`
 4. Pool Finder appears as a new page in the MyGeotab navigation
+  
 ⚠️ Note: Pool Finder is currently configured to work with my specific Geotab demo database, which I manually set up with vehicle type and depot group assignments. Deploying it against a different fleet will require configuring the group IDs and shift patterns to match that fleet's operations. If you're interested in deploying Pool Finder on your fleet, feel free to reach out and I'm happy to help.
 
 ---
