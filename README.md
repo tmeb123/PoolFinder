@@ -83,7 +83,19 @@ The major turning points:
 **The full conversation including all prompts:** 🔗 *(https://claude.ai/share/b6fe48b9-d141-4390-a629-f1ae0b5d3a28)*
 
 ---
+## To Do
 
+- Expand utilization window from 90 days to 365 days (8,760-slot vectors) for better seasonal and project-cycle accuracy
+- Make the analysis window user-configurable (30 / 90 / 180 / 365 days) with a confidence indicator when the window is too short
+- Replace flat cost estimates with true TCO using Geotab engine hours, odometer data, and actual maintenance records
+- Add GPS proximity pooling — allow cross-depot recommendations when vehicles from different depots operate in the same geographic zone
+- Real-time pool availability layer showing dispatchers which pooled vehicles are currently in use vs. available
+- Forward-looking recommendations using project calendars and seasonal demand curves, not just historical trips
+- Automated monthly right-sizing reports tracking whether predicted savings are materializing
+- Scale to large fleets with server-side processing and pre-filtering to keep pair comparisons manageable
+- Make vehicle type mappings and shift pattern definitions configurable per fleet without code changes
+
+---
 ## Stack
 
 Vanilla JS · Shadow DOM · Geotab MyGeotab Add-In SDK · Bron–Kerbosch clique detection · Cosine similarity on 2,160-slot calendar vectors · No external dependencies · Single-file deployment
