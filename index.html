@@ -219,12 +219,51 @@ style.textContent = `
   .val-item .check { font-size: 16px; flex-shrink: 0; }
   .val-item .label { flex: 1; color: var(--gray-700); }
 
-  /* ── Log ── */
-  .log { background: var(--gray-900); border-radius: var(--radius); padding: 16px; font-family: "Consolas", "Courier New", monospace; font-size: 11px; color: #adb5bd; max-height: 220px; overflow-y: auto; line-height: 1.8; }
-  .log .ok   { color: #69db7c; display: block; }
-  .log .err  { color: #ff6b6b; display: block; }
-  .log .info { color: #74c0fc; display: block; }
-  .log .warn { color: #ffd43b; display: block; }
+  /* ── Collapsible sections ── */
+  .collapse-toggle {
+    display: flex; align-items: center; justify-content: space-between;
+    cursor: pointer; user-select: none;
+    padding: 10px 16px;
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    font-size: 13px; font-weight: 600; color: var(--gray-700);
+    box-shadow: var(--shadow);
+    transition: background 0.15s;
+  }
+  .collapse-toggle:hover { background: var(--gray-50); }
+  .collapse-toggle .toggle-label { display: flex; align-items: center; gap: 8px; }
+  .collapse-toggle .toggle-icon {
+    font-size: 11px; color: var(--gray-500);
+    transition: transform 0.2s;
+    display: inline-block;
+  }
+  .collapse-toggle.open .toggle-icon { transform: rotate(180deg); }
+  .collapse-body { display: none; margin-top: 12px; }
+  .collapse-body.open { display: block; }
+
+  /* ── About section ── */
+  .about-card {
+    background: var(--white); border: 1px solid var(--gray-200);
+    border-radius: var(--radius); padding: 28px 32px; box-shadow: var(--shadow);
+    line-height: 1.8;
+  }
+  .about-card h2 { font-size: 18px; font-weight: 700; color: var(--gray-900); margin-bottom: 6px; }
+  .about-card h3 { font-size: 13px; font-weight: 700; color: var(--blue); text-transform: uppercase; letter-spacing: 0.06em; margin: 22px 0 8px; }
+  .about-card p  { font-size: 13px; color: var(--gray-700); margin-bottom: 10px; }
+  .about-card .tagline { font-size: 13px; color: var(--gray-500); margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--gray-200); }
+  .about-steps { display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; }
+  .about-step { display: flex; gap: 14px; align-items: flex-start; }
+  .about-step .step-num {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--blue); color: white;
+    font-size: 12px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .about-step .step-text { font-size: 13px; color: var(--gray-700); }
+  .about-step .step-text strong { color: var(--gray-900); }
+  .about-footer { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--gray-200); font-size: 12px; color: var(--gray-500); font-style: italic; }
 
   @media (max-width: 600px) {
     .app { padding: 12px 12px 40px; }
@@ -275,25 +314,61 @@ app.innerHTML = `
   </div>
 
   <div class="section">
-    <div class="section-title">Utilization Heatmaps — All Vehicles</div>
-    <div class="vehicle-grid" id="heatmap-grid"></div>
-  </div>
-
-  <div class="section">
-    <div class="section-title">Pair Compatibility Matrix</div>
-    <div style="overflow-x:auto">
-      <table class="data-table">
-        <thead>
-          <tr><th>Vehicle A</th><th>Vehicle B</th><th>Type</th><th>Location</th><th>Overlap</th><th>Verdict</th></tr>
-        </thead>
-        <tbody id="pairs-body"></tbody>
-      </table>
+    <div class="collapse-toggle" id="toggle-heatmaps">
+      <span class="toggle-label">🗓 Utilization Heatmaps — All Vehicles</span>
+      <span class="toggle-icon">▼</span>
+    </div>
+    <div class="collapse-body" id="body-heatmaps">
+      <div class="vehicle-grid" id="heatmap-grid"></div>
     </div>
   </div>
 
   <div class="section">
-    <div class="section-title">Debug Log</div>
-    <div class="log" id="log"></div>
+    <div class="collapse-toggle" id="toggle-pairs">
+      <span class="toggle-label">🔗 Pair Compatibility Matrix — Complementary Pairs Only</span>
+      <span class="toggle-icon">▼</span>
+    </div>
+    <div class="collapse-body" id="body-pairs">
+      <div style="overflow-x:auto">
+        <table class="data-table">
+          <thead>
+            <tr><th>Vehicle A</th><th>Vehicle B</th><th>Type</th><th>Location</th><th>Overlap</th></tr>
+          </thead>
+          <tbody id="pairs-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">About Pool Finder</div>
+    <div class="about-card">
+      <h2>Pool Finder</h2>
+      <p class="tagline">A fleet vehicle pool optimizer built for the Geotab Hackathon — identifying underutilized vehicles through shift-pattern analysis and graph-based clique detection.</p>
+
+      <h3>The Real-World Problem</h3>
+      <p>Mixed-use fleets — like those operated by utilities, municipalities, and construction firms — often carry far more vehicles than they actually need at any given moment. The reason isn't that the vehicles are unused; it's that <strong>usage is sequential, not simultaneous</strong>. A van used for a 6am maintenance run sits idle all afternoon while an identical van sits idle all morning waiting for an evening shift. Neither fleet manager sees this — they only see that both vans are "actively assigned."</p>
+      <p>Pool Finder makes this invisible pattern visible. If two vehicles never need to be on the road at the same time, the fleet can operate with just one of them — shared across both crews. This is vehicle pooling, and at $8,000–$12,000 per vehicle per year in operating costs plus $7,000 in capital value, even eliminating three or four vehicles delivers six-figure savings over three years.</p>
+
+      <h3>How the Algorithm Works</h3>
+      <div class="about-steps">
+        <div class="about-step"><div class="step-num">1</div><div class="step-text"><strong>Utilization Vectors.</strong> Each vehicle's GPS trip history is converted into a 168-slot vector (24 hours × 7 days). Each slot holds the fraction of weeks that vehicle was in use during that hour — a normalized fingerprint of when it actually moves.</div></div>
+        <div class="about-step"><div class="step-num">2</div><div class="step-text"><strong>Cosine Overlap Scoring.</strong> Every eligible pair of vehicles (same type, same depot) is tested using cosine similarity on their utilization vectors. Low overlap = complementary schedules. High overlap = they compete for the same hours and cannot share.</div></div>
+        <div class="about-step"><div class="step-num">3</div><div class="step-text"><strong>Sum-Peak Gating.</strong> A pair passes only if their combined demand never exceeds 1.0 simultaneous vehicle. This is the hard physical constraint — if their peak demand stacks, pooling them would leave a crew without a vehicle.</div></div>
+        <div class="about-step"><div class="step-num">4</div><div class="step-text"><strong>Clique Detection (Bron–Kerbosch).</strong> Complementary pairs are assembled into a graph. The Bron–Kerbosch algorithm finds all maximal cliques — groups of vehicles where every member is complementary to every other. These become pool candidates.</div></div>
+        <div class="about-step"><div class="step-num">5</div><div class="step-text"><strong>Clique Merging.</strong> Cliques that share a large fraction of members are merged into a single consolidated group. This prevents the same vehicle from appearing in conflicting recommendations.</div></div>
+        <div class="about-step"><div class="step-num">6</div><div class="step-text"><strong>Elimination Scoring.</strong> For each group, the summed demand vector's peak tells us the minimum number of vehicles ever needed simultaneously. Everything above that threshold is eliminable. Groups are ranked by 3-year total savings.</div></div>
+      </div>
+
+      <h3>Why Geotab?</h3>
+      <p>Geotab's MyGeotab platform gives fleet managers real-time GPS data, vehicle grouping, and a rich API — everything Pool Finder needs to run. The add-in pulls live vehicle metadata (names, types, depot assignments) directly from the API on load. In a production deployment, it would also pull real trip history and run the full analysis against actual GPS data, with no synthetic overrides needed.</p>
+
+      <h3>Built With</h3>
+      <p>Pool Finder was built as part of a vibe coding hackathon — which basically means me and Claude going back and forth until something brilliant emerged. The algorithm design, Shadow DOM isolation pattern, Geotab API integration, and the debugging process of figuring out why MyGeotab was eating all our CSS were all done collaboratively with Claude (Anthropic). It's a genuinely good example of what AI-assisted development looks like when you let it run: fast, iterative, and occasionally requiring a deep dive into why simulator data is entirely random at 3am.</p>
+      <p>Stack: vanilla JS, Shadow DOM for CSS isolation, Geotab MyGeotab Add-In SDK, Bron–Kerbosch clique detection, cosine similarity for schedule comparison.</p>
+
+      <div class="about-footer">Built for the Geotab Hackathon · Pool Finder v1.0 · Real vehicle data, realistic shift patterns, real savings math.</div>
+    </div>
   </div>
 `;
 shadow.appendChild(app);
@@ -327,19 +402,6 @@ const GROUP = {
   NORTH:  'b279A',
   SOUTH:  'b279B',
 };
-
-// ═══════════════════════════════════════════════════════════════════
-// LOGGING  (queries shadow DOM via $)
-// ═══════════════════════════════════════════════════════════════════
-function log(msg, t = 'info') {
-  const logEl = $('log');
-  if (!logEl) return;
-  const d = document.createElement('div');
-  d.className = t;
-  d.textContent = `› ${msg}`;
-  logEl.appendChild(d);
-  logEl.scrollTop = logEl.scrollHeight;
-}
 
 // ═══════════════════════════════════════════════════════════════════
 // TRIP GENERATION  — realistic shift patterns by vehicle type
@@ -469,9 +531,6 @@ function findComplementaryPairs(vehicles, vm) {
       const sumPeak = peakOf(sumVectors([vm[vA.id], vm[vB.id]]));
       if (sumPeak <= 1.0) {
         pairs.push({ idA: vA.id, idB: vB.id, overlap: ol });
-        log(`Pair: ${vA.id} × ${vB.id} — overlap ${(ol*100).toFixed(0)}%, sum peak ${sumPeak.toFixed(2)}`, 'ok');
-      } else {
-        log(`Pair ${vA.id} × ${vB.id}: overlap OK but sum peak ${sumPeak.toFixed(2)} > 1 — skipped`, 'warn');
       }
     }
   }
@@ -517,9 +576,7 @@ function mergeCliques(cliques, vById) {
         const union        = new Set([...groups[i], ...next[j]]);
         const shareRatio   = intersection.size / union.size;
         if (shareRatio >= CFG.mergeShareThreshold) {
-          next[j] = union; absorbed = true; merged = true;
-          log(`Merged cliques → [${[...union].sort().join(',')}]`, 'warn');
-          break;
+          next[j] = union; absorbed = true; merged = true; break;
         }
       }
       if (!absorbed) next.push(new Set(groups[i]));
@@ -533,26 +590,32 @@ function mergeCliques(cliques, vById) {
 }
 
 function scoreGroups(groups, vm) {
-  const results = [];
+  // First pass: score all valid groups
+  const scored = [];
   for (const group of groups) {
     const vecs = group.members.map(v => vm[v.id]);
     const sumVec = sumVectors(vecs);
     const peak = peakOf(sumVec);
     const needed = Math.ceil(peak);
     const eliminable = group.members.length - needed;
-    if (eliminable < 1) {
-      log(`Group [${group.ids.join(',')}]: peak=${peak.toFixed(2)} — no elimination possible, skipped`, 'warn');
-      continue;
-    }
+    if (eliminable < 1) continue;
     let olSum = 0, olCount = 0;
     for (let i = 0; i < vecs.length; i++)
       for (let j = i + 1; j < vecs.length; j++) { olSum += cosineOverlap(vecs[i], vecs[j]); olCount++; }
     const avgOverlap = olCount > 0 ? olSum / olCount : 0;
     const sv = calcSavings(eliminable);
-    results.push({ group, sumVec, peak, needed, eliminable, avgOverlap, savings: sv });
-    log(`✓ Group [${group.ids.join(',')}]: size=${group.members.length}, peak=${peak.toFixed(2)}, keep=${needed}, remove=${eliminable}`, 'ok');
+    scored.push({ group, sumVec, peak, needed, eliminable, avgOverlap, savings: sv });
   }
-  results.sort((a, b) => b.savings.total3yr - a.savings.total3yr);
+  // Sort by value descending
+  scored.sort((a, b) => b.savings.total3yr - a.savings.total3yr);
+  // Second pass: each vehicle goes to its highest-value group only — no conflicts
+  const claimed = new Set();
+  const results = [];
+  for (const r of scored) {
+    if (r.group.ids.some(id => claimed.has(id))) continue;
+    r.group.ids.forEach(id => claimed.add(id));
+    results.push(r);
+  }
   return results;
 }
 
@@ -676,37 +739,34 @@ function renderRecCard(result) {
   return card;
 }
 
-function renderPairRow(vA, vB, elig, ol, isComplementary) {
+function renderPairRow(vA, vB, ol) {
   const tr = document.createElement('tr');
-  const tm = vA.type === vB.type, lm = vA.location === vB.location;
-  const barColor = !elig ? '#868e96' : isComplementary ? '#1a7f4b' : ol >= 0.5 ? '#c0392b' : '#0075C9';
-  const verdict = !elig
-    ? `<span class="badge badge-gray">Ineligible — ${!tm ? 'type' : 'location'} mismatch</span>`
-    : isComplementary
-    ? `<span class="badge badge-good">✓ Complementary</span>`
-    : ol >= 0.5 ? `<span class="badge badge-bad">Conflict</span>`
-    : `<span class="badge badge-neutral">Marginal</span>`;
-  if (isComplementary) tr.className = 'pool-row';
-  else if (elig && ol >= 0.5) tr.className = 'conflict-row';
+  tr.className = 'pool-row';
   tr.innerHTML = `
     <td>${vA.name}</td>
     <td>${vB.name}</td>
-    <td><span class="badge ${tm ? 'badge-pass' : 'badge-fail'}">${tm ? '✓' : '✗'} ${vA.type}</span></td>
-    <td><span class="badge ${lm ? 'badge-pass' : 'badge-fail'}">${lm ? '✓ Same' : '✗ Diff'}</span></td>
-    <td>${elig
-      ? `<div class="bar-wrap"><div class="bar"><div class="bar-fill" style="width:${(ol*100).toFixed(1)}%;background:${barColor}"></div></div><span style="color:${barColor};min-width:34px">${(ol*100).toFixed(0)}%</span></div>`
-      : '<span style="color:#868e96">—</span>'}</td>
-    <td>${verdict}</td>
+    <td><span class="badge badge-pass">✓ ${vA.type}</span></td>
+    <td><span class="badge badge-pass">✓ Same</span></td>
+    <td><div class="bar-wrap"><div class="bar"><div class="bar-fill" style="width:${(ol*100).toFixed(1)}%;background:#1a7f4b"></div></div><span style="color:#1a7f4b;min-width:34px">${(ol*100).toFixed(0)}%</span></div></td>
   `;
   return tr;
+}
+
+function setupCollapsibles() {
+  [['toggle-heatmaps','body-heatmaps'],['toggle-pairs','body-pairs']].forEach(([tid, bid]) => {
+    const toggle = $(tid), body = $(bid);
+    if (!toggle || !body) return;
+    toggle.addEventListener('click', () => {
+      const open = body.classList.toggle('open');
+      toggle.classList.toggle('open', open);
+    });
+  });
 }
 
 // ═══════════════════════════════════════════════════════════════════
 // MAIN — Geotab API integration
 // ═══════════════════════════════════════════════════════════════════
 function runPoolFinder(api) {
-  log('Pool Finder — fetching fleet from Geotab API...', 'info');
-
   api.call('Get', { typeName: 'Device', resultsLimit: 200 },
     function(devices) {
       // Resolve type + depot from live group IDs
@@ -730,7 +790,10 @@ function runPoolFinder(api) {
         });
       });
 
-      log(`Got ${fleet.length} typed vehicles from API (${fleet.filter(v=>v.type==='Van').length} Vans, ${fleet.filter(v=>v.type==='Pickup').length} Pickups, ${fleet.filter(v=>v.type==='Backhoe').length} Backhoes)`, 'ok');
+      if (!fleet.length) {
+        $('rec-list').innerHTML = '<div style="color:#c0392b;padding:40px;text-align:center">No typed fleet vehicles found. Check group assignments.</div>';
+        return;
+      }
 
       // Generate synthetic trips + build utilization vectors
       const tripMap = {}, vm = {};
@@ -742,7 +805,6 @@ function runPoolFinder(api) {
         tripMap[v.id] = trips;
         vm[v.id] = buildVector(trips);
         totalTrips += trips.length;
-        log(`${v.name} (${v.type}, ${v.location}): ${trips.length} trips — ${v.note}`, 'ok');
       });
 
       // Render heatmaps
@@ -750,34 +812,23 @@ function runPoolFinder(api) {
       fleet.forEach(v => grid.appendChild(renderVehicleCard(v, tripMap[v.id], vm[v.id])));
 
       // Step 1: Complementary pairs
-      log('--- Step 1: Complementary pairs ---', 'info');
       const pairs = findComplementaryPairs(fleet, vm);
       const pairSet = new Set(pairs.map(p => `${p.idA}+${p.idB}`));
-      log(`${pairs.length} complementary pair(s) found`, pairs.length > 0 ? 'ok' : 'err');
 
+      // Render complementary pairs only into the collapsible table
       const tbody = $('pairs-body');
-      for (let i = 0; i < fleet.length; i++) {
-        for (let j = i + 1; j < fleet.length; j++) {
-          const vA = fleet[i], vB = fleet[j];
-          const elig = pairEligible(vA, vB);
-          const ol = elig ? cosineOverlap(vm[vA.id], vm[vB.id]) : 0;
-          tbody.appendChild(renderPairRow(vA, vB, elig, ol, pairSet.has(`${vA.id}+${vB.id}`)));
-        }
-      }
+      pairs.forEach(p => {
+        const vA = vById[p.idA], vB = vById[p.idB];
+        tbody.appendChild(renderPairRow(vA, vB, p.overlap));
+      });
 
       // Step 2: Cliques
-      log('--- Step 2: Clique finding ---', 'info');
       const cliques = findCliques(fleet, pairs);
-      log(`${cliques.length} raw clique(s) found`, cliques.length > 0 ? 'ok' : 'warn');
-      cliques.forEach(c => log(`  Clique: [${c.ids.join(', ')}]`, 'info'));
 
       // Step 3: Merge
-      log('--- Step 3: Merging overlapping cliques ---', 'info');
       const mergedGroups = mergeCliques(cliques, vById);
-      log(`${mergedGroups.length} group(s) after merging`, 'ok');
 
-      // Step 4: Score
-      log('--- Step 4: Scoring groups ---', 'info');
+      // Step 4: Score + deduplicate
       const results = scoreGroups(mergedGroups, vm);
 
       // Render recommendations
@@ -809,10 +860,9 @@ function runPoolFinder(api) {
       $('s-annual').textContent   = fmt(totalAnnual);
       $('s-capital').textContent  = fmt(totalCapital);
 
-      log(`Done — ${results.length} pool groups · ${totalElim} vehicles eliminable · ${fmt(totalAnnual)}/yr`, 'ok');
+      setupCollapsibles();
     },
     function(err) {
-      log(`API error: ${JSON.stringify(err)}`, 'err');
       $('rec-list').innerHTML = '<div style="color:#c0392b;padding:40px;text-align:center">Failed to connect to Geotab API. Check add-in configuration.</div>';
     }
   );
