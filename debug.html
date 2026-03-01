@@ -1,223 +1,64 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <title>Pool Finder — API Diagnostics</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Pool Finder Diagnostics</title>
+  <script src="https://tmeb123.github.io/PoolFinder/debug-main.js"></script>
   <style>
     body { font-family: "Segoe UI", sans-serif; font-size: 13px; padding: 20px; background: #f8f9fa; color: #212529; margin: 0; }
-    h1 { font-size: 18px; margin-bottom: 4px; }
-    h2 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #0075C9; border-bottom: 2px solid #0075C9; padding-bottom: 4px; margin: 20px 0 8px; }
-    pre {
-      background: #1e1e1e; color: #d4d4d4; padding: 14px; border-radius: 6px;
-      font-size: 11px; overflow-x: auto; white-space: pre-wrap; word-break: break-all;
-      max-height: 350px; overflow-y: auto; line-height: 1.6; font-family: "Consolas", monospace;
-    }
+    h2 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #0075C9; border-bottom: 2px solid #0075C9; padding-bottom: 4px; margin: 16px 0 8px; }
+    pre { background: #1e1e1e; color: #d4d4d4; padding: 12px; border-radius: 5px; font-size: 11px; white-space: pre-wrap; word-break: break-all; max-height: 300px; overflow-y: auto; line-height: 1.6; font-family: Consolas, monospace; }
     .status { padding: 8px 12px; border-radius: 4px; margin-bottom: 8px; font-weight: 600; font-size: 12px; }
     .ok   { background: #e6f4ec; color: #1a7f4b; }
     .err  { background: #fdf0ee; color: #c0392b; }
     .info { background: #e8f4fd; color: #005a9e; }
     .warn { background: #fef3c7; color: #b45309; }
-    button {
-      background: #0075C9; color: white; border: none; padding: 8px 18px;
-      border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 600;
-      margin-right: 8px; margin-bottom: 8px;
-    }
+    button { background: #0075C9; color: white; border: none; padding: 7px 16px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600; margin-right: 6px; margin-bottom: 6px; }
     button:hover { background: #005a9e; }
     button:disabled { background: #adb5bd; cursor: not-allowed; }
-    .card { background: white; border: 1px solid #dee2e6; border-radius: 6px; padding: 16px; margin-bottom: 16px; }
+    .card { background: white; border: 1px solid #dee2e6; border-radius: 6px; padding: 14px; margin-bottom: 14px; }
   </style>
 </head>
 <body>
+<div id="poolFinderDebug">
+  <h1 style="font-size:17px;margin-bottom:4px">🔍 Pool Finder — API Diagnostics v5</h1>
+  <p style="color:#868e96;margin-bottom:16px;font-size:12px">Validates Geotab API connection and data shapes.</p>
 
-<h1>🔍 Pool Finder — API Diagnostics v2</h1>
-<p style="color:#868e96;margin-bottom:20px;font-size:12px">Tests the Geotab API connection and shows raw data shapes needed for integration.</p>
+  <div class="card">
+    <div id="api-status" class="status info">⏳ Waiting for MyGeotab initialize()...</div>
+    <div style="margin-top:8px">
+      <button onclick="pfDebug.runGroups()"  id="btn-groups"  disabled>1. Groups</button>
+      <button onclick="pfDebug.runDevices()" id="btn-devices" disabled>2. Devices</button>
+      <button onclick="pfDebug.runTrips()"   id="btn-trips"   disabled>3. Trips</button>
+      <button onclick="pfDebug.runCounts()"  id="btn-counts"  disabled>4. Trip Counts</button>
+      <button onclick="pfDebug.runAll()"     id="btn-all"     disabled>▶ Run All</button>
+    </div>
+  </div>
 
-<div class="card">
-  <div id="api-status" class="status info">⏳ Waiting for MyGeotab to call initialize()...</div>
-  <div style="margin-top:8px">
-    <button onclick="runGroups()"  id="btn-groups"  disabled>1. Pull Groups</button>
-    <button onclick="runDevices()" id="btn-devices" disabled>2. Pull Devices</button>
-    <button onclick="runTrips()"   id="btn-trips"   disabled>3. Sample Trips</button>
-    <button onclick="runCounts()"  id="btn-counts"  disabled>4. Trip Counts</button>
-    <button onclick="runAll()"     id="btn-all"     disabled>▶ Run All</button>
+  <div class="card">
+    <h2>1. Groups</h2>
+    <div id="groups-status" class="status info">Waiting...</div>
+    <pre id="groups-out">—</pre>
+  </div>
+
+  <div class="card">
+    <h2>2. Devices (first 10)</h2>
+    <div id="devices-status" class="status info">Waiting...</div>
+    <pre id="devices-out">—</pre>
+  </div>
+
+  <div class="card">
+    <h2>3. Sample Trips</h2>
+    <div id="trips-status" class="status info">Waiting...</div>
+    <pre id="trips-out">—</pre>
+  </div>
+
+  <div class="card">
+    <h2>4. Trip Counts (first 5 vehicles, last 90 days)</h2>
+    <div id="counts-status" class="status info">Waiting...</div>
+    <pre id="counts-out">—</pre>
   </div>
 </div>
-
-<div class="card">
-  <h2>1. Groups</h2>
-  <div id="groups-status" class="status info">Waiting...</div>
-  <pre id="groups-out">—</pre>
-</div>
-
-<div class="card">
-  <h2>2. Devices (first 10)</h2>
-  <div id="devices-status" class="status info">Waiting...</div>
-  <pre id="devices-out">—</pre>
-</div>
-
-<div class="card">
-  <h2>3. Sample Trips</h2>
-  <div id="trips-status" class="status info">Waiting...</div>
-  <pre id="trips-out">—</pre>
-</div>
-
-<div class="card">
-  <h2>4. Trip Counts (first 5 vehicles, last 90 days)</h2>
-  <div id="counts-status" class="status info">Waiting...</div>
-  <pre id="counts-out">—</pre>
-</div>
-
-<script>
-var _api = null;
-
-function setStatus(id, msg, type) {
-  var el = document.getElementById(id);
-  el.textContent = msg;
-  el.className = 'status ' + type;
-}
-function setOut(id, data) {
-  document.getElementById(id).textContent =
-    typeof data === 'string' ? data : JSON.stringify(data, null, 2);
-}
-function enableButtons() {
-  ['btn-groups','btn-devices','btn-trips','btn-counts','btn-all'].forEach(function(id) {
-    document.getElementById(id).disabled = false;
-  });
-}
-
-function runGroups() {
-  setStatus('groups-status', 'Fetching groups...', 'info');
-  _api.call('Get', { typeName: 'Group' },
-    function(groups) {
-      var shaped = groups.map(function(g) {
-        return { id: g.id, name: g.name || '(no name)', parent: g.parent ? g.parent.id : null };
-      });
-      setStatus('groups-status', '✓ ' + groups.length + ' groups found', 'ok');
-      setOut('groups-out', shaped);
-    },
-    function(err) {
-      setStatus('groups-status', '✗ Error: ' + JSON.stringify(err), 'err');
-      setOut('groups-out', err);
-    }
-  );
-}
-
-function runDevices() {
-  setStatus('devices-status', 'Fetching devices...', 'info');
-  _api.call('Get', { typeName: 'Device', resultsLimit: 10 },
-    function(devices) {
-      var shaped = devices.map(function(d) {
-        return {
-          id:     d.id,
-          name:   d.name,
-          groups: d.groups ? d.groups.map(function(g){ return g.id; }) : [],
-          type:   d.deviceType || null
-        };
-      });
-      setStatus('devices-status', '✓ ' + devices.length + ' devices returned', 'ok');
-      setOut('devices-out', shaped);
-    },
-    function(err) {
-      setStatus('devices-status', '✗ Error: ' + JSON.stringify(err), 'err');
-      setOut('devices-out', err);
-    }
-  );
-}
-
-function runTrips() {
-  setStatus('trips-status', 'Fetching sample trips...', 'info');
-  var fromDate = new Date();
-  fromDate.setDate(fromDate.getDate() - 90);
-  _api.call('Get', {
-    typeName: 'Trip',
-    search: { fromDate: fromDate.toISOString() },
-    resultsLimit: 3
-  },
-    function(trips) {
-      setStatus('trips-status', '✓ ' + trips.length + ' trips returned', 'ok');
-      setOut('trips-out', trips);
-    },
-    function(err) {
-      setStatus('trips-status', '✗ Error: ' + JSON.stringify(err), 'err');
-      setOut('trips-out', err);
-    }
-  );
-}
-
-function runCounts() {
-  setStatus('counts-status', 'Fetching devices...', 'info');
-  var fromDate = new Date();
-  fromDate.setDate(fromDate.getDate() - 90);
-
-  _api.call('Get', { typeName: 'Device', resultsLimit: 5 },
-    function(devices) {
-      var results = [], done = 0;
-      devices.forEach(function(device) {
-        _api.call('Get', {
-          typeName: 'Trip',
-          search: {
-            deviceSearch: { id: device.id },
-            fromDate: fromDate.toISOString()
-          },
-          resultsLimit: 1000
-        },
-          function(trips) {
-            results.push({
-              vehicle:    device.name,
-              deviceId:   device.id,
-              tripCount:  trips.length,
-              sampleTrip: trips.length > 0 ? {
-                start:  trips[0].start,
-                stop:   trips[0].stop,
-                device: trips[0].device
-              } : null
-            });
-            done++;
-            if (done === devices.length) {
-              setStatus('counts-status', '✓ Done — ' + devices.length + ' vehicles', 'ok');
-              setOut('counts-out', results);
-            }
-          },
-          function(err) {
-            results.push({ vehicle: device.name, error: err });
-            done++;
-            if (done === devices.length) {
-              setStatus('counts-status', '⚠ Done with some errors', 'warn');
-              setOut('counts-out', results);
-            }
-          }
-        );
-      });
-    },
-    function(err) {
-      setStatus('counts-status', '✗ Error: ' + JSON.stringify(err), 'err');
-    }
-  );
-}
-
-function runAll() {
-  runGroups();
-  runDevices();
-  runTrips();
-  runCounts();
-}
-
-// ══════════════════════════════════════════════════════════════════
-// GEOTAB ADD-IN ENTRY POINT
-// MyGeotab looks for geotabModules and calls initialize(api, state, cb)
-// The api object passed here is already authenticated — no login needed.
-// ══════════════════════════════════════════════════════════════════
-var geotabModules = geotabModules || {};
-geotabModules["poolFinderDebug"] = {
-  initialize: function(api, state, initializeCallback) {
-    _api = api;
-    setStatus('api-status', '✓ MyGeotab api object received — click any button to run diagnostics!', 'ok');
-    enableButtons();
-    initializeCallback();
-  },
-  focus: function(api, state) {},
-  blur:  function() {}
-};
-</script>
 </body>
 </html>
