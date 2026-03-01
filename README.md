@@ -94,7 +94,7 @@ This project was built as a vibe coding hackathon entry, which in practice meant
 **The bipartite graph bug:** Pickup trucks weren't generating recommendations. The issue turned out to be that morning vs. afternoon vehicles form a perfectly bipartite graph — M only connects to A, never to M. Bron–Kerbosch finds no cliques larger than 2 in a bipartite graph. The fix was lowering the `mergeShareThreshold` so the merge step correctly chains pairs into a full group.
 
 **The full conversation (including all prompts) is linked here:**
-> 🔗 *[[Public conversation link — add yours here]](https://claude.ai/share/b6fe48b9-d141-4390-a629-f1ae0b5d3a28)*
+> 🔗 *[[Public conversation link]](https://claude.ai/share/b6fe48b9-d141-4390-a629-f1ae0b5d3a28)*
 
 ---
 
