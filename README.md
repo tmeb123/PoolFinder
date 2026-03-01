@@ -72,13 +72,17 @@ Peak simultaneous demand determines the minimum fleet needed, plus a **+1 safety
 
 This was built in collaboration with Claude (Anthropic) over the course of the hackathon. My background is Python for data analysis — I've worked with APIs before, but a single-file HTML add-in deployed via GitHub Pages and integrated with the MyGeotab SDK was completely foreign territory. The math behind the algorithm was new to me too. Claude explained every step clearly enough that I could follow the logic, validate the approach, and make real decisions — I wasn't just accepting output, I was understanding it.
 
-The major turning points:
+The Pool Finder Prompt History
 
-- **Algorithm design** — worked through cosine similarity, vector design, and why Bron–Kerbosch was the right tool for finding groups rather than just pairs
-- **The 2am data problem** — uploaded a real 3,972-trip Geotab export and discovered the demo simulator generates completely random trips. Led directly to the 90-day calendar vector as the solution
-- **Geotab integration** — debugging the MyGeotab add-in namespace pattern and getting the `initialize/focus/blur` lifecycle right
-- **Shadow DOM** — MyGeotab's CSS was overriding all add-in styles; Shadow DOM solved it cleanly
-- **The bipartite graph bug** — pickup trucks weren't generating recommendations because morning/afternoon vehicles form a bipartite graph with no cliques larger than 2; fixed by tuning the merge threshold
+- "I want to build a 'pool finder' app that identifies vehicles with non-overlapping utilization patterns that could share a pool" — The original idea. Validated the concept, established cosine similarity on utilization vectors as the core approach, and produced the first working test harness.
+"Can we go beyond pairs and compare groups of 3 or more vehicles to find true pooling opportunities?" — Pushed beyond pair matching into true group detection, which exposed the limits of the pair-based approach and led directly to the graph rebuild.
+- "Let's do a full architectural rebuild using graph-based clique detection" — Triggered the complete v3 rewrite: Bron-Kerbosch clique detection replacing pair comparisons. The algorithm that shipped was born here.
+- "The validation tests are failing — the algorithm keeps returning 0 vehicles eliminated. Let's keep iterating until all tests pass" — Identified that 4-hour blocks were too coarse and peak calculation was broken. Switched to 1-hour resolution (168-slot vectors) and got all tests passing.
+- "The add-in renders completely differently inside MyGeotab than it does in the browser — how do we fix this?" — Discovered MyGeotab's stylesheet was overriding all add-in styles. Shadow DOM isolation solved it completely.
+- "Let me give you the raw trip history export and you tell me whether we should use real or synthetic data" — Uploaded the real 3,972-trip export. Came back 100% entropy — the demo simulator generates completely random trips. Led directly to overlaying realistic shift patterns instead.
+- "Why are we only looking at weekly patterns? Shouldn't we analyze utilization across the full past 90 days?" — The insight that broke open the backhoe problem. Weekly vectors can't detect a vehicle that worked week 1 and one that worked week 3 as complementary. Led to the 2,160-slot calendar fingerprint.
+- "The algorithm isn't generating any recommendations for pickup trucks — can we dig into why?" — Triggered a full graph theory diagnosis. Morning/afternoon trucks form a bipartite graph with no cliques larger than 2. Fixed by lowering the merge threshold so pairs chain into groups.
+- "Should I extend to 365-day vectors now, or ship the current version and document it as a future enhancement?" — The moment the build officially ended. Decided to ship, document the roadmap, and write the README and story for submission.
 
 **The full conversation including all prompts:** 🔗 *(https://claude.ai/share/b6fe48b9-d141-4390-a629-f1ae0b5d3a28)*
 
