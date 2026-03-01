@@ -74,7 +74,7 @@ To demonstrate the algorithm meaningfully, each of the 50 demo vehicles was manu
 
 **Depot Configuration**
 
-Vehicles were distributed across three depot groups (North, South, Central) in MyGeotab. Pool Finder only compares vehicles within the same depot — a van assigned to the North depot will never be recommended for pooling with one assigned to South. This mirrors how real fleet operations work: vehicles need to share a home base to share a pool.
+Vehicles were distributed across two depot groups (North and South) in MyGeotab. Pool Finder only compares vehicles within the same depot — a van assigned to the North depot will never be recommended for pooling with one assigned to South. This mirrors how real fleet operations work: vehicles need to share a home base to share a pool.
 
 In a production deployment, these group assignments already exist in your fleet's MyGeotab database. Pool Finder reads them directly from the API — no manual configuration required.
 ---
