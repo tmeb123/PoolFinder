@@ -713,6 +713,7 @@ function renderRecCard(result) {
   }).join('');
 
   const capPerVehicle = CFG.capitalByType[group.members[0].type] || CFG.capitalDefault;
+  const card = document.createElement('div'); card.className=`rec-card ${tier}`;
   card.innerHTML=`
     <div class="rec-top">
       <div>
