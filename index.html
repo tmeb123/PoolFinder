@@ -5,245 +5,436 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pool Finder</title>
   <style>
+    /* ── Reset ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── Tokens — Geotab blue palette, light theme ── */
     :root {
-      --bg: #0d0f12;
-      --surface: #151820;
-      --surface2: #1a1f2e;
-      --border: #232836;
-      --text: #e8eaf0;
-      --muted: #5a6180;
-      --accent: #3de8a0;
-      --neutral: #4a90d9;
-      --gold: #f5c842;
-      --good: #3de8a0;
-      --bad: #ff5f6d;
+      --blue:      #0075C9;
+      --blue-dark: #005a9e;
+      --blue-lt:   #e8f4fd;
+      --green:     #1a7f4b;
+      --green-lt:  #e6f4ec;
+      --red:       #c0392b;
+      --red-lt:    #fdf0ee;
+      --gold:      #b45309;
+      --gold-lt:   #fef3c7;
+      --gray-50:   #f8f9fa;
+      --gray-100:  #f1f3f5;
+      --gray-200:  #e9ecef;
+      --gray-300:  #dee2e6;
+      --gray-500:  #868e96;
+      --gray-700:  #495057;
+      --gray-900:  #212529;
+      --white:     #ffffff;
+      --radius:    6px;
+      --shadow:    0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.10);
     }
 
-    /* Force dark theme even inside MyGeotab iframe */
-    #pf-root * { box-sizing: border-box; }
-    #pf-root, #pf-root section, #pf-root header, #pf-root div {
-      background-color: inherit;
+    body {
+      background: var(--gray-50);
+      color: var(--gray-900);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
     }
 
-    html, body {
-      background: #0d0f12 !important;
-      background-color: #0d0f12 !important;
-      color: #e8eaf0 !important;
-      font-family: 'Consolas', 'Courier New', monospace !important;
-      font-size: 13px !important;
-      line-height: 1.6 !important;
-      padding: 0 !important;
-      margin: 0 !important;
+    /* ── Layout ── */
+    .app { max-width: 1200px; margin: 0 auto; padding: 24px 20px 60px; }
+
+    /* ── Header ── */
+    .app-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 20px 24px;
+      background: var(--white);
+      border-bottom: 3px solid var(--blue);
+      border-radius: var(--radius) var(--radius) 0 0;
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
     }
-    #pf-root {
-      background: #0d0f12;
-      color: #e8eaf0;
-      font-family: 'Consolas', 'Courier New', monospace;
-      font-size: 13px;
-      line-height: 1.6;
-      padding: 40px 32px;
-      min-height: 100vh;
+    .app-header .logo {
+      width: 40px; height: 40px;
+      background: var(--blue);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .app-header .logo svg { fill: white; width: 22px; height: 22px; }
+    .app-header h1 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--gray-900);
+      letter-spacing: -0.3px;
+    }
+    .app-header p { font-size: 12px; color: var(--gray-500); margin-top: 2px; }
+
+    /* ── Section ── */
+    .section { margin-bottom: 28px; }
+    .section-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--gray-500);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--gray-200);
     }
 
-    header {
-      margin-bottom: 48px;
-      border-left: 3px solid var(--accent);
-      padding-left: 20px;
+    /* ── Summary bar ── */
+    .summary-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      margin-bottom: 28px;
     }
-    header h1 { font-family:'Segoe UI',system-ui,-apple-system,sans-serif; font-size:28px; font-weight:800; letter-spacing:-0.5px; }
-    header p { color:var(--muted); margin-top:6px; font-size:12px; }
+    .stat-card {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      box-shadow: var(--shadow);
+    }
+    .stat-card .num {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--blue);
+      line-height: 1;
+    }
+    .stat-card .num.green { color: var(--green); }
+    .stat-card .num.gold  { color: var(--gold); }
+    .stat-card .lbl {
+      font-size: 11px;
+      color: var(--gray-500);
+      margin-top: 4px;
+      font-weight: 500;
+    }
+
+    /* ── Rec cards ── */
+    .rec-list { display: flex; flex-direction: column; gap: 16px; }
+
+    .rec-card {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-left: 4px solid var(--blue);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      box-shadow: var(--shadow);
+    }
+    .rec-card.high-value { border-left-color: var(--gold); }
+    .rec-card.strong     { border-left-color: var(--green); }
+
+    .rec-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .rec-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
 
     .badge {
       display: inline-block;
       padding: 2px 8px;
       border-radius: 3px;
-      font-size: 10px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+    .badge-blue   { background: var(--blue-lt);  color: var(--blue-dark); }
+    .badge-green  { background: var(--green-lt); color: var(--green); }
+    .badge-red    { background: var(--red-lt);   color: var(--red); }
+    .badge-gold   { background: var(--gold-lt);  color: var(--gold); }
+    .badge-gray   { background: var(--gray-100); color: var(--gray-700); }
+    .badge-pass   { background: var(--green-lt); color: var(--green); }
+    .badge-fail   { background: var(--red-lt);   color: var(--red); }
+
+    .rec-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--gray-900);
+    }
+    .rec-meta {
+      font-size: 12px;
+      color: var(--gray-500);
+      margin-top: 4px;
+    }
+
+    .rec-savings { text-align: right; flex-shrink: 0; }
+    .rec-savings .big {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--green);
+      line-height: 1;
+    }
+    .rec-savings .sub { font-size: 11px; color: var(--gray-500); margin-top: 4px; }
+    .rec-savings .total { font-size: 12px; font-weight: 600; color: var(--gold); margin-top: 3px; }
+
+    /* Vehicle chips */
+    .chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+    .chip {
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 12px;
       font-weight: 500;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
+      border: 1px solid;
     }
-    .badge-good    { background:rgba(61,232,160,0.15); color:var(--good);    border:1px solid rgba(61,232,160,0.3); }
-    .badge-bad     { background:rgba(255,95,109,0.15); color:var(--bad);     border:1px solid rgba(255,95,109,0.3); }
-    .badge-muted   { background:rgba(90,97,128,0.2);  color:var(--muted);   border:1px solid rgba(90,97,128,0.3); }
-    .badge-pass    { background:rgba(61,232,160,0.15); color:var(--good);    border:1px solid rgba(61,232,160,0.3); }
-    .badge-fail    { background:rgba(255,95,109,0.15); color:var(--bad);     border:1px solid rgba(255,95,109,0.3); }
-    .badge-gold    { background:rgba(245,200,66,0.15); color:var(--gold);    border:1px solid rgba(245,200,66,0.3); }
-    .badge-neutral { background:rgba(74,144,217,0.15); color:var(--neutral); border:1px solid rgba(74,144,217,0.3); }
+    .chip-keep { background: var(--green-lt); color: var(--green); border-color: #a7d7bc; }
+    .chip-elim { background: var(--red-lt); color: var(--red); border-color: #f0b8b2; text-decoration: line-through; opacity: 0.85; }
 
-    section { margin-bottom: 56px; }
-    section h2 {
-      font-family:'Segoe UI',system-ui,-apple-system,sans-serif; font-size:13px; font-weight:700;
-      text-transform:uppercase; letter-spacing:0.12em; color:var(--muted);
-      margin-bottom:20px; display:flex; align-items:center; gap:10px;
+    /* Why box */
+    .why-box {
+      margin-top: 14px;
+      background: var(--gray-50);
+      border: 1px solid var(--gray-200);
+      border-radius: 4px;
+      padding: 10px 14px;
+      font-size: 12px;
+      color: var(--gray-700);
+      line-height: 1.7;
     }
-    section h2::after { content:''; flex:1; height:1px; background:var(--border); }
 
-    .summary-box {
-      background:var(--surface); border:1px solid var(--border); border-radius:8px;
-      padding:24px 32px; display:flex; gap:40px; flex-wrap:wrap; align-items:center;
+    /* Savings breakdown */
+    .savings-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--gray-200);
     }
-    .summary-stat .num { font-family:'Segoe UI',system-ui,-apple-system,sans-serif; font-size:34px; font-weight:800; color:var(--accent); }
-    .summary-stat .num.gold { color:var(--gold); }
-    .summary-stat .lbl { color:var(--muted); font-size:11px; margin-top:2px; }
-
-    .algo-box {
-      background:var(--surface2); border:1px solid var(--border);
-      border-left:3px solid var(--neutral); border-radius:6px;
-      padding:16px 20px; color:var(--muted); font-size:11px; line-height:1.9; margin-bottom:32px;
+    .savings-item .val {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--gray-900);
     }
-    .algo-box strong { color:var(--text); }
+    .savings-item .lbl {
+      font-size: 11px;
+      color: var(--gray-500);
+    }
 
-    .vehicle-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:16px; }
+    /* ── Vehicle grid ── */
+    .vehicle-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 12px;
+    }
     .vehicle-card {
-      background:var(--surface); border:1px solid var(--border); border-radius:8px;
-      padding:16px; transition:border-color 0.2s;
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      box-shadow: var(--shadow);
     }
-    .vehicle-card:hover { border-color:var(--accent); }
-    .vehicle-card-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; }
-    .vehicle-name { font-family:'Segoe UI',system-ui,-apple-system,sans-serif; font-weight:700; font-size:13px; }
-    .vehicle-meta { color:var(--muted); font-size:11px; margin-top:3px; }
-
-    .heatmap-wrap { overflow-x:auto; }
-    .heatmap { border-collapse:collapse; width:100%; margin-top:6px; }
-    .heatmap th { color:var(--muted); font-size:9px; font-weight:400; text-align:center; padding:2px 3px; white-space:nowrap; }
-    .heatmap td {
-      width:14.28%; height:22px; border:1px solid var(--bg); border-radius:2px;
-      cursor:default; position:relative;
+    .vehicle-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px;
     }
-    .heatmap td:hover::after {
-      content:attr(data-tip); position:absolute; bottom:110%; left:50%; transform:translateX(-50%);
-      background:#1e2433; border:1px solid var(--border); color:var(--text);
-      padding:4px 8px; border-radius:4px; font-size:10px; white-space:nowrap; z-index:10; pointer-events:none;
+    .vehicle-name { font-size: 13px; font-weight: 700; color: var(--gray-900); }
+    .vehicle-meta { font-size: 11px; color: var(--gray-500); margin-top: 2px; }
+
+    /* Heatmap */
+    .heatmap { border-collapse: collapse; width: 100%; }
+    .heatmap th {
+      font-size: 9px;
+      font-weight: 600;
+      color: var(--gray-500);
+      text-align: center;
+      padding: 2px 1px;
+      letter-spacing: 0.02em;
     }
-    .heatmap .row-label { color:var(--muted); font-size:10px; padding-right:6px; white-space:nowrap; width:34px; }
-
-    .rec-list { display:flex; flex-direction:column; gap:20px; }
-    .rec-card {
-      background:var(--surface); border:1px solid var(--border); border-radius:10px;
-      padding:22px 24px; position:relative; overflow:hidden; transition:border-color 0.2s;
+    .heatmap .row-label {
+      font-size: 10px;
+      color: var(--gray-500);
+      padding-right: 6px;
+      white-space: nowrap;
+      font-weight: 500;
     }
-    .rec-card:hover { border-color:var(--accent); }
-    .rec-card::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; }
-    .rec-card.tier-gold::before  { background:var(--gold); }
-    .rec-card.tier-green::before { background:var(--good); }
-    .rec-card.tier-blue::before  { background:var(--neutral); }
-
-    .rec-header { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; }
-    .rec-title { font-family:'Segoe UI',system-ui,-apple-system,sans-serif; font-weight:700; font-size:15px; margin-top:6px; }
-    .rec-subtitle { color:var(--muted); font-size:11px; margin-top:4px; }
-
-    .rec-savings { text-align:right; flex-shrink:0; }
-    .rec-savings .annual { font-family:'Segoe UI',system-ui,-apple-system,sans-serif; font-size:24px; font-weight:800; color:var(--gold); }
-    .rec-savings .detail { color:var(--muted); font-size:10px; margin-top:2px; }
-    .rec-savings .total3yr { color:var(--gold); margin-top:4px; font-size:10px; }
-
-    .rec-vehicles { margin-top:14px; display:flex; flex-wrap:wrap; gap:6px; }
-    .chip { background:var(--surface2); border:1px solid var(--border); border-radius:4px; padding:3px 10px; font-size:11px; }
-    .chip.keep { border-color:var(--good); color:var(--good); }
-    .chip.elim { border-color:var(--bad); color:var(--bad); text-decoration:line-through; opacity:0.75; }
-
-    .how-bar {
-      margin-top:14px; background:var(--surface2); border:1px solid var(--border);
-      border-radius:5px; padding:10px 14px; font-size:11px; color:var(--muted); line-height:1.8;
+    .heatmap td.cell {
+      height: 20px;
+      border: 1px solid var(--gray-100);
+      border-radius: 2px;
+      cursor: default;
+      position: relative;
     }
-    .how-bar strong { color:var(--text); }
+    .heatmap td.cell:hover::after {
+      content: attr(data-tip);
+      position: absolute;
+      bottom: 110%; left: 50%; transform: translateX(-50%);
+      background: var(--gray-900); color: white;
+      padding: 3px 7px; border-radius: 3px;
+      font-size: 10px; white-space: nowrap;
+      z-index: 100; pointer-events: none;
+    }
 
-    .rec-stats { margin-top:16px; display:flex; gap:36px; flex-wrap:wrap; }
-    .rec-stat .val { font-family:'Segoe UI',system-ui,-apple-system,sans-serif; font-size:18px; font-weight:700; }
-    .rec-stat .lbl { color:var(--muted); font-size:10px; }
+    /* ── Pairs table ── */
+    .data-table { width: 100%; border-collapse: collapse; background: var(--white); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+    .data-table th {
+      background: var(--gray-50);
+      border-bottom: 2px solid var(--gray-200);
+      text-align: left;
+      padding: 10px 14px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--gray-500);
+    }
+    .data-table td {
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--gray-100);
+      font-size: 13px;
+      vertical-align: middle;
+    }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: var(--gray-50); }
+    .data-table tr.pool-row td:first-child { border-left: 3px solid var(--green); }
+    .data-table tr.conflict-row td:first-child { border-left: 3px solid var(--red); }
 
-    .pairs-table { width:100%; border-collapse:collapse; }
-    .pairs-table th { text-align:left; color:var(--muted); font-size:11px; padding:8px 12px; border-bottom:1px solid var(--border); }
-    .pairs-table td { padding:9px 12px; border-bottom:1px solid var(--border); vertical-align:middle; font-size:12px; }
-    .pairs-table tr:last-child td { border-bottom:none; }
-    .pairs-table tr:hover td { background:rgba(255,255,255,0.02); }
-    .pairs-table tr.is-pool td:first-child { border-left:2px solid var(--good); }
-    .pairs-table tr.is-conflict td:first-child { border-left:2px solid var(--bad); }
+    .bar-wrap { display: flex; align-items: center; gap: 8px; }
+    .bar { height: 6px; border-radius: 3px; background: var(--gray-200); width: 80px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
 
-    .bar-wrap { display:flex; align-items:center; gap:8px; }
-    .bar { height:5px; border-radius:3px; background:var(--border); width:80px; overflow:hidden; }
-    .bar-fill { height:100%; border-radius:3px; }
-
-    .val-list { display:flex; flex-direction:column; gap:10px; }
+    /* ── Validation ── */
+    .val-list { display: flex; flex-direction: column; gap: 8px; }
     .val-item {
-      background:var(--surface); border:1px solid var(--border); border-radius:6px;
-      padding:12px 16px; display:flex; align-items:center; gap:12px;
+      display: flex; align-items: center; gap: 12px;
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      padding: 10px 14px;
+      font-size: 13px;
     }
-    .val-item .check { font-size:16px; flex-shrink:0; }
-    .val-item .label { flex:1; }
+    .val-item .check { font-size: 16px; flex-shrink: 0; }
+    .val-item .label { flex: 1; color: var(--gray-700); }
 
+    /* ── Log ── */
     .log {
-      background:#0a0c0f; border:1px solid var(--border); border-radius:6px;
-      padding:16px; font-size:11px; color:var(--muted); max-height:280px; overflow-y:auto; line-height:1.8;
+      background: var(--gray-900);
+      border-radius: var(--radius);
+      padding: 16px;
+      font-family: "Consolas", "Courier New", monospace;
+      font-size: 11px;
+      color: #adb5bd;
+      max-height: 220px;
+      overflow-y: auto;
+      line-height: 1.8;
     }
-    .log .ok   { color:var(--good); }
-    .log .err  { color:var(--bad); }
-    .log .info { color:var(--neutral); }
-    .log .warn { color:var(--gold); }
+    .log .ok   { color: #69db7c; }
+    .log .err  { color: #ff6b6b; }
+    .log .info { color: #74c0fc; }
+    .log .warn { color: #ffd43b; }
+
+    /* ── Loading overlay ── */
+    .loading {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--gray-500);
+    }
+    .spinner {
+      width: 32px; height: 32px;
+      border: 3px solid var(--gray-200);
+      border-top-color: var(--blue);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .app { padding: 12px 12px 40px; }
+      .rec-top { flex-direction: column; }
+      .rec-savings { text-align: left; }
+      .summary-bar { grid-template-columns: repeat(2, 1fr); }
+    }
   </style>
 </head>
 <body>
+<div class="app">
 
-<div id="pf-root">
-<header>
-  <h1>Pool Finder</h1>
-  <p>Fleet Vehicle Pool Optimizer · Identify underutilized vehicles for consolidation · Estimated savings based on operational cost model</p>
-</header>
-
-<section>
-  <h2>Fleet Summary</h2>
-  <div class="summary-box">
-    <div class="summary-stat"><div class="num" id="s-vehicles">—</div><div class="lbl">Vehicles</div></div>
-    <div class="summary-stat"><div class="num" id="s-trips">—</div><div class="lbl">Total Trips</div></div>
-    <div class="summary-stat"><div class="num" id="s-pairs">—</div><div class="lbl">Complementary Pairs</div></div>
-    <div class="summary-stat"><div class="num" id="s-groups">—</div><div class="lbl">Pool Groups</div></div>
-    <div class="summary-stat"><div class="num" id="s-elim">—</div><div class="lbl">Vehicles Eliminable</div></div>
-    <div class="summary-stat"><div class="num gold" id="s-annual">—</div><div class="lbl">Annual Op Savings</div></div>
-    <div class="summary-stat"><div class="num gold" id="s-capital">—</div><div class="lbl">Capital Savings</div></div>
+  <!-- Header -->
+  <div class="app-header">
+    <div class="logo">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M18 4H6C4.9 4 4 4.9 4 6v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 11h-2v-4H9l3-5 3 5h-2v4z"/>
+      </svg>
+    </div>
+    <div>
+      <h1>Pool Finder</h1>
+      <p>Fleet vehicle pool optimizer · Identify underutilized vehicles for consolidation · Savings model: $8–12k/yr operating + $7k capital per vehicle removed</p>
+    </div>
   </div>
-</section>
 
-<section>
-  <h2>Utilization Heatmaps</h2>
-  <div class="vehicle-grid" id="heatmap-grid"></div>
-</section>
-
-<section>
-  <h2>Pool Recommendations — Ranked by 3-Year Value</h2>
-  <div class="algo-box">
-    <strong>Algorithm v5:</strong>
-    (1) Build <strong>1-hour resolution</strong> utilization vectors (168 slots).
-    (2) Find complementary pairs: same type + location, cosine overlap ≤ 20%, sum peak ≤ 1.
-    (3) Grow pairs into <strong>maximal cliques</strong> (Bron-Kerbosch) — every member complementary to every other.
-    (4) <strong>Merge overlapping cliques</strong> that share ≥ 50% of their members — union their vehicle sets into one group.
-    (5) Score merged groups: <strong>sum demand vectors</strong> slot-by-slot, peak = max simultaneous vehicles needed.
-    Eliminable = group size − ⌈peak⌉. Savings = eliminable × ($10k/yr + $7k capital).
+  <!-- Summary -->
+  <div class="section">
+    <div class="section-title">Fleet Summary</div>
+    <div class="summary-bar">
+      <div class="stat-card"><div class="num" id="s-vehicles">—</div><div class="lbl">Vehicles Analyzed</div></div>
+      <div class="stat-card"><div class="num" id="s-trips">—</div><div class="lbl">Total Trips</div></div>
+      <div class="stat-card"><div class="num" id="s-pairs">—</div><div class="lbl">Complementary Pairs</div></div>
+      <div class="stat-card"><div class="num" id="s-groups">—</div><div class="lbl">Pool Opportunities</div></div>
+      <div class="stat-card"><div class="num green" id="s-elim">—</div><div class="lbl">Vehicles Eliminable</div></div>
+      <div class="stat-card"><div class="num gold" id="s-annual">—</div><div class="lbl">Annual Op Savings</div></div>
+      <div class="stat-card"><div class="num gold" id="s-capital">—</div><div class="lbl">Capital Savings (one-time)</div></div>
+    </div>
   </div>
-  <div class="rec-list" id="rec-list"></div>
-</section>
 
-<section>
-  <h2>Pair Matrix</h2>
-  <table class="pairs-table">
-    <thead>
-      <tr>
-        <th>Vehicle A</th><th>Vehicle B</th><th>Type</th><th>Location</th><th>Cosine Overlap</th><th>Verdict</th>
-      </tr>
-    </thead>
-    <tbody id="pairs-body"></tbody>
-  </table>
-</section>
+  <!-- Recommendations -->
+  <div class="section">
+    <div class="section-title">Pool Recommendations — Ranked by 3-Year Value</div>
+    <div class="rec-list" id="rec-list">
+      <div class="loading"><div class="spinner"></div>Analyzing fleet utilization patterns…</div>
+    </div>
+  </div>
 
-<section>
-  <h2>Validation — Expected vs Actual</h2>
-  <div class="val-list" id="val-list"></div>
-</section>
+  <!-- Heatmaps -->
+  <div class="section">
+    <div class="section-title">Utilization Heatmaps — All Vehicles</div>
+    <div class="vehicle-grid" id="heatmap-grid"></div>
+  </div>
 
-<section>
-  <h2>Debug Log</h2>
-  <div class="log" id="log"></div>
-</section>
+  <!-- Pairs matrix -->
+  <div class="section">
+    <div class="section-title">Pair Compatibility Matrix</div>
+    <div style="overflow-x:auto">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Vehicle A</th><th>Vehicle B</th><th>Type</th><th>Location</th><th>Overlap</th><th>Verdict</th>
+          </tr>
+        </thead>
+        <tbody id="pairs-body"></tbody>
+      </table>
+    </div>
+  </div>
 
+  <!-- Validation -->
+  <div class="section">
+    <div class="section-title">Logic Validation</div>
+    <div class="val-list" id="val-list"></div>
+  </div>
+
+  <!-- Log -->
+  <div class="section">
+    <div class="section-title">Debug Log</div>
+    <div class="log" id="log"></div>
+  </div>
+
+</div>
 <script>
 // ═══════════════════════════════════════════════════════════════════
 // CONFIG
@@ -579,8 +770,15 @@ function renderHeatmap(vec1h) {
     const lbl = document.createElement('td'); lbl.className = 'row-label'; lbl.textContent = day; tr.appendChild(lbl);
     for (let b = 0; b < 6; b++) {
       const val = v4[di * 6 + b];
-      const td  = document.createElement('td');
-      td.style.background = val < 0.05 ? 'rgba(255,255,255,0.03)' : `rgba(61,232,160,${(0.1+val*0.9).toFixed(2)})`;
+      const td  = document.createElement('td'); td.className = 'cell';
+      const intensity = Math.round(val * 100);
+      if (val < 0.05) {
+        td.style.background = '#f8f9fa';
+      } else if (val < 0.4) {
+        td.style.background = `rgba(0,117,201,${(0.15+val*0.5).toFixed(2)})`;
+      } else {
+        td.style.background = `rgba(0,117,201,${(0.4+val*0.55).toFixed(2)})`;
+      }
       td.setAttribute('data-tip', `${day} ${DISPLAY_BLOCKS[b]}: ${(val*100).toFixed(0)}%`);
       tr.appendChild(td);
     }
@@ -592,13 +790,13 @@ function renderHeatmap(vec1h) {
 function renderVehicleCard(v, trips, vec) {
   const card = document.createElement('div'); card.className = 'vehicle-card';
   card.innerHTML = `
-    <div class="vehicle-card-header">
+    <div class="vehicle-card-top">
       <div>
         <div class="vehicle-name">${v.name}</div>
         <div class="vehicle-meta">${v.type} · ${v.dept} · ${v.location}</div>
-        <div class="vehicle-meta" style="color:#242840;margin-top:2px">${v.note}</div>
+        <div class="vehicle-meta">${v.note}</div>
       </div>
-      <span class="badge badge-muted">${trips.length} trips</span>
+      <span class="badge badge-gray">${trips.length} trips</span>
     </div>
   `;
   const w = document.createElement('div'); w.className = 'heatmap-wrap'; w.appendChild(renderHeatmap(vec));
@@ -613,47 +811,47 @@ function renderRecCard(result, rank) {
   const { group, eliminable, needed, peak, avgOverlap, savings } = result;
   const size = group.members.length;
 
-  const tier = eliminable >= 3 ? 'tier-gold' : eliminable >= 2 ? 'tier-green' : 'tier-blue';
+  const tier = eliminable >= 3 ? 'high-value' : eliminable >= 2 ? 'strong' : '';
   const topBadge = eliminable >= 3
     ? `<span class="badge badge-gold">★ High Value</span>`
     : eliminable >= 2
-    ? `<span class="badge badge-good">Strong Opportunity</span>`
-    : `<span class="badge badge-neutral">Recommended</span>`;
+    ? `<span class="badge badge-green">Strong Opportunity</span>`
+    : `<span class="badge badge-blue">Recommended</span>`;
 
   // Sort: keep vehicles with lowest utilization variance first (most "schedulable")
   // Simple proxy: keep first `needed` in alphabetical order, mark rest for removal
   const chips = group.members.map((v, i) => {
     const keep = i < needed;
-    return `<span class="chip ${keep ? 'keep' : 'elim'}">${keep ? '✓' : '✗'} ${v.name} <span style="font-size:9px;opacity:0.6">(${v.dept})</span></span>`;
+    return `<span class="chip ${keep ? 'chip-keep' : 'chip-elim'}">${keep ? '✓ Keep:' : '✗ Remove:'} ${v.name} (${v.dept})</span>`;
   }).join('');
 
   const card = document.createElement('div');
   card.className = `rec-card ${tier}`;
   card.innerHTML = `
-    <div class="rec-header">
+    <div class="rec-top">
       <div>
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
           ${topBadge}
-          <span class="badge badge-muted">${group.members[0].type} · ${group.members[0].location}</span>
-          <span class="badge badge-muted">${size} vehicles → keep ${needed}, remove ${eliminable}</span>
+          <span class="badge badge-gray">${group.members[0].type} · ${group.members[0].location}</span>
+          <span class="badge badge-gray">${size} vehicles → keep ${needed}, remove ${eliminable}</span>
         </div>
         <div class="rec-title">${size} ${group.members[0].type}s form a pool — ${eliminable} can be eliminated</div>
-        <div class="rec-subtitle">
+        <div class="rec-meta">
           Avg pairwise overlap: ${(avgOverlap*100).toFixed(0)}% ·
           Peak simultaneous demand: ${peak.toFixed(2)} ·
           Min vehicles needed: ${needed}
         </div>
       </div>
       <div class="rec-savings">
-        <div class="annual">${fmt(savings.annualOp)}<span style="font-size:13px;color:var(--muted)">/yr</span></div>
-        <div class="detail">+ ${fmt(savings.capital)} one-time capital savings</div>
-        <div class="total3yr">3-yr total value: ${fmt(savings.total3yr)}</div>
+        <div class="big">${fmt(savings.annualOp)}<span style="font-size:13px;color:var(--muted)">/yr</span></div>
+        <div class="sub">+ ${fmt(savings.capital)} one-time capital savings</div>
+        <div class="total">3-yr total value: ${fmt(savings.total3yr)}</div>
       </div>
     </div>
 
-    <div class="rec-vehicles">${chips}</div>
+    <div class="chip-row">${chips}</div>
 
-    <div class="how-bar">
+    <div class="why-box">
       <strong>Why this works:</strong>
       Summing all ${size} vehicles' hourly demand, the peak never exceeds <strong>${peak.toFixed(2)}</strong>
       simultaneous vehicles. At most <strong>${needed}</strong> vehicle${needed > 1 ? 's are' : ' is'} ever
@@ -662,20 +860,20 @@ function renderRecCard(result, rank) {
       giving a more complete picture than reporting them as separate recommendations.` : ''}
     </div>
 
-    <div class="rec-stats">
-      <div class="rec-stat">
+    <div class="savings-row">
+      <div class="savings-item">
         <div class="val">${fmt(savings.annualOp)}</div>
         <div class="lbl">Annual Op Savings<br><span style="color:#2a3060">$8k–$12k/vehicle/yr</span></div>
       </div>
-      <div class="rec-stat">
+      <div class="savings-item">
         <div class="val">${fmt(savings.capital)}</div>
         <div class="lbl">Capital Savings<br><span style="color:#2a3060">$7,000/vehicle one-time</span></div>
       </div>
-      <div class="rec-stat">
+      <div class="savings-item">
         <div class="val">${fmt(savings.total3yr)}</div>
         <div class="lbl">3-Year Total Value</div>
       </div>
-      <div class="rec-stat">
+      <div class="savings-item">
         <div class="val">${eliminable} of ${size}</div>
         <div class="lbl">Vehicles Removed</div>
       </div>
@@ -690,15 +888,15 @@ function renderRecCard(result, rank) {
 function renderPairRow(vA, vB, elig, ol, isComplementary) {
   const tr = document.createElement('tr');
   const tm = vA.type === vB.type, lm = vA.location === vB.location;
-  const barColor = !elig ? 'var(--muted)' : isComplementary ? 'var(--good)' : ol >= 0.5 ? 'var(--bad)' : 'var(--neutral)';
+  const barColor = !elig ? '#868e96' : isComplementary ? '#1a7f4b' : ol >= 0.5 ? '#c0392b' : '#0075C9';
   const verdict = !elig
-    ? `<span class="badge badge-muted">Ineligible — ${!tm ? 'type' : 'location'} mismatch</span>`
+    ? `<span class="badge badge-gray">Ineligible — ${!tm ? 'type' : 'location'} mismatch</span>`
     : isComplementary
     ? `<span class="badge badge-good">✓ Complementary</span>`
     : ol >= 0.5 ? `<span class="badge badge-bad">Conflict</span>`
     : `<span class="badge badge-neutral">Marginal</span>`;
-  if (isComplementary) tr.className = 'is-pool';
-  else if (elig && ol >= 0.5) tr.className = 'is-conflict';
+  if (isComplementary) tr.className = 'pool-row';
+  else if (elig && ol >= 0.5) tr.className = 'conflict-row';
   tr.innerHTML = `
     <td>${vA.id} — ${vA.dept}</td>
     <td>${vB.id} — ${vB.dept}</td>
@@ -830,7 +1028,7 @@ function main() {
   // Render recommendations
   const recList = document.getElementById('rec-list');
   if (!results.length) {
-    recList.innerHTML = '<div style="color:var(--muted);padding:20px">No actionable pool groups found.</div>';
+    recList.innerHTML = '<div style="color:#868e96;padding:40px;text-align:center">No actionable pool groups found.</div>';
   } else {
     results.forEach((r, i) => recList.appendChild(renderRecCard(r, i)));
   }
@@ -877,6 +1075,5 @@ function main() {
 
 main();
 </script>
-</div>
 </body>
 </html>
