@@ -185,7 +185,6 @@
   <!-- Arrows: API → Step1, API → Step23, API → Config -->
 
   <path d="M 460 142 L 185 168" stroke="#4a90d9" stroke-width="1.2" fill="none" stroke-dasharray="4,3" marker-end="url(#arrowBlue)"/>
-  <line x1="550" y1="142" x2="550" y2="168" stroke="#4a90d9" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
   <path d="M 640 142 L 915 168" stroke="#4a90d9" stroke-width="1.2" fill="none" stroke-dasharray="4,3" marker-end="url(#arrowBlue)"/>
 
   <!-- Arrow Step1 → Step23 -->
