@@ -10,6 +10,11 @@
 
 ---
 
+## Architecture
+![Pool Finder Architecture](architecture.svg)
+
+---
+
 ## Why I Built This
 
 I work at Xcel Energy, one of the largest utility fleets in the country at over 8,000 mixed vehicles. At Geotab Connect this year, I kept hearing the same frustration from fleet managers across utilities, municipalities, and construction firms: rising costs, pressure to cut budgets, no clear answer for how to do more with less.
