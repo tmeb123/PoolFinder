@@ -75,8 +75,6 @@ Peak simultaneous demand determines the minimum fleet needed, plus a **+1 safety
 
 ## About the Demo Data
 
-The Geotab demo database provides real vehicle metadata via the API — Pool Finder pulls device names, serial numbers, and group assignments live. However, the demo simulator generates trips with completely random timing (100% entropy across all 24 hours), which makes utilization pattern analysis meaningless on raw demo data.
-
 To demonstrate the algorithm meaningfully, each of the 50 demo vehicles was manually configured in MyGeotab with a **vehicle type** and **depot assignment** via Geotab's group structure, and realistic **shift patterns** were overlaid in the simulation layer:
 
 **Vehicle Types & Shift Patterns**
