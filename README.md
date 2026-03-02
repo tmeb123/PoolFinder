@@ -6,7 +6,7 @@
 ---
 
 ## 🎥 Demo Video
-*Coming soon — link will be added here*
+*[Youtube Link](https://youtu.be/dhjaQ14ta_4)*
 
 ---
 
