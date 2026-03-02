@@ -1,0 +1,323 @@
+<svg width="1100" height="820" viewBox="0 0 1100 820" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Background gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0a0f1e"/>
+      <stop offset="100%" style="stop-color:#0d1a2e"/>
+    </linearGradient>
+
+```
+<!-- Step gradients -->
+<linearGradient id="apiGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+  <stop offset="0%" style="stop-color:#1e3a5f"/>
+  <stop offset="100%" style="stop-color:#0d2644"/>
+</linearGradient>
+<linearGradient id="step1Grad" x1="0%" y1="0%" x2="100%" y2="100%">
+  <stop offset="0%" style="stop-color:#1a3a2a"/>
+  <stop offset="100%" style="stop-color:#0d2618"/>
+</linearGradient>
+<linearGradient id="step23Grad" x1="0%" y1="0%" x2="100%" y2="100%">
+  <stop offset="0%" style="stop-color:#3a2a0d"/>
+  <stop offset="100%" style="stop-color:#261a06"/>
+</linearGradient>
+<linearGradient id="step4Grad" x1="0%" y1="0%" x2="100%" y2="100%">
+  <stop offset="0%" style="stop-color:#3a1a1a"/>
+  <stop offset="100%" style="stop-color:#260d0d"/>
+</linearGradient>
+<linearGradient id="step5Grad" x1="0%" y1="0%" x2="100%" y2="100%">
+  <stop offset="0%" style="stop-color:#2a1a3a"/>
+  <stop offset="100%" style="stop-color:#180d26"/>
+</linearGradient>
+<linearGradient id="step6Grad" x1="0%" y1="0%" x2="100%" y2="100%">
+  <stop offset="0%" style="stop-color:#1a2e3a"/>
+  <stop offset="100%" style="stop-color:#0d1e26"/>
+</linearGradient>
+<linearGradient id="uiGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+  <stop offset="0%" style="stop-color:#1e1e3a"/>
+  <stop offset="100%" style="stop-color:#12122a"/>
+</linearGradient>
+
+<!-- Glow filters -->
+<filter id="glowBlue" x="-20%" y="-20%" width="140%" height="140%">
+  <feGaussianBlur stdDeviation="3" result="blur"/>
+  <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+</filter>
+<filter id="glowGreen">
+  <feGaussianBlur stdDeviation="2" result="blur"/>
+  <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+</filter>
+<filter id="softShadow">
+  <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000" flood-opacity="0.4"/>
+</filter>
+
+<!-- Arrow marker -->
+<marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+  <path d="M0,0 L0,6 L8,3 z" fill="#334466"/>
+</marker>
+<marker id="arrowBlue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+  <path d="M0,0 L0,6 L8,3 z" fill="#4a90d9"/>
+</marker>
+<marker id="arrowGreen" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+  <path d="M0,0 L0,6 L8,3 z" fill="#4CAF50"/>
+</marker>
+<marker id="arrowRed" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+  <path d="M0,0 L0,6 L8,3 z" fill="#e05555"/>
+</marker>
+```
+
+  </defs>
+
+  <!-- Background -->
+
+  <rect width="1100" height="820" fill="url(#bgGrad)"/>
+
+  <!-- Subtle grid -->
+
+  <g opacity="0.04" stroke="#ffffff" stroke-width="0.5">
+    <line x1="0" y1="100" x2="1100" y2="100"/>
+    <line x1="0" y1="200" x2="1100" y2="200"/>
+    <line x1="0" y1="300" x2="1100" y2="300"/>
+    <line x1="0" y1="400" x2="1100" y2="400"/>
+    <line x1="0" y1="500" x2="1100" y2="500"/>
+    <line x1="0" y1="600" x2="1100" y2="600"/>
+    <line x1="0" y1="700" x2="1100" y2="700"/>
+    <line x1="100" y1="0" x2="100" y2="820"/>
+    <line x1="200" y1="0" x2="200" y2="820"/>
+    <line x1="300" y1="0" x2="300" y2="820"/>
+    <line x1="400" y1="0" x2="400" y2="820"/>
+    <line x1="500" y1="0" x2="500" y2="820"/>
+    <line x1="600" y1="0" x2="600" y2="820"/>
+    <line x1="700" y1="0" x2="700" y2="820"/>
+    <line x1="800" y1="0" x2="800" y2="820"/>
+    <line x1="900" y1="0" x2="900" y2="820"/>
+    <line x1="1000" y1="0" x2="1000" y2="820"/>
+  </g>
+
+  <!-- Title -->
+
+<text x="550" y="38" text-anchor="middle" font-size="22" font-weight="700" fill="#ffffff" letter-spacing="3" font-family="'Segoe UI', sans-serif">POOL FINDER</text>
+<text x="550" y="56" text-anchor="middle" font-size="11" fill="#4a90d9" letter-spacing="6" font-family="'Segoe UI', sans-serif">ARCHITECTURE · GEOTAB FLEET OPTIMIZER</text>
+<line x1="200" y1="64" x2="900" y2="64" stroke="#1e3a5f" stroke-width="1"/>
+
+  <!-- ═══════════════════════════════════ -->
+
+  <!-- ROW 1: API SOURCE -->
+
+  <!-- ═══════════════════════════════════ -->
+
+  <!-- Geotab API Box -->
+
+  <g filter="url(#softShadow)">
+    <rect x="350" y="78" width="400" height="64" rx="8" fill="url(#apiGrad)" stroke="#4a90d9" stroke-width="1.5"/>
+  </g>
+  <text x="440" y="100" font-size="10" fill="#4a90d9" font-weight="700" letter-spacing="2" font-family="'Segoe UI', sans-serif">DATA SOURCE</text>
+  <text x="440" y="120" font-size="15" font-weight="700" fill="#ffffff" font-family="'Segoe UI', sans-serif">Geotab MyGeotab API</text>
+  <text x="440" y="136" font-size="10" fill="#8aabcc" font-family="'Segoe UI', sans-serif">Device metadata · Group IDs · Trip history</text>
+  <!-- API Icon -->
+  <circle cx="400" cy="112" r="18" fill="#0d2644" stroke="#4a90d9" stroke-width="1"/>
+  <text x="400" y="117" text-anchor="middle" font-size="14" fill="#4a90d9" font-family="'Segoe UI', sans-serif">⬡</text>
+
+  <!-- Arrow down from API -->
+
+  <line x1="550" y1="142" x2="550" y2="162" stroke="#4a90d9" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+
+  <!-- ═══════════════════════════════════ -->
+
+  <!-- ROW 2: THREE COLUMNS -->
+
+  <!-- ═══════════════════════════════════ -->
+
+  <!-- STEP 1: Vector Builder (LEFT) -->
+
+  <g filter="url(#softShadow)">
+    <rect x="30" y="168" width="310" height="120" rx="8" fill="url(#step1Grad)" stroke="#4CAF50" stroke-width="1.5"/>
+  </g>
+  <rect x="30" y="168" width="4" height="120" rx="2" fill="#4CAF50"/>
+  <text x="55" y="188" font-size="9" fill="#4CAF50" font-weight="700" letter-spacing="2" font-family="'Segoe UI', sans-serif">STEP 1</text>
+  <text x="55" y="206" font-size="13" font-weight="700" fill="#ffffff" font-family="'Segoe UI', sans-serif">2,160-Slot Calendar Vectors</text>
+  <line x1="55" y1="212" x2="326" y2="212" stroke="#1a3a2a" stroke-width="1"/>
+  <text x="55" y="228" font-size="10" fill="#8abca0" font-family="'Segoe UI', sans-serif">90 days × 24 hours = 2,160 binary slots</text>
+  <text x="55" y="244" font-size="10" fill="#8abca0" font-family="'Segoe UI', sans-serif">1 = vehicle in use · 0 = idle</text>
+  <text x="55" y="260" font-size="10" fill="#8abca0" font-family="'Segoe UI', sans-serif">Preserves real calendar position</text>
+  <!-- Mini slot visual -->
+  <g opacity="0.6">
+    <rect x="230" y="228" width="5" height="14" rx="1" fill="#4CAF50" opacity="0.2"/>
+    <rect x="237" y="228" width="5" height="14" rx="1" fill="#4CAF50"/>
+    <rect x="244" y="228" width="5" height="14" rx="1" fill="#4CAF50"/>
+    <rect x="251" y="228" width="5" height="14" rx="1" fill="#4CAF50" opacity="0.2"/>
+    <rect x="258" y="228" width="5" height="14" rx="1" fill="#4CAF50"/>
+    <rect x="265" y="228" width="5" height="14" rx="1" fill="#4CAF50" opacity="0.2"/>
+    <rect x="272" y="228" width="5" height="14" rx="1" fill="#4CAF50"/>
+    <rect x="279" y="228" width="5" height="14" rx="1" fill="#4CAF50" opacity="0.3"/>
+    <rect x="286" y="228" width="5" height="14" rx="1" fill="#4CAF50"/>
+    <rect x="293" y="228" width="5" height="14" rx="1" fill="#4CAF50" opacity="0.2"/>
+    <rect x="300" y="228" width="5" height="14" rx="1" fill="#4CAF50"/>
+    <rect x="307" y="228" width="5" height="14" rx="1" fill="#4CAF50" opacity="0.4"/>
+    <rect x="314" y="228" width="5" height="14" rx="1" fill="#4CAF50" opacity="0.2"/>
+  </g>
+
+  <!-- STEP 2+3: Pair Detection (CENTER) -->
+
+  <g filter="url(#softShadow)">
+    <rect x="390" y="168" width="320" height="120" rx="8" fill="url(#step23Grad)" stroke="#f0a500" stroke-width="1.5"/>
+  </g>
+  <rect x="390" y="168" width="4" height="120" rx="2" fill="#f0a500"/>
+  <text x="414" y="188" font-size="9" fill="#f0a500" font-weight="700" letter-spacing="2" font-family="'Segoe UI', sans-serif">STEPS 2 &amp; 3</text>
+  <text x="414" y="206" font-size="13" font-weight="700" fill="#ffffff" font-family="'Segoe UI', sans-serif">Complementary Pair Detection</text>
+  <line x1="414" y1="212" x2="696" y2="212" stroke="#3a2a0d" stroke-width="1"/>
+  <text x="414" y="228" font-size="10" fill="#ccaa66" font-family="'Segoe UI', sans-serif">Cosine similarity ≤ 0.20 (same type + depot)</text>
+  <text x="414" y="244" font-size="10" fill="#ccaa66" font-family="'Segoe UI', sans-serif">Sum-peak gate: A+B never exceeds 1.0</text>
+  <text x="414" y="260" font-size="10" fill="#ccaa66" font-family="'Segoe UI', sans-serif">→ Complementary pairs added as graph edges</text>
+
+  <!-- CONFIG (RIGHT) -->
+
+  <g filter="url(#softShadow)">
+    <rect x="760" y="168" width="310" height="120" rx="8" fill="url(#apiGrad)" stroke="#4a90d9" stroke-width="1" stroke-dasharray="4,3"/>
+  </g>
+  <rect x="760" y="168" width="4" height="120" rx="2" fill="#4a90d9"/>
+  <text x="784" y="188" font-size="9" fill="#4a90d9" font-weight="700" letter-spacing="2" font-family="'Segoe UI', sans-serif">CONFIGURATION</text>
+  <text x="784" y="206" font-size="13" font-weight="700" fill="#ffffff" font-family="'Segoe UI', sans-serif">Fleet Setup</text>
+  <line x1="784" y1="212" x2="1056" y2="212" stroke="#1e3a5f" stroke-width="1"/>
+  <text x="784" y="228" font-size="10" fill="#8aabcc" font-family="'Segoe UI', sans-serif">Group IDs → Van · Pickup · Backhoe</text>
+  <text x="784" y="244" font-size="10" fill="#8aabcc" font-family="'Segoe UI', sans-serif">Depot North · Depot South</text>
+  <text x="784" y="260" font-size="10" fill="#8aabcc" font-family="'Segoe UI', sans-serif">Capital cost per vehicle type</text>
+
+  <!-- Arrows: API → Step1, API → Step23, API → Config -->
+
+  <path d="M 460 142 L 185 168" stroke="#4a90d9" stroke-width="1.2" fill="none" stroke-dasharray="4,3" marker-end="url(#arrowBlue)"/>
+  <line x1="550" y1="142" x2="550" y2="168" stroke="#4a90d9" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+  <path d="M 640 142 L 915 168" stroke="#4a90d9" stroke-width="1.2" fill="none" stroke-dasharray="4,3" marker-end="url(#arrowBlue)"/>
+
+  <!-- Arrow Step1 → Step23 -->
+
+  <line x1="340" y1="228" x2="388" y2="228" stroke="#4CAF50" stroke-width="1.5" marker-end="url(#arrowGreen)"/>
+
+  <!-- ═══════════════════════════════════ -->
+
+  <!-- ROW 3: BK CLIQUE -->
+
+  <!-- ═══════════════════════════════════ -->
+
+  <!-- Arrow down from Step2/3 -->
+
+  <line x1="550" y1="288" x2="550" y2="316" stroke="#f0a500" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- STEP 4: BK -->
+
+  <g filter="url(#softShadow)">
+    <rect x="160" y="322" width="780" height="130" rx="8" fill="url(#step4Grad)" stroke="#e05555" stroke-width="1.5"/>
+  </g>
+  <rect x="160" y="322" width="780" height="4" rx="2" fill="#e05555"/>
+  <text x="550" y="348" text-anchor="middle" font-size="9" fill="#e05555" font-weight="700" letter-spacing="2" font-family="'Segoe UI', sans-serif">STEP 4</text>
+  <text x="550" y="367" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff" font-family="'Segoe UI', sans-serif">Bron–Kerbosch Maximal Clique Detection</text>
+  <line x1="180" y1="374" x2="920" y2="374" stroke="#3a1a1a" stroke-width="1"/>
+
+  <!-- Three sub-boxes inside BK -->
+
+  <rect x="180" y="382" width="220" height="56" rx="5" fill="#1a0808" stroke="#e05555" stroke-width="0.8" opacity="0.8"/>
+  <text x="290" y="400" text-anchor="middle" font-size="10" fill="#e08888" font-weight="700" font-family="'Segoe UI', sans-serif">R — Confirmed Clique</text>
+  <text x="290" y="416" text-anchor="middle" font-size="9" fill="#aa6666" font-family="'Segoe UI', sans-serif">Vehicles locked into group</text>
+  <text x="290" y="430" text-anchor="middle" font-size="9" fill="#aa6666" font-family="'Segoe UI', sans-serif">All mutually compatible</text>
+
+  <rect x="440" y="382" width="220" height="56" rx="5" fill="#1a0808" stroke="#e05555" stroke-width="0.8" opacity="0.8"/>
+  <text x="550" y="400" text-anchor="middle" font-size="10" fill="#e08888" font-weight="700" font-family="'Segoe UI', sans-serif">P — Candidates</text>
+  <text x="550" y="416" text-anchor="middle" font-size="9" fill="#aa6666" font-family="'Segoe UI', sans-serif">Still compatible with all of R</text>
+  <text x="550" y="430" text-anchor="middle" font-size="9" fill="#aa6666" font-family="'Segoe UI', sans-serif">Pivot prunes search tree</text>
+
+  <rect x="700" y="382" width="220" height="56" rx="5" fill="#1a0808" stroke="#e05555" stroke-width="0.8" opacity="0.8"/>
+  <text x="810" y="400" text-anchor="middle" font-size="10" fill="#e08888" font-weight="700" font-family="'Segoe UI', sans-serif">X — Explored</text>
+  <text x="810" y="416" text-anchor="middle" font-size="9" fill="#aa6666" font-family="'Segoe UI', sans-serif">Already processed</text>
+  <text x="810" y="430" text-anchor="middle" font-size="9" fill="#aa6666" font-family="'Segoe UI', sans-serif">Prevents duplicate cliques</text>
+
+  <!-- Base case label -->
+
+<text x="550" y="445" text-anchor="middle" font-size="9" fill="#cc7777" font-style="italic" font-family="'Segoe UI', sans-serif">When P = ∅ and X = ∅ → maximal clique found · Output: every-member-compatible pool groups</text>
+
+  <!-- ═══════════════════════════════════ -->
+
+  <!-- ROW 4: MERGE + SCORE -->
+
+  <!-- ═══════════════════════════════════ -->
+
+  <!-- Arrow down from BK -->
+
+  <line x1="550" y1="452" x2="550" y2="478" stroke="#e05555" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- STEP 5: Merge (LEFT) -->
+
+  <g filter="url(#softShadow)">
+    <rect x="80" y="484" width="420" height="100" rx="8" fill="url(#step5Grad)" stroke="#9b59b6" stroke-width="1.5"/>
+  </g>
+  <rect x="80" y="484" width="4" height="100" rx="2" fill="#9b59b6"/>
+  <text x="104" y="504" font-size="9" fill="#9b59b6" font-weight="700" letter-spacing="2" font-family="'Segoe UI', sans-serif">STEP 5</text>
+  <text x="104" y="522" font-size="13" font-weight="700" fill="#ffffff" font-family="'Segoe UI', sans-serif">Merge &amp; Deduplicate</text>
+  <line x1="104" y1="528" x2="486" y2="528" stroke="#2a1a3a" stroke-width="1"/>
+  <text x="104" y="544" font-size="10" fill="#bb99dd" font-family="'Segoe UI', sans-serif">Cliques sharing ≥30% members are merged</text>
+  <text x="104" y="560" font-size="10" fill="#bb99dd" font-family="'Segoe UI', sans-serif">Each vehicle → assigned to its largest group</text>
+  <text x="104" y="574" font-size="10" fill="#bb99dd" font-family="'Segoe UI', sans-serif">No vehicle appears in conflicting pools</text>
+
+  <!-- STEP 6: Scoring (RIGHT) -->
+
+  <g filter="url(#softShadow)">
+    <rect x="600" y="484" width="420" height="100" rx="8" fill="url(#step6Grad)" stroke="#00bcd4" stroke-width="1.5"/>
+  </g>
+  <rect x="600" y="484" width="4" height="100" rx="2" fill="#00bcd4"/>
+  <text x="624" y="504" font-size="9" fill="#00bcd4" font-weight="700" letter-spacing="2" font-family="'Segoe UI', sans-serif">STEP 6</text>
+  <text x="624" y="522" font-size="13" font-weight="700" fill="#ffffff" font-family="'Segoe UI', sans-serif">Buffer-Safe Elimination Scoring</text>
+  <line x1="624" y1="528" x2="1006" y2="528" stroke="#1a2e3a" stroke-width="1"/>
+  <text x="624" y="544" font-size="10" fill="#88ccdd" font-family="'Segoe UI', sans-serif">Peak simultaneous demand across 90 days</text>
+  <text x="624" y="560" font-size="10" fill="#88ccdd" font-family="'Segoe UI', sans-serif">Min fleet = ⌈peak⌉ + 1 safety buffer</text>
+  <text x="624" y="576" font-size="10" fill="#88ccdd" font-family="'Segoe UI', sans-serif">Eliminable = group size − min fleet</text>
+
+  <!-- Arrow Step5 → Step6 -->
+
+  <line x1="500" y1="534" x2="598" y2="534" stroke="#9b59b6" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- ═══════════════════════════════════ -->
+
+  <!-- ROW 5: UI OUTPUT -->
+
+  <!-- ═══════════════════════════════════ -->
+
+  <!-- Arrow down from Score -->
+
+  <line x1="550" y1="584" x2="550" y2="610" stroke="#00bcd4" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- UI Box -->
+
+  <g filter="url(#softShadow)">
+    <rect x="80" y="616" width="940" height="110" rx="8" fill="url(#uiGrad)" stroke="#5c6bc0" stroke-width="1.5"/>
+  </g>
+  <rect x="80" y="616" width="940" height="4" rx="2" fill="#5c6bc0"/>
+  <text x="550" y="640" text-anchor="middle" font-size="9" fill="#5c6bc0" font-weight="700" letter-spacing="2" font-family="'Segoe UI', sans-serif">OUTPUT · GEOTAB ADD-IN · SHADOW DOM</text>
+  <text x="550" y="658" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff" font-family="'Segoe UI', sans-serif">Pool Finder UI</text>
+  <line x1="100" y1="664" x2="1000" y2="664" stroke="#1e1e3a" stroke-width="1"/>
+
+  <!-- 4 output chips -->
+
+  <rect x="108" y="672" width="200" height="40" rx="5" fill="#12122a" stroke="#5c6bc0" stroke-width="0.8"/>
+  <text x="208" y="688" text-anchor="middle" font-size="10" fill="#9fa8da" font-weight="700" font-family="'Segoe UI', sans-serif">Pool Recommendations</text>
+  <text x="208" y="704" text-anchor="middle" font-size="9" fill="#6670aa" font-family="'Segoe UI', sans-serif">Ranked by 3-year value</text>
+
+  <rect x="324" y="672" width="200" height="40" rx="5" fill="#12122a" stroke="#5c6bc0" stroke-width="0.8"/>
+  <text x="424" y="688" text-anchor="middle" font-size="10" fill="#9fa8da" font-weight="700" font-family="'Segoe UI', sans-serif">90-Day Demand Chart</text>
+  <text x="424" y="704" text-anchor="middle" font-size="9" fill="#6670aa" font-family="'Segoe UI', sans-serif">Daily peak per group</text>
+
+  <rect x="540" y="672" width="200" height="40" rx="5" fill="#12122a" stroke="#5c6bc0" stroke-width="0.8"/>
+  <text x="640" y="688" text-anchor="middle" font-size="10" fill="#9fa8da" font-weight="700" font-family="'Segoe UI', sans-serif">Utilization Heatmaps</text>
+  <text x="640" y="704" text-anchor="middle" font-size="9" fill="#6670aa" font-family="'Segoe UI', sans-serif">Weekly 4h blocks per vehicle</text>
+
+  <rect x="756" y="672" width="200" height="40" rx="5" fill="#12122a" stroke="#5c6bc0" stroke-width="0.8"/>
+  <text x="856" y="688" text-anchor="middle" font-size="10" fill="#9fa8da" font-weight="700" font-family="'Segoe UI', sans-serif">Pair Compatibility Matrix</text>
+  <text x="856" y="704" text-anchor="middle" font-size="9" fill="#6670aa" font-family="'Segoe UI', sans-serif">All passing pairs listed</text>
+
+  <!-- Savings callout -->
+
+  <rect x="108" y="730" width="848" height="26" rx="4" fill="#0d1020" stroke="#2a2a5a" stroke-width="1"/>
+  <text x="532" y="747" text-anchor="middle" font-size="10" fill="#5c6bc0" font-family="'Segoe UI', sans-serif">💰  $8–12k/vehicle/yr operating savings  ·  Type-specific capital savings  ·  3-year total value per pool group</text>
+
+  <!-- Footer -->
+
+<text x="550" y="796" text-anchor="middle" font-size="9" fill="#2a3a5a" letter-spacing="2" font-family="'Segoe UI', sans-serif">POOL FINDER · GEOTAB HACKATHON 2026 · VANILLA JS · SHADOW DOM · BRON–KERBOSCH · COSINE SIMILARITY · 2,160-SLOT CALENDAR VECTORS</text>
+
+</svg>
